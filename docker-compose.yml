@@ -1,0 +1,10 @@
+services:
+  campusbite-front:
+    build: .
+    image: campusbite-front:latest
+    container_name: campusbite-front
+    env_file:
+      - .env
+    ports:
+      - "${FRONT_PORT:-8080}:8080"
+    restart: unless-stopped

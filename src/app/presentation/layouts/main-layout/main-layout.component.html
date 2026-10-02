@@ -1,0 +1,20 @@
+<header class="topbar">
+  <a routerLink="/" class="brand">CampusBite</a>
+
+  <nav class="nav">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+      >Inicio</a
+    >
+    <a routerLink="/productos" routerLinkActive="active">Menú</a>
+  </nav>
+
+  @if (auth.isAuthenticated()) {
+    <button type="button" class="btn btn-ghost" (click)="logout()">Salir</button>
+  } @else {
+    <a routerLink="/auth/login" class="btn">Entrar</a>
+  }
+</header>
+
+<main class="content">
+  <router-outlet />
+</main>
