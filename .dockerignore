@@ -1,0 +1,15 @@
+node_modules
+dist
+.angular
+coverage
+.git
+.vscode
+.idea
+.env
+.env.*
+!.env.example
+public/config/runtime-config.json
+*.log
+Dockerfile
+docker-compose.yml
+README.md

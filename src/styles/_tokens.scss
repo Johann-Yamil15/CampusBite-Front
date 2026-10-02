@@ -1,0 +1,26 @@
+// Design tokens globales (CSS custom properties) — claro / oscuro.
+:root {
+  color-scheme: light dark;
+
+  --cb-primary: #e4572e;
+  --cb-primary-contrast: #ffffff;
+  --cb-bg: #f7f7f8;
+  --cb-surface: #ffffff;
+  --cb-text: #1b1b1f;
+  --cb-text-muted: #5f6068;
+  --cb-border: #e3e3e8;
+  --cb-danger: #c62828;
+  --cb-radius: 10px;
+  --cb-font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --cb-bg: #121214;
+    --cb-surface: #1c1c20;
+    --cb-text: #ececf1;
+    --cb-text-muted: #a0a0ab;
+    --cb-border: #2c2c33;
+    --cb-danger: #ef5350;
+  }
+}

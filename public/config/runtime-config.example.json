@@ -1,0 +1,4 @@
+{
+  "apiUrl": "https://api.campusbite.example.com/api",
+  "logLevel": "error"
+}
