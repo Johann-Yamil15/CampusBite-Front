@@ -1,0 +1,64 @@
+# JJ-Sprint1 02/10/2026: pipeline CI/CD que compila Angular y despliega a Azure App Service al hacer push a main
+name: 🚀 Deploy Frontend → Azure
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: "campusbite-front"
+  NODE_VERSION: "22.x"
+  BUILD_FOLDER: "dist/campusbite-front/browser"
+
+jobs:
+  build:
+    name: 🔨 Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - run: npm ci
+      - run: npm run build -- --configuration production
+
+      # JJ-Sprint1 02/10/2026: genera runtime-config.json con la URL del API (variable de repo API_URL)
+      - name: ⚙️ Runtime config
+        env:
+          API_URL: ${{ vars.API_URL }}
+        run: |
+          if [ -z "$API_URL" ]; then
+            echo "::warning::Variable API_URL no definida; el front usará /api por defecto"
+            exit 0
+          fi
+          mkdir -p "$BUILD_FOLDER/config"
+          printf '{ "apiUrl": "%s", "logLevel": "error" }\n' "$API_URL" > "$BUILD_FOLDER/config/runtime-config.json"
+          cat "$BUILD_FOLDER/config/runtime-config.json"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: ${{ env.BUILD_FOLDER }}
+
+  deploy:
+    name: ☁️ Deploy a Azure
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: ${{ env.BUILD_FOLDER }}
+
+      - name: 🚀 Deploy a Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ${{ env.BUILD_FOLDER }}
