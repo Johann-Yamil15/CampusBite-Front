@@ -1,16 +1,35 @@
-import { Session, User } from '@domain/models/user.model';
-import { LoginResponseDto, UserDto } from '@data/dtos/auth.dto';
+import { Credentials, RegisterData, Session, User } from '@domain/models/user.model';
+import {
+  AuthResponseDto,
+  LoginRequestDto,
+  MeResponseDto,
+  RegistroRequestDto,
+} from '@data/dtos/auth.dto';
 
 export const AuthMapper = {
-  toUser(dto: UserDto): User {
-    return { id: dto.id, name: dto.nombre, email: dto.email, roles: dto.roles ?? [] };
+  toUser(dto: MeResponseDto): User {
+    return { id: dto.id, email: dto.correo, role: dto.rol };
   },
 
-  toSession(dto: LoginResponseDto): Session {
+  toSession(dto: AuthResponseDto): Session {
     return {
-      user: AuthMapper.toUser(dto.usuario),
+      user: { id: dto.usuarioId, email: dto.correo, role: dto.rol },
       accessToken: dto.token,
-      expiresAt: new Date(dto.expiration),
+      expiresAt: new Date(dto.expiraEn),
+    };
+  },
+
+  toLoginRequest(credentials: Credentials): LoginRequestDto {
+    return { correo: credentials.email, password: credentials.password };
+  },
+
+  toRegistroRequest(data: RegisterData): RegistroRequestDto {
+    return {
+      nombre: data.name,
+      correo: data.email,
+      password: data.password,
+      matricula: data.studentId || null,
+      telefono: data.phone || null,
     };
   },
 };
