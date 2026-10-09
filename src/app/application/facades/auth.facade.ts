@@ -2,7 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { TokenStorageService } from '@core/services/token-storage.service';
 import { AuthRepository } from '@domain/repositories/auth.repository';
-import { Credentials, Session, User } from '@domain/models/user.model';
+import { Credentials, RegisterData, Session, User } from '@domain/models/user.model';
 
 /**
  * "Controlador" de autenticación: orquesta casos de uso y expone estado
@@ -18,12 +18,11 @@ export class AuthFacade {
   readonly isAuthenticated = computed(() => this._user() !== null || this.tokens.get() !== null);
 
   login(credentials: Credentials): Observable<Session> {
-    return this.repo.login(credentials).pipe(
-      tap((session) => {
-        this.tokens.set(session.accessToken);
-        this._user.set(session.user);
-      }),
-    );
+    return this.repo.login(credentials).pipe(tap((session) => this.startSession(session)));
+  }
+
+  registro(data: RegisterData): Observable<Session> {
+    return this.repo.registro(data).pipe(tap((session) => this.startSession(session)));
   }
 
   loadCurrentUser(): Observable<User> {
@@ -33,5 +32,10 @@ export class AuthFacade {
   logout(): void {
     this.tokens.clear();
     this._user.set(null);
+  }
+
+  private startSession(session: Session): void {
+    this.tokens.set(session.accessToken);
+    this._user.set(session.user);
   }
 }
