@@ -1,7 +1,10 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from '@core/guards/auth.guard';
 
-/** Todas las páginas se cargan de forma diferida (lazy) → bundle inicial pequeño. */
+/**
+ * Todas las páginas se cargan de forma diferida (lazy) → bundle inicial pequeño.
+ * Todo lo que cuelga del MainLayout es privado (authGuard); /auth/* es solo para visitantes.
+ */
 export const routes: Routes = [
   {
     path: 'auth',
@@ -22,6 +25,8 @@ export const routes: Routes = [
   },
   {
     path: '',
+    canActivate: [authGuard],
+    canActivateChild: [authGuard],
     loadComponent: () =>
       import('@presentation/layouts/main-layout/main-layout.component').then(
         (m) => m.MainLayoutComponent,
@@ -35,12 +40,12 @@ export const routes: Routes = [
       {
         path: 'productos',
         title: 'Menú · CampusBite',
-        canActivate: [authGuard],
         loadComponent: () =>
           import('@presentation/pages/products/products.page').then((m) => m.ProductsPage),
       },
     ],
   },
+  { path: 'login', pathMatch: 'full', redirectTo: 'auth/login' },
   {
     path: '**',
     title: 'No encontrado · CampusBite',
