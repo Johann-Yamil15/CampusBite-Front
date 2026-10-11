@@ -1,25 +1,152 @@
-<form [formGroup]="form" (ngSubmit)="submit()" class="stack" novalidate>
-  <label class="field">
-    <span>Correo</span>
-    <input type="email" formControlName="email" autocomplete="email" />
-    @if (form.controls.email.touched && form.controls.email.invalid) {
-      <small class="error">Ingresa un correo válido.</small>
-    }
-  </label>
+<!-- FB-Sprint2 10/10/2026: template responsivo con SVGs profesionales -->
+<div class="login-layout">
+  <main class="login-card">
+    
+    <!-- Columna Izquierda: Formulario -->
+    <section class="form-section">
+      <div class="badge-reserva">
+        <svg class="icon-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+        <span>RESERVA SIN FILAS ENTRE CLASES</span>
+      </div>
 
-  <label class="field">
-    <span>Contraseña</span>
-    <input type="password" formControlName="password" autocomplete="current-password" />
-    @if (form.controls.password.touched && form.controls.password.invalid) {
-      <small class="error">Mínimo 6 caracteres.</small>
-    }
-  </label>
+      <h1 class="title">Bienvenido a CampusBite</h1>
+      <p class="subtitle">Ingresa con tus credenciales de la Universidad Tecnológica de Tula-Tepeji.</p>
 
-  @if (error()) {
-    <p class="alert" role="alert">{{ error() }}</p>
-  }
+      <!-- Toggle Estudiante / Personal -->
+      <div class="user-type-toggle">
+        <button type="button" [class.active]="userType() === 'estudiante'" (click)="setUserType('estudiante')">
+          <svg class="icon-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" /></svg>
+          Estudiante / Alumno
+        </button>
+        <button type="button" [class.active]="userType() === 'personal'" (click)="setUserType('personal')">
+          <svg class="icon-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+          Cafetería / Personal
+        </button>
+      </div>
 
-  <button type="submit" class="btn" [disabled]="submitting()">
-    {{ submitting() ? 'Entrando…' : 'Entrar' }}
-  </button>
-</form>
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Input Correo/Matrícula -->
+        <div class="form-group">
+          <label for="correo">MATRÍCULA O CORREO INSTITUCIONAL</label>
+          <div class="input-with-icon">
+            <svg class="icon-left" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
+            <input id="correo" type="text" formControlName="correo" placeholder="202610IDGSM@uttt.edu.mx" />
+          </div>
+          @if (loginForm.controls.correo.touched && loginForm.controls.correo.hasError('required')) {
+            <small class="error-text">Este campo es requerido.</small>
+          }
+        </div>
+
+        <!-- Input Contraseña -->
+        <div class="form-group">
+          <div class="label-row">
+            <label for="password">CONTRASEÑA DE ACCESO</label>
+            <a href="#" class="forgot-link">¿Olvidaste tu contraseña?</a>
+          </div>
+          <div class="input-with-icon">
+            <svg class="icon-left" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+            <input id="password" [type]="isPasswordVisible() ? 'text' : 'password'" formControlName="password" placeholder="••••••••••••" />
+            
+            <!-- Botón mostrar/ocultar contraseña con SVGs -->
+            <button type="button" class="icon-btn right" (click)="togglePasswordVisibility()">
+              @if (isPasswordVisible()) {
+                <!-- Icono Ojo abierto -->
+                <svg class="icon-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+              } @else {
+                <!-- Icono Ojo cerrado -->
+                <svg class="icon-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <div class="checkbox-group">
+          <input type="checkbox" id="mantenerSesion" formControlName="mantenerSesion" />
+          <label for="mantenerSesion">Mantener sesión iniciada en este dispositivo</label>
+        </div>
+
+        @if (authFacade.error()) {
+          <div class="alert-error">{{ authFacade.error() }}</div>
+        }
+
+        <button type="submit" class="btn-primary" [disabled]="authFacade.isLoading()">
+          @if (authFacade.isLoading()) {
+            <span>Ingresando...</span>
+          } @else {
+            <span>Ingresar a CampusBite &rarr;</span>
+          }
+        </button>
+
+        <button type="button" class="btn-secondary">
+          <span class="icon-u">U</span> Continuar con Cuenta UTTT (Portal Institucional)
+        </button>
+
+      </form>
+
+      <div class="register-prompt">
+        <span>¿Eres nuevo en la UTTT?</span>
+        <a routerLink="/register" class="register-link">Registrar nueva cuenta de alumno</a>
+      </div>
+
+      <div class="pwa-alert">
+        <svg class="icon-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+        <p><strong>Caché PWA Habilitado:</strong> Podrás ver tus folios activos incluso con saturación de Wi-Fi en horas pico.</p>
+      </div>
+    </section>
+
+    <!-- Columna Derecha: Panel Informativo (Naranja) -->
+    <section class="info-section">
+      <div class="info-header">
+        <div class="app-logo-small">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg>
+        </div>
+        <div class="version-tag">
+          <strong>VERSIÓN 1.0 • PWA</strong>
+          <span>Buena comida, mejor tiempo</span>
+        </div>
+      </div>
+
+      <h2 class="info-title">No pierdas tus 15 minutos de receso en la fila.</h2>
+      <p class="info-desc">Pide desde el aula, paga en línea o al recoger, y toma tu comida directo en la ventanilla express.</p>
+
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feat-icon">
+             <svg class="icon-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <div class="feat-text">
+            <strong>Ahorro de 15 a 30 minutos</strong>
+            <span>Recoge tu comida con tu folio digital QR al sonar el timbre.</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feat-icon">
+            <svg class="icon-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.906 14.142 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0" /></svg>
+          </div>
+          <div class="feat-text">
+            <strong>Modo Offline Resiliente</strong>
+            <span>Acceso a menús y folios sin importar caídas de señal Wi-Fi.</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feat-icon">
+             <svg class="icon-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+          </div>
+          <div class="feat-text">
+            <strong>Todas las Cafeterías UTTT</strong>
+            <span>Edificio D, Snacks El Lobo, locales puerta 1 y 2 en una sola app.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-footer">
+        <div class="university-data">
+          <strong>Universidad Tecnológica de Tula-Tepeji</strong>
+          <span>IDGSM • 10° Cuatrimestre</span>
+        </div>
+        <span class="badge-white">Campus Conectado</span>
+      </div>
+    </section>
+  </main>
+</div>

@@ -1,45 +1,50 @@
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+// FB-Sprint2 10/10/2026: página standalone de login con diseño a dos columnas, signals y OnPush
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { AuthFacade } from '@application/facades/auth.facade';
-import { ApiError } from '@core/http/api-error';
 
 @Component({
-  selector: 'app-login-page',
-  imports: [ReactiveFormsModule],
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.page.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: './login.page.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginPage {
-  private readonly auth = inject(AuthFacade);
-  private readonly router = inject(Router);
+  // FB-Sprint2 10/10/2026: inyección de dependencias
+  private readonly fb = inject(FormBuilder);
+  protected readonly authFacade = inject(AuthFacade);
 
-  /** Query param ?returnUrl=... (enlazado por withComponentInputBinding). */
-  readonly returnUrl = input<string>('/');
+  // FB-Sprint2 10/10/2026: estados de la interfaz de usuario (UI)
+  protected readonly isPasswordVisible = signal(false);
+  protected readonly userType = signal<'estudiante' | 'personal'>('estudiante');
 
-  protected readonly submitting = signal(false);
-  protected readonly error = signal<string | null>(null);
-
-  protected readonly form = inject(NonNullableFormBuilder).group({
-    email: ['', [Validators.required, Validators.email]],
+  protected readonly loginForm = this.fb.nonNullable.group({
+    correo: ['', [Validators.required]], // Puede ser correo o matrícula según la maqueta
     password: ['', [Validators.required, Validators.minLength(6)]],
+    mantenerSesion: [true]
   });
 
-  protected submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+  protected togglePasswordVisibility(): void {
+    this.isPasswordVisible.update(v => !v);
+  }
+
+  protected setUserType(type: 'estudiante' | 'personal'): void {
+    this.userType.set(type);
+  }
+
+protected onSubmit(): void {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
       return;
     }
 
-    this.submitting.set(true);
-    this.error.set(null);
-
-    this.auth.login(this.form.getRawValue()).subscribe({
-      next: () => void this.router.navigateByUrl(this.returnUrl() || '/'),
-      error: (err: ApiError) => {
-        this.error.set(err.message);
-        this.submitting.set(false);
-      },
-    });
-  }
+    const { correo, password } = this.loginForm.getRawValue();
+    
+    // Mapeamos 'correo' a 'email' (o el nombre que esté en tu interfaz)
+    this.authFacade.login({ email: correo, password });
+  } 
 }

@@ -21,6 +21,11 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'register',
+    loadComponent: () => import('./presentation/pages/register/register.page').then(m => m.RegisterPage),
+    title: 'Registro | CampusBite'
+  },
+  {
     path: '',
     loadComponent: () =>
       import('@presentation/layouts/main-layout/main-layout.component').then(
