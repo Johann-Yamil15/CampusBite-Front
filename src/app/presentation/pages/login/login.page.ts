@@ -1,44 +1,64 @@
-import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+// FB-Sprint2 10/10/2026: página standalone de login con diseño a dos columnas, signals y OnPush
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthFacade } from '@application/facades/auth.facade';
-import { ApiError } from '@core/http/api-error';
 
 @Component({
-  selector: 'app-login-page',
-  imports: [ReactiveFormsModule],
+  selector: 'app-login',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.page.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: './login.page.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginPage {
-  private readonly auth = inject(AuthFacade);
+  // FB-Sprint2 10/10/2026: inyección de dependencias
+  private readonly fb = inject(FormBuilder);
+  protected readonly authFacade = inject(AuthFacade);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-  /** Query param ?returnUrl=... (enlazado por withComponentInputBinding). */
-  readonly returnUrl = input<string>('/');
+  constructor() {
+    this.authFacade.clearError();
+  }
 
-  protected readonly submitting = signal(false);
-  protected readonly error = signal<string | null>(null);
+  // FB-Sprint2 10/10/2026: estados de la interfaz de usuario (UI)
+  protected readonly isPasswordVisible = signal(false);
+  protected readonly userType = signal<'estudiante' | 'personal'>('estudiante');
 
-  protected readonly form = inject(NonNullableFormBuilder).group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+  protected readonly loginForm = this.fb.nonNullable.group({
+    // JJ-Sprint2 11/10/2026: el backend solo acepta correo en el login (LoginRequestDto.Correo)
+    correo: ['', [Validators.required]],
+    password: ['', [Validators.required]],
+    mantenerSesion: [true]
   });
 
-  protected submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+  protected togglePasswordVisibility(): void {
+    this.isPasswordVisible.update(v => !v);
+  }
+
+  protected setUserType(type: 'estudiante' | 'personal'): void {
+    this.userType.set(type);
+  }
+
+protected onSubmit(): void {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
       return;
     }
 
-    this.submitting.set(true);
-    this.error.set(null);
+    const { correo, password } = this.loginForm.getRawValue();
 
-    this.auth.login(this.form.getRawValue()).subscribe({
-      next: () => void this.router.navigateByUrl(this.returnUrl() || '/'),
-      error: (err: ApiError) => {
-        this.error.set(err.message);
-        this.submitting.set(false);
+    // JJ-Sprint2 11/10/2026: inicia sesión y regresa a la ruta que pidió el authGuard (returnUrl)
+    this.authFacade.login({ email: correo.trim(), password }).subscribe({
+      next: () => {
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/';
+        void this.router.navigateByUrl(returnUrl);
+      },
+      error: () => {
+        // El mensaje ya queda en authFacade.error()
       },
     });
   }

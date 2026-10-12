@@ -23,6 +23,14 @@ export const routes: Routes = [
       { path: '', pathMatch: 'full', redirectTo: 'login' },
     ],
   },
+  // JJ-Sprint2 11/10/2026: registro solo para visitantes (guestGuard), igual que el login
+  {
+    path: 'register',
+    canActivate: [guestGuard],
+    title: 'Registro · CampusBite',
+    loadComponent: () =>
+      import('@presentation/pages/register/register.page').then((m) => m.RegisterPage),
+  },
   {
     path: '',
     canActivate: [authGuard],
