@@ -201,7 +201,7 @@
     .app-logo-small {
       background: white; width: 48px; height: 48px; color: #EA580C;
       display: flex; align-items: center; justify-content: center; border-radius: 12px;
-      svg { width: 28px; height: 28px; }
+      img { width: 40px; height: 40px; border-radius: 10px; display: block; } /* JJ-Sprint2 11/10/2026: logo */
     }
     .version-tag { display: flex; flex-direction: column; font-size: 0.8rem; opacity: 0.9; }
   }
@@ -227,7 +227,11 @@
   }
 }
 
+/* JJ-Sprint2 11/10/2026: logo arriba del formulario solo cuando se oculta el panel naranja */
+.brand-logo-mobile { display: none; }
+
 @media (max-width: 992px) {
+  .brand-logo-mobile { display: block; width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 0.5rem; }
   .login-card {
     grid-template-columns: 1fr;
     max-width: 500px;

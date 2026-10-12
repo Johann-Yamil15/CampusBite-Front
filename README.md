@@ -66,6 +66,13 @@ No hay que tocar `app.config.ts` ni archivos de otras features. Las reglas de ES
 
 Alias de importación: `@core/*`, `@shared/*`, `@shell/*`, `@features/*`, `@env/*`.
 
+### Imágenes y logo
+
+- **Imágenes de la app:** `public/assets/images/` → en el código se usan como `src="assets/images/archivo.png"`. Nombres en minúsculas y con guiones (el servidor de Azure distingue mayúsculas). Optimízalas antes de subirlas (ancho máximo ≈ 2× el tamaño en pantalla).
+- **Logo:** `public/assets/images/logo-campusbite.png` (160 px, esquinas transparentes).
+- **Íconos de la PWA:** `public/icons/` (`icon-*.png` normales, `icon-maskable-*.png` para Android y `apple-touch-icon.png` para iOS) y `public/favicon.ico`.
+- **Archivos fuente de diseño** (originales en alta resolución): `branding/`. Esta carpeta **no** se publica.
+
 ## Reglas para desarrollar (léelas tú y dáselas a tu IA)
 
 > 🤖 **Si usas IA (Claude, Copilot, ChatGPT, Cursor…):** pásale este README **y** [CONTRIBUTING.md](CONTRIBUTING.md) como contexto antes de pedirle código, y pídele que siga las reglas de ambos. Revisa lo que genere antes de hacer commit.
