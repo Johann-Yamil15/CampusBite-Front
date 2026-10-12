@@ -1,0 +1,112 @@
+/* FB-Sprint2 10/10/2026: Corrección para forzar pantalla completa y evadir contenedores padre */
+
+:host {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #F3F4F6;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+* { box-sizing: border-box; }
+
+.login-layout {
+  display: flex; justify-content: center; align-items: center;
+  min-height: 100%; padding: 2rem; width: 100%;
+}
+
+.login-card {
+  display: grid; grid-template-columns: 1.1fr 0.9fr;
+  max-width: 1100px; width: 100%; background: #FFFFFF;
+  border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  overflow: hidden; margin: auto;
+}
+
+.icon-sm { width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
+.icon-md { width: 1.5rem; height: 1.5rem; flex-shrink: 0; }
+.icon-left { position: absolute; left: 1.2rem; width: 1.25rem; height: 1.25rem; color: #9CA3AF; }
+
+.form-section {
+  padding: 3rem; display: flex; flex-direction: column;
+  gap: 1.5rem; justify-content: center;
+}
+
+.title { font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 800; margin: 0; color: #111827; }
+.subtitle { color: #6B7280; font-size: 0.95rem; margin-top: -1rem; line-height: 1.4; }
+
+.form-group {
+  display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;
+  label { font-size: 0.75rem; font-weight: 700; color: #374151; }
+  .error-text { color: #DC2626; font-size: 0.8rem; font-weight: 500; }
+}
+
+.input-with-icon {
+  position: relative; display: flex; align-items: center;
+  .icon-btn.right {
+    position: absolute; right: 1rem; background: none; border: none;
+    cursor: pointer; color: #9CA3AF; display: flex; align-items: center; justify-content: center;
+  }
+  input {
+    width: 100%; padding: 0.9rem 1rem 0.9rem 3.2rem;
+    border: 1px solid #D1D5DB; border-radius: 8px; font-size: 0.95rem;
+    background: #FFFFFF; transition: all 0.2s;
+    &:focus { outline: none; border-color: #EA580C; box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.1); }
+  }
+}
+
+.alert-error {
+  background: #FEF2F2; color: #DC2626; padding: 0.75rem;
+  border-radius: 8px; border: 1px solid #FCA5A5; font-size: 0.85rem; font-weight: 500; margin-bottom: 1.5rem;
+}
+
+.btn-primary {
+  width: 100%; padding: 0.9rem; border-radius: 8px; font-weight: 600; font-size: 0.95rem;
+  cursor: pointer; border: none; transition: all 0.2s; margin-bottom: 1rem;
+  display: flex; justify-content: center; align-items: center;
+  background: #EA580C; color: white;
+  &:disabled { opacity: 0.7; cursor: not-allowed; }
+  &:hover:not(:disabled) { background: #C2410C; }
+}
+
+.register-prompt {
+  display: flex; justify-content: space-between; font-size: 0.85rem; color: #6B7280;
+  .register-link { color: #EA580C; font-weight: 600; text-decoration: none; }
+}
+
+.info-section {
+  background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+  padding: 3rem; color: white; display: flex; flex-direction: column; justify-content: space-between;
+  .info-header {
+    display: flex; align-items: center; gap: 1rem;
+    .app-logo-small {
+      background: white; width: 48px; height: 48px; color: #EA580C;
+      display: flex; align-items: center; justify-content: center; border-radius: 12px;
+      svg { width: 28px; height: 28px; }
+    }
+    .version-tag { display: flex; flex-direction: column; font-size: 0.8rem; opacity: 0.9; }
+  }
+  .info-title { font-size: clamp(1.8rem, 2.5vw, 2.2rem); font-weight: 800; line-height: 1.1; margin: 2rem 0 1rem 0; }
+  .info-desc { font-size: 1rem; opacity: 0.9; line-height: 1.5; margin-bottom: 2.5rem; }
+  .info-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.2); padding-top: 1.5rem; margin-top: 2rem;
+    .university-data { display: flex; flex-direction: column; font-size: 0.75rem; opacity: 0.8; }
+    .badge-white { background: white; color: #EA580C; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+  }
+}
+
+@media (max-width: 992px) {
+  .login-card { grid-template-columns: 1fr; max-width: 500px; }
+  .info-section { display: none; }
+}
+
+@media (max-width: 600px) {
+  .login-layout { padding: 0; }
+  .login-card { border-radius: 0; min-height: 100vh; box-shadow: none; }
+  .form-section { padding: 2rem 1.5rem; }
+  .register-prompt { flex-direction: column; align-items: center; gap: 0.5rem; }
+}
