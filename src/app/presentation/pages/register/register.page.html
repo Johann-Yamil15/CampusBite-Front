@@ -35,6 +35,30 @@
           }
         </div>
 
+        <!-- JJ-Sprint2 11/10/2026: matrícula opcional (máx. 20 caracteres) -->
+        <div class="form-group">
+          <label for="matricula">MATRÍCULA <span class="optional">(opcional)</span></label>
+          <div class="input-with-icon">
+            <svg class="icon-left" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" /></svg>
+            <input id="matricula" type="text" formControlName="matricula" placeholder="23300022" maxlength="20" autocomplete="off" />
+          </div>
+          @if (registerForm.controls.matricula.touched && registerForm.controls.matricula.invalid) {
+            <small class="error-text">La matrícula puede tener máximo 20 caracteres.</small>
+          }
+        </div>
+
+        <!-- JJ-Sprint2 11/10/2026: teléfono opcional (10 a 15 dígitos, admite +) -->
+        <div class="form-group">
+          <label for="telefono">TELÉFONO <span class="optional">(opcional)</span></label>
+          <div class="input-with-icon">
+            <svg class="icon-left" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+            <input id="telefono" type="tel" inputmode="tel" formControlName="telefono" placeholder="7731234567" maxlength="15" autocomplete="tel" />
+          </div>
+          @if (registerForm.controls.telefono.touched && registerForm.controls.telefono.invalid) {
+            <small class="error-text">El teléfono debe tener de 10 a 15 dígitos (sin espacios ni guiones).</small>
+          }
+        </div>
+
         <!-- Input Contraseña -->
         <div class="form-group">
           <label for="password">CREAR CONTRASEÑA</label>
@@ -56,6 +80,15 @@
             <small class="error-text">La contraseña puede tener máximo 72 caracteres.</small>
           }
         </div>
+
+        <!-- JJ-Sprint2 11/10/2026: aceptar términos y condiciones es obligatorio para crear la cuenta -->
+        <div class="checkbox-group">
+          <input type="checkbox" id="aceptaTerminos" formControlName="aceptaTerminos" />
+          <label for="aceptaTerminos">He leído y acepto los términos y condiciones</label>
+        </div>
+        @if (registerForm.controls.aceptaTerminos.touched && registerForm.controls.aceptaTerminos.invalid) {
+          <small class="error-text terms-error">Debes aceptar los términos y condiciones para crear tu cuenta.</small>
+        }
 
         @if (authFacade.error()) {
           <div class="alert-error">{{ authFacade.error() }}</div>

@@ -25,10 +25,14 @@ export class RegisterPage {
   protected readonly isPasswordVisible = signal(false);
 
   // JJ-Sprint2 11/10/2026: mismas reglas que RegistroRequestDto del backend (nombre 2-80, correo máx. 120, contraseña 8-72)
+  // JJ-Sprint2 11/10/2026: matrícula (máx. 20) y teléfono (10-15 dígitos o +) opcionales; términos obligatorios al crear cuenta
   protected readonly registerForm = this.fb.nonNullable.group({
     nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
     correo: ['', [Validators.required, Validators.email, Validators.maxLength(120)]],
-    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72)]]
+    matricula: ['', [Validators.maxLength(20)]],
+    telefono: ['', [Validators.pattern(/^[0-9+]{10,15}$/)]],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72)]],
+    aceptaTerminos: [false, [Validators.requiredTrue]],
   });
 
   protected togglePasswordVisibility(): void {
@@ -41,14 +45,22 @@ export class RegisterPage {
       return;
     }
 
-    const { nombre, correo, password } = this.registerForm.getRawValue();
+    const { nombre, correo, matricula, telefono, password } = this.registerForm.getRawValue();
 
     // JJ-Sprint2 11/10/2026: registra al alumno; el backend devuelve el token y la sesión queda iniciada
-    this.authFacade.registro({ name: nombre.trim(), email: correo.trim(), password }).subscribe({
-      next: () => void this.router.navigateByUrl('/'),
-      error: () => {
-        // El mensaje ya queda en authFacade.error()
-      },
-    });
+    this.authFacade
+      .registro({
+        name: nombre.trim(),
+        email: correo.trim(),
+        password,
+        studentId: matricula.trim() || undefined,
+        phone: telefono.trim() || undefined,
+      })
+      .subscribe({
+        next: () => void this.router.navigateByUrl('/'),
+        error: () => {
+          // El mensaje ya queda en authFacade.error()
+        },
+      });
   }
 }
