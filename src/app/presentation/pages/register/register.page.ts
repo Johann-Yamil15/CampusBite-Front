@@ -2,7 +2,7 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthFacade } from '@application/facades/auth.facade';
 
 @Component({
@@ -16,14 +16,23 @@ import { AuthFacade } from '@application/facades/auth.facade';
 export class RegisterPage {
   private readonly fb = inject(FormBuilder);
   protected readonly authFacade = inject(AuthFacade);
+  private readonly router = inject(Router);
+
+  constructor() {
+    this.authFacade.clearError();
+  }
 
   protected readonly isPasswordVisible = signal(false);
 
-  // Formulario alineado con RegistroRequestDto del backend
+  // JJ-Sprint2 11/10/2026: mismas reglas que RegistroRequestDto del backend (nombre 2-80, correo máx. 120, contraseña 8-72)
+  // JJ-Sprint2 11/10/2026: matrícula (máx. 20) y teléfono (10-15 dígitos o +) opcionales; términos obligatorios al crear cuenta
   protected readonly registerForm = this.fb.nonNullable.group({
-    nombre: ['', [Validators.required]],
-    correo: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]]
+    nombre: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
+    correo: ['', [Validators.required, Validators.email, Validators.maxLength(120)]],
+    matricula: ['', [Validators.maxLength(20)]],
+    telefono: ['', [Validators.pattern(/^[0-9+]{10,15}$/)]],
+    password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(72)]],
+    aceptaTerminos: [false, [Validators.requiredTrue]],
   });
 
   protected togglePasswordVisibility(): void {
@@ -36,8 +45,22 @@ export class RegisterPage {
       return;
     }
 
-    const payload = this.registerForm.getRawValue();
-    // FB-Sprint2 10/10/2026: Llamada directa al Facade
-    this.authFacade.register(payload);
+    const { nombre, correo, matricula, telefono, password } = this.registerForm.getRawValue();
+
+    // JJ-Sprint2 11/10/2026: registra al alumno; el backend devuelve el token y la sesión queda iniciada
+    this.authFacade
+      .registro({
+        name: nombre.trim(),
+        email: correo.trim(),
+        password,
+        studentId: matricula.trim() || undefined,
+        phone: telefono.trim() || undefined,
+      })
+      .subscribe({
+        next: () => void this.router.navigateByUrl('/'),
+        error: () => {
+          // El mensaje ya queda en authFacade.error()
+        },
+      });
   }
 }

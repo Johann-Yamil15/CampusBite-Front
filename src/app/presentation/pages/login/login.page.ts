@@ -2,7 +2,7 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthFacade } from '@application/facades/auth.facade';
 
 @Component({
@@ -17,14 +17,21 @@ export class LoginPage {
   // FB-Sprint2 10/10/2026: inyección de dependencias
   private readonly fb = inject(FormBuilder);
   protected readonly authFacade = inject(AuthFacade);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+
+  constructor() {
+    this.authFacade.clearError();
+  }
 
   // FB-Sprint2 10/10/2026: estados de la interfaz de usuario (UI)
   protected readonly isPasswordVisible = signal(false);
   protected readonly userType = signal<'estudiante' | 'personal'>('estudiante');
 
   protected readonly loginForm = this.fb.nonNullable.group({
-    correo: ['', [Validators.required]], // Puede ser correo o matrícula según la maqueta
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    // JJ-Sprint2 11/10/2026: el backend solo acepta correo en el login (LoginRequestDto.Correo)
+    correo: ['', [Validators.required]],
+    password: ['', [Validators.required]],
     mantenerSesion: [true]
   });
 
@@ -43,8 +50,16 @@ protected onSubmit(): void {
     }
 
     const { correo, password } = this.loginForm.getRawValue();
-    
-    // Mapeamos 'correo' a 'email' (o el nombre que esté en tu interfaz)
-    this.authFacade.login({ email: correo, password });
-  } 
+
+    // JJ-Sprint2 11/10/2026: inicia sesión y regresa a la ruta que pidió el authGuard (returnUrl)
+    this.authFacade.login({ email: correo.trim(), password }).subscribe({
+      next: () => {
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') ?? '/';
+        void this.router.navigateByUrl(returnUrl);
+      },
+      error: () => {
+        // El mensaje ya queda en authFacade.error()
+      },
+    });
+  }
 }

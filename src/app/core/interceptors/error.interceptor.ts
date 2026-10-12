@@ -23,7 +23,9 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((err: unknown) => {
       if (!(err instanceof HttpErrorResponse)) return throwError(() => err);
 
-      if (err.status === 401) {
+      // Solo es "sesión expirada" si la petición llevaba token; un 401 del login
+      // (credenciales incorrectas) lo maneja la página sin redirigir.
+      if (err.status === 401 && req.headers.has('Authorization')) {
         tokens.clear();
         void router.navigate(['/auth/login'], { queryParams: { returnUrl: router.url } });
       }

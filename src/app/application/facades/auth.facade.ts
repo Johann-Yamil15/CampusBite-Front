@@ -1,13 +1,25 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, defer, finalize, tap } from 'rxjs';
 import { Router } from '@angular/router';
+import { ApiError } from '@core/http/api-error';
 import { TokenStorageService } from '@core/services/token-storage.service';
+import { isJwtActive } from '@core/utils/jwt.util';
 import { AuthRepository } from '@domain/repositories/auth.repository';
-import { Credentials, Session, User } from '@domain/models/user.model';
+import { Credentials, RegisterData, Session, User } from '@domain/models/user.model';
 
 /**
  * "Controlador" de autenticación: orquesta casos de uso y expone estado
  * reactivo (signals) a las vistas. Las vistas nunca hablan con HTTP directamente.
+ *
+ * Uso desde una página (HU-01A):
+ * ```ts
+ * protected readonly auth = inject(AuthFacade);
+ * this.auth.login({ email, password }).subscribe({
+ *   next: () => this.router.navigateByUrl(returnUrl),
+ *   error: () => {}, // el mensaje ya queda en auth.error()
+ * });
+ * ```
+ * En el template: `auth.isLoading()` para deshabilitar el botón y `auth.error()` para la alerta.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthFacade {
@@ -16,61 +28,101 @@ export class AuthFacade {
   private readonly router = inject(Router);
 
   private readonly _user = signal<User | null>(null);
-  readonly user = this._user.asReadonly();
-  readonly isAuthenticated = computed(() => this._user() !== null || this.tokens.get() !== null);
+
+  /** `true` mientras haya un JWT guardado y no vencido. Reacciona a login/registro/logout. */
+  readonly isAuthenticated = computed(() => isJwtActive(this.tokens.token()));
+
+  /**
+   * Usuario de la sesión actual. Se llena con `login()`, `registro()` o `loadCurrentUser()`;
+   * vale `null` si no hay sesión (p. ej. tras recargar, hasta llamar a `loadCurrentUser()`).
+   */
+  readonly user = computed(() => (this.isAuthenticated() ? this._user() : null));
 
   // FB-Sprint2 10/10/2026: Signals de estado para la vista (UI)
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
 
-  // FB-Sprint2 10/10/2026: Se suscribe internamente y actualiza los signals
-  login(credentials: Credentials): void {
-    this.isLoading.set(true);
-    this.error.set(null);
-
-    this.repo.login(credentials).subscribe({
-      next: (session) => {
-        this.tokens.set(session.accessToken);
-        this._user.set(session.user);
-        this.isLoading.set(false);
-        // Redirigir al usuario después del login exitoso
-        this.router.navigate(['/']); 
-      },
-      error: (err) => {
-        // Muestra el mensaje de error que viene del backend o el interceptor
-        this.error.set(err.message || 'Correo o contraseña incorrectos.');
-        this.isLoading.set(false);
-      }
-    });
-  }
-  // FB-Sprint2 10/10/2026: Envía la petición de registro, actualiza signals y redirige
-  register(data: any): void {
-    this.isLoading.set(true);
-    this.error.set(null);
-
-    // Nota: Usamos (this.repo as any) temporalmente por si el compañero que hizo 
-    // el AuthRepository aún no ha declarado la firma de register().
-    (this.repo as any).register(data).subscribe({
-      next: (session: Session) => {
-        this.tokens.set(session.accessToken);
-        this._user.set(session.user);
-        this.isLoading.set(false);
-        this.router.navigate(['/']); 
-      },
-      error: (err: any) => {
-        this.error.set(err.message || 'El correo ya está registrado o los datos son inválidos.');
-        this.isLoading.set(false);
-      }
-    });
+  /**
+   * Inicia sesión (`POST api/Auth/login`). Si responde OK guarda el token y el usuario.
+   * @param credentials Correo y contraseña.
+   * @returns La sesión creada. Falla con `ApiError` (401 = correo o contraseña incorrectos,
+   *   400 = datos con formato inválido, 0 = sin conexión con el servidor).
+   */
+  login(credentials: Credentials): Observable<Session> {
+    return this.trackSession(this.repo.login(credentials));
   }
 
+  /**
+   * Registra un alumno (`POST api/Auth/registro`) y deja la sesión iniciada con el token devuelto.
+   * Reglas del backend: nombre 2–80, contraseña 8–72, teléfono 10–15 dígitos (opcional),
+   * matrícula máx. 20 (opcional).
+   * @param data Datos del alumno.
+   * @returns La sesión creada. Falla con `ApiError` (409 = correo o matrícula ya registrados,
+   *   400 = datos que no cumplen el formato; ver `errors` para el detalle por campo).
+   */
+  registro(data: RegisterData): Observable<Session> {
+    return this.trackSession(this.repo.registro(data));
+  }
+
+  /**
+   * Consulta el usuario del token actual (`GET api/Auth/me`) y actualiza `user`.
+   * Útil al recargar la página, cuando el token sigue en localStorage pero `user` es `null`.
+   * @returns El usuario. Con 401 el `errorInterceptor` cierra la sesión y manda al login.
+   */
   loadCurrentUser(): Observable<User> {
     return this.repo.me().pipe(tap((user) => this._user.set(user)));
   }
 
+  /**
+   * Cierra la sesión localmente: borra el token de localStorage y el usuario.
+   * No llama al backend (el JWT no se revoca en el servidor).
+   */
   logout(): void {
     this.tokens.clear();
     this._user.set(null);
     this.router.navigate(['/login']);
   }
+
+  /**
+   * Revalida la sesión contra el reloj actual (lo usan los guards en cada navegación).
+   * Si el token ya venció, lo elimina para que todo el estado reactivo se actualice.
+   */
+  hasValidSession(): boolean {
+    const token = this.tokens.token();
+    if (token && !isJwtActive(token)) {
+      this.logout();
+    }
+    return this.isAuthenticated();
+  }
+
+  /** Limpia el mensaje de error (p. ej. al entrar a la pantalla de login o registro). */
+  clearError(): void {
+    this.error.set(null);
+  }
+
+  // JJ-Sprint2 11/10/2026: une HU-01A y HU-01B; actualiza isLoading/error y guarda la sesión al responder
+  private trackSession(request$: Observable<Session>): Observable<Session> {
+    return defer(() => {
+      this.isLoading.set(true);
+      this.error.set(null);
+      return request$.pipe(
+        tap({
+          next: (session) => this.startSession(session),
+          error: (err: ApiError) => this.error.set(firstErrorMessage(err)),
+        }),
+        finalize(() => this.isLoading.set(false)),
+      );
+    });
+  }
+
+  private startSession(session: Session): void {
+    this.tokens.set(session.accessToken);
+    this._user.set(session.user);
+  }
+}
+
+// JJ-Sprint2 11/10/2026: en un 400 muestra el primer mensaje de validación del backend (en español)
+function firstErrorMessage(err: ApiError): string {
+  const firstFieldError = Object.values(err.errors ?? {}).flat()[0];
+  return firstFieldError ?? err.message;
 }
