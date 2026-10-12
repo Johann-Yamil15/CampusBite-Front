@@ -19,7 +19,7 @@ import { AppConfigService } from '@core/config/app-config.service';
 import { authInterceptor } from '@core/interceptors/auth.interceptor';
 import { errorInterceptor } from '@core/interceptors/error.interceptor';
 import { loadingInterceptor } from '@core/interceptors/loading.interceptor';
-import { DATA_PROVIDERS } from '@data/data.providers';
+import { provideAuth } from '@features/auth';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -35,7 +35,8 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([loadingInterceptor, authInterceptor, errorInterceptor]),
     ),
-    ...DATA_PROVIDERS,
+    // Solo features transversales (auth la usan guards y layout). El resto registra sus providers en su <feature>.routes.ts
+    provideAuth(),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',

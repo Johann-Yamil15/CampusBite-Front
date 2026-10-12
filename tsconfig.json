@@ -20,20 +20,14 @@
       "@core/*": [
         "src/app/core/*"
       ],
-      "@domain/*": [
-        "src/app/domain/*"
-      ],
-      "@data/*": [
-        "src/app/data/*"
-      ],
-      "@application/*": [
-        "src/app/application/*"
-      ],
-      "@presentation/*": [
-        "src/app/presentation/*"
-      ],
       "@shared/*": [
         "src/app/shared/*"
+      ],
+      "@shell/*": [
+        "src/app/shell/*"
+      ],
+      "@features/*": [
+        "src/app/features/*"
       ]
     }
   },
