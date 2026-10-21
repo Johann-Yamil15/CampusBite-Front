@@ -184,35 +184,43 @@ input:-webkit-autofill:focus {
 // JJ-Sprint3 21/10/2026: "cáscara" de login/registro (idéntica en las dos páginas, cada una solo agrega
 // lo propio en su .page.scss). Vive aquí porque el presupuesto de tamaño es por componente, no global,
 // y las dos páginas comparten ~90% de este CSS: duplicarlo hacía que register.page.scss pasara el límite.
-// Tarjeta "flotando" sobre un fondo con profundidad (sin foto real: si se agrega una del campus, reemplaza
-// el degradado de .login-layout), degradado + grano + ilustración en el panel derecho, franja de beneficios.
+// Tarjeta "flotando" sobre una foto de cafetería (genérica/stock, no es una foto real de la UTTT — igual
+// que las fotos de producto en home) con un velo cálido en tonos de marca para que el blanco de la tarjeta
+// siga teniendo buen contraste; degradado + grano + ilustración en el panel derecho, franja de beneficios.
 .login-layout {
   min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: var(--cb-space-xl) var(--cb-space-md);
   background:
-    radial-gradient(60% 50% at 12% 15%, rgba(255, 138, 92, 0.35), transparent 70%),
-    radial-gradient(55% 45% at 90% 20%, rgba(255, 107, 53, 0.22), transparent 70%),
-    radial-gradient(70% 60% at 80% 95%, rgba(171, 53, 0, 0.18), transparent 70%),
-    var(--cb-bg);
+    linear-gradient(165deg, rgba(95, 25, 0, 0.75) 0%, rgba(171, 53, 0, 0.45) 45%, rgba(255, 107, 53, 0.35) 100%),
+    radial-gradient(70% 60% at 85% 10%, rgba(255, 138, 92, 0.3), transparent 65%),
+    url('/assets/images/login-bg.jpg') center / cover no-repeat;
 }
 
+// JJ-Sprint3 21/10/2026: solo el formulario es una tarjeta (fondo/sombra/radio); el panel derecho ya no
+// lleva una caja de color encima de la foto — es texto flotando directo sobre el fondo, como el ícono
+// de taza que ya vivía fuera de la tarjeta.
 .login-card {
   position: relative;
   width: min(100%, 1040px);
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
-  background: var(--cb-surface);
-  border-radius: var(--cb-radius-xl);
-  box-shadow: var(--cb-shadow-lg);
-  overflow: hidden;
+  align-items: stretch;
+  column-gap: var(--cb-space-xl);
 }
 
 .icon-sm { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
 .icon-left { position: absolute; left: 1rem; width: 1.15rem; height: 1.15rem; color: var(--cb-primary); opacity: 0.6; }
 
-.form-section { padding: var(--cb-space-xl) var(--cb-space-xl) var(--cb-space-lg); display: flex; flex-direction: column; }
+.form-section {
+  background: var(--cb-surface);
+  border-radius: var(--cb-radius-xl);
+  box-shadow: var(--cb-shadow-lg);
+  padding: var(--cb-space-xl) var(--cb-space-xl) var(--cb-space-lg);
+  display: flex;
+  flex-direction: column;
+}
 
 .brand-lockup {
   display: flex; align-items: center; gap: 0.6rem; margin-bottom: var(--cb-space-lg);
@@ -272,56 +280,18 @@ input:-webkit-autofill:focus {
 
 .info-section {
   position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  background:
-    radial-gradient(130% 100% at 15% -10%, var(--cb-primary-container-light) 0%, transparent 55%),
-    linear-gradient(165deg, var(--cb-primary-container) 0%, var(--cb-primary-container-dark) 100%);
-  color: var(--cb-on-primary-container);
-  padding: var(--cb-space-xl);
+  color: #fff;
+  text-shadow: 0 2px 14px rgba(27, 16, 10, 0.55);
+  padding: var(--cb-space-xl) var(--cb-space-lg) var(--cb-space-xl) clamp(5rem, 18vw, 9.5rem);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.5;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
-    pointer-events: none;
-  }
-
-  .info-accent {
-    position: absolute;
-    top: -20%;
-    right: -25%;
-    width: 75%;
-    height: 65%;
-    background: var(--cb-primary-container-light);
-    opacity: 0.35;
-    clip-path: polygon(30% 0%, 100% 0%, 100% 100%, 0% 45%);
-    pointer-events: none;
-  }
-
-  .info-illustration {
-    position: absolute;
-    bottom: -12%;
-    right: -14%;
-    width: 55%;
-    max-width: 230px;
-    height: auto;
-    color: #fff;
-    opacity: 0.14;
-    pointer-events: none;
-  }
-
   .info-header { position: relative; display: flex; }
   .app-logo-small {
     width: 52px; height: 52px; border-radius: var(--cb-radius);
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 6px 16px -4px rgba(27, 28, 28, 0.25);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 6px 16px -4px rgba(27, 16, 10, 0.45);
     display: flex; align-items: center; justify-content: center;
     img { width: 44px; height: 44px; border-radius: 10px; display: block; }
   }
@@ -330,7 +300,7 @@ input:-webkit-autofill:focus {
 
   .info-title {
     margin: 0; font-size: clamp(1.8rem, 2.8vw, 2.3rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em;
-    span { color: var(--cb-primary-container-light); }
+    span { color: var(--cb-secondary-container); }
   }
 
   .info-benefits {
@@ -341,16 +311,17 @@ input:-webkit-autofill:focus {
 
     .icon-sm {
       flex-shrink: 0; margin-top: 0.1rem; padding: 0.35rem; box-sizing: content-box;
-      background: rgba(255, 255, 255, 0.35); border-radius: var(--cb-radius);
+      background: rgba(255, 255, 255, 0.22); border-radius: var(--cb-radius);
+      backdrop-filter: blur(2px);
     }
 
     strong { display: block; font-size: 0.9rem; font-weight: 700; }
-    span { display: block; font-size: 0.8rem; opacity: 0.85; margin-top: 0.1rem; }
+    span { display: block; font-size: 0.8rem; opacity: 0.9; margin-top: 0.1rem; }
   }
 
   .info-footer {
-    position: relative; font-size: 0.85rem; font-weight: 600; opacity: 0.85;
-    padding-top: var(--cb-space-md); border-top: 1px solid rgba(255, 255, 255, 0.25);
+    position: relative; font-size: 0.85rem; font-weight: 600; opacity: 0.9;
+    padding-top: var(--cb-space-md); border-top: 1px solid rgba(255, 255, 255, 0.35);
   }
 }
 
@@ -361,8 +332,7 @@ input:-webkit-autofill:focus {
 
 @media (max-width: 480px) {
   .login-layout { padding: 0; align-items: flex-start; }
-  .login-card { border-radius: 0; box-shadow: none; min-height: 100dvh; }
-  .form-section { padding: var(--cb-space-lg); }
+  .form-section { border-radius: 0; box-shadow: none; min-height: 100dvh; padding: var(--cb-space-lg); }
 }
 
 @media (prefers-reduced-motion: reduce) {

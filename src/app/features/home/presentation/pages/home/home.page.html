@@ -1,48 +1,125 @@
 <!-- JJ-Sprint3 21/10/2026: cascarón visual (sin lógica de búsqueda/filtros todavía) -->
 <div class="browse">
   <header class="browse-header">
-    <div class="greeting">
-      <p class="eyebrow">Buen provecho 👋</p>
-      <h1>¿Qué se te antoja hoy?</h1>
+    <div class="greeting-row">
+      <div class="greeting">
+        <p class="eyebrow">Buen provecho 👋</p>
+        <h1>¿Qué se te antoja hoy?</h1>
+        <p class="campus-tag">
+          <svg class="icon-xs" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
+          Campus Central · listo en 10-20 min
+        </p>
+      </div>
+      <button type="button" class="icon-btn" aria-label="Notificaciones">
+        <svg class="icon" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" /></svg>
+        <span class="icon-btn-dot" aria-hidden="true"></span>
+      </button>
     </div>
 
-    <div class="search-bar">
-      <svg class="icon" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
-      <input type="search" placeholder="Busca un platillo, bebida o cafetería…" aria-label="Buscar" />
+    <div class="search-row">
+      <div class="search-bar">
+        <svg class="icon" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+        <input type="search" placeholder="Busca un platillo, bebida o cafetería…" aria-label="Buscar" />
+      </div>
+      <button type="button" class="filter-btn" aria-label="Filtros de búsqueda">
+        <svg class="icon" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" /></svg>
+      </button>
     </div>
 
-    <div class="chips" role="group" aria-label="Categorías">
-      @for (categoria of categorias; track categoria; let first = $first) {
-        <button type="button" class="chip" [class.active]="first">{{ categoria }}</button>
+    <div class="stories" role="group" aria-label="Categorías">
+      @for (categoria of categorias; track categoria.nombre; let first = $first) {
+        <button type="button" class="story" [class.active]="first">
+          <span class="story-ring">
+            <span class="story-avatar">
+              @switch (categoria.icono) {
+                @case ('todos') {
+                  <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+                }
+                @case ('comida') {
+                  <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5h18M4.5 10.5v6.75A2.25 2.25 0 006.75 19.5h10.5a2.25 2.25 0 002.25-2.25V10.5M4.5 10.5a3.75 3.75 0 117.5 0m-7.5 0a3.75 3.75 0 117.5 0m0 0a3.75 3.75 0 117.5 0" /></svg>
+                }
+                @case ('tacos') {
+                  <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0115 0c0 .414-.168.79-.46 1.06l-6.38 5.94a1 1 0 01-1.36 0l-6.38-5.94A1.5 1.5 0 014.5 12z" /><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 13.5l2 2.5m3.5-2.5l2 2.5" /></svg>
+                }
+                @case ('bebidas') {
+                  <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M6 3.75h12l-1.2 14.4a2.25 2.25 0 01-2.242 2.1H9.442a2.25 2.25 0 01-2.242-2.1L6 3.75z" /><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h13.5" /></svg>
+                }
+                @case ('postres') {
+                  <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25c1.036 0 1.875.84 1.875 1.875S13.036 6 12 6s-1.875-.84-1.875-1.875S10.964 2.25 12 2.25zM5.25 10.5h13.5l-1.233 8.633A2.25 2.25 0 0115.29 21H8.71a2.25 2.25 0 01-2.227-1.867L5.25 10.5zM5.25 10.5a6.75 6.75 0 0113.5 0" /></svg>
+                }
+                @case ('snacks') {
+                  <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75c-3.728 0-7.5 1.258-7.5 3.75 0 1.63 1.654 2.49 2.927 3.164C6.158 11.26 5.25 12.49 5.25 15c0 3.106 3.246 5.25 6.75 5.25s6.75-2.144 6.75-5.25c0-2.51-.908-3.74-1.927-4.336C17.096 10 18.75 9.13 18.75 7.5c0-2.492-3.772-3.75-6.75-3.75z" /></svg>
+                }
+              }
+            </span>
+          </span>
+          <span class="story-label">{{ categoria.nombre }}</span>
+        </button>
       }
     </div>
   </header>
 
-  <section class="product-grid" aria-label="Productos cercanos">
-    @for (producto of productos; track producto.nombre) {
-      <article class="product-card">
-        <div class="product-photo">
-          <img [src]="producto.foto" [alt]="producto.nombre" loading="lazy" width="480" height="360" />
-          <span class="badge-time">{{ producto.tiempoMin }} min</span>
-        </div>
-        <div class="product-info">
-          <div class="product-top">
-            <h3>{{ producto.nombre }}</h3>
-            <span class="rating">
-              <svg class="icon-xs" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.54 1.118l-3.367-2.447a1 1 0 00-1.175 0l-3.367 2.447c-.784.57-1.838-.196-1.539-1.118l1.286-3.957a1 1 0 00-.363-1.118L2.98 9.384c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.957z" /></svg>
-              {{ producto.calificacion }}
+  <section class="promo" aria-label="Promoción destacada">
+    <article class="promo-card">
+      <img [src]="promo.foto" alt="" loading="lazy" width="900" height="560" />
+      <div class="promo-scrim"></div>
+      <div class="promo-content">
+        <span class="promo-kicker">{{ promo.etiqueta }}</span>
+        <h2>{{ promo.titulo }}</h2>
+        <p>{{ promo.subtitulo }}</p>
+      </div>
+    </article>
+  </section>
+
+  <section class="product-section" aria-label="Productos cercanos">
+    <div class="section-head">
+      <h2>Populares cerca de ti</h2>
+      <button type="button" class="link-btn">Ver todo</button>
+    </div>
+
+    <div class="product-grid">
+      @for (producto of productos; track producto.nombre) {
+        <article class="product-card">
+          <div class="product-photo">
+            <img [src]="producto.foto" [alt]="producto.nombre" loading="lazy" width="480" height="360" />
+            <div class="photo-scrim" aria-hidden="true"></div>
+
+            @if (producto.destacado) {
+              <span class="badge-top">Popular</span>
+            }
+
+            <button type="button" class="save-btn" aria-label="Guardar producto">
+              <svg class="icon-xs" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" /></svg>
+            </button>
+
+            <span class="badge-time">
+              <svg class="icon-xs" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" /><circle cx="12" cy="12" r="9" stroke-linecap="round" stroke-linejoin="round" fill="none" /></svg>
+              {{ producto.tiempoMin }} min
             </span>
           </div>
-          <p class="product-store">{{ producto.negocio }}</p>
-          <div class="product-bottom">
-            <strong class="price">{{ producto.precio | currency: 'MXN' : 'symbol-narrow' }}</strong>
-            <button type="button" class="add-btn" aria-label="Agregar al pedido">
-              <svg class="icon-xs" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-            </button>
+
+          <div class="product-info">
+            <div class="product-top">
+              <h3>{{ producto.nombre }}</h3>
+              <span class="rating">
+                <svg class="icon-xs" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.54 1.118l-3.367-2.447a1 1 0 00-1.175 0l-3.367 2.447c-.784.57-1.838-.196-1.539-1.118l1.286-3.957a1 1 0 00-.363-1.118L2.98 9.384c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.957z" /></svg>
+                {{ producto.calificacion }}
+              </span>
+            </div>
+            <p class="product-store">
+              <img class="store-avatar" [src]="producto.logoNegocio" alt="" loading="lazy" width="32" height="32" />
+              {{ producto.negocio }}
+            </p>
+            <div class="product-bottom">
+              <strong class="price">{{ producto.precio | currency: 'MXN' : 'symbol-narrow' }}</strong>
+              <button type="button" class="add-btn" aria-label="Agregar al pedido">
+                <svg class="icon-xs" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+              </button>
+            </div>
           </div>
-        </div>
-      </article>
-    }
+        </article>
+      }
+    </div>
   </section>
 </div>
 

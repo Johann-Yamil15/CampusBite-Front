@@ -58,7 +58,7 @@
           <label for="correo">{{ accountType() === 'alumno' ? 'Correo institucional' : 'Correo de contacto' }}</label>
           <div class="input-with-icon">
             <svg class="icon-left" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
-            <input id="correo" type="email" formControlName="correo" placeholder="202610IDGSM@uttt.edu.mx" autocomplete="email" />
+            <input id="correo" type="email" formControlName="correo" placeholder="tu.correo@universidad.edu" autocomplete="email" />
           </div>
           @if (registerForm.controls.correo.touched && registerForm.controls.correo.invalid) {
             <small class="error-text">Ingresa un correo válido.</small>
@@ -198,24 +198,8 @@
       </div>
     </section>
 
-    <!-- Columna derecha: degradado + grano + acento diagonal + franja de beneficios (cambia según el modo) -->
+    <!-- Columna derecha: texto flotando sobre la foto de fondo compartida (sin caja de color encima) -->
     <section class="info-section">
-      <span class="info-accent" aria-hidden="true"></span>
-
-      @if (accountType() === 'alumno') {
-        <svg class="info-illustration" aria-hidden="true" viewBox="0 0 220 220" fill="none">
-          <path d="M30 95h110v55a35 35 0 01-35 35H65a35 35 0 01-35-35V95z" stroke="currentColor" stroke-width="7" />
-          <path d="M140 110h20a22 22 0 010 44h-20" stroke="currentColor" stroke-width="7" />
-          <path d="M60 75c-8-10-8-20 4-32M90 75c-8-10-8-20 4-32M120 75c-8-10-8-20 4-32" stroke="currentColor" stroke-width="7" stroke-linecap="round" />
-        </svg>
-      } @else {
-        <svg class="info-illustration" aria-hidden="true" viewBox="0 0 220 220" fill="none">
-          <path d="M25 55h170l-12 55a18 18 0 01-18 14H55a18 18 0 01-18-14L25 55z" stroke="currentColor" stroke-width="7" />
-          <path d="M45 124v55a10 10 0 0010 10h110a10 10 0 0010-10v-55" stroke="currentColor" stroke-width="7" />
-          <path d="M90 155h40v34H90z" stroke="currentColor" stroke-width="7" />
-        </svg>
-      }
-
       <div class="info-header">
         <div class="app-logo-small">
           <img src="assets/images/logo-campusbite.png" alt="" width="44" height="44" />
@@ -232,7 +216,7 @@
             </li>
             <li>
               <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              <div><strong>Acceso institucional</strong><span>Solo para la comunidad UTTT.</span></div>
+              <div><strong>Acceso institucional</strong><span>Solo para tu comunidad universitaria.</span></div>
             </li>
             <li>
               <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
@@ -244,7 +228,7 @@
           <ul class="info-benefits">
             <li>
               <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-              <div><strong>Recibe más pedidos</strong><span>Llega a la comunidad UTTT.</span></div>
+              <div><strong>Recibe más pedidos</strong><span>Llega a tu comunidad universitaria.</span></div>
             </li>
             <li>
               <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -260,7 +244,7 @@
 
       <div class="info-footer">
         <div class="university-data">
-          <strong>Universidad Tecnológica de Tula-Tepeji</strong>
+          <strong>Tu comunidad universitaria</strong>
         </div>
       </div>
     </section>
