@@ -1,0 +1,49 @@
+<!-- JJ-Sprint3 21/10/2026: cascarón visual (sin lógica de búsqueda/filtros todavía) -->
+<div class="browse">
+  <header class="browse-header">
+    <div class="greeting">
+      <p class="eyebrow">Buen provecho 👋</p>
+      <h1>¿Qué se te antoja hoy?</h1>
+    </div>
+
+    <div class="search-bar">
+      <svg class="icon" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+      <input type="search" placeholder="Busca un platillo, bebida o cafetería…" aria-label="Buscar" />
+    </div>
+
+    <div class="chips" role="group" aria-label="Categorías">
+      @for (categoria of categorias; track categoria; let first = $first) {
+        <button type="button" class="chip" [class.active]="first">{{ categoria }}</button>
+      }
+    </div>
+  </header>
+
+  <section class="product-grid" aria-label="Productos cercanos">
+    @for (producto of productos; track producto.nombre) {
+      <article class="product-card">
+        <div class="product-photo">
+          <img [src]="producto.foto" [alt]="producto.nombre" loading="lazy" width="480" height="360" />
+          <span class="badge-time">{{ producto.tiempoMin }} min</span>
+        </div>
+        <div class="product-info">
+          <div class="product-top">
+            <h3>{{ producto.nombre }}</h3>
+            <span class="rating">
+              <svg class="icon-xs" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.957a1 1 0 00.95.69h4.162c.969 0 1.371 1.24.588 1.81l-3.368 2.447a1 1 0 00-.363 1.118l1.287 3.957c.3.922-.755 1.688-1.54 1.118l-3.367-2.447a1 1 0 00-1.175 0l-3.367 2.447c-.784.57-1.838-.196-1.539-1.118l1.286-3.957a1 1 0 00-.363-1.118L2.98 9.384c-.783-.57-.38-1.81.588-1.81h4.163a1 1 0 00.95-.69l1.286-3.957z" /></svg>
+              {{ producto.calificacion }}
+            </span>
+          </div>
+          <p class="product-store">{{ producto.negocio }}</p>
+          <div class="product-bottom">
+            <strong class="price">{{ producto.precio | currency: 'MXN' : 'symbol-narrow' }}</strong>
+            <button type="button" class="add-btn" aria-label="Agregar al pedido">
+              <svg class="icon-xs" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+            </button>
+          </div>
+        </div>
+      </article>
+    }
+  </section>
+</div>
+
+<app-bottom-nav [items]="nav" />

@@ -11,6 +11,17 @@ export const routes: Routes = [
   // Alias cortos que ya usa la app (logout, enlaces de las pantallas)
   { path: 'login', pathMatch: 'full', redirectTo: 'auth/login' },
   { path: 'register', pathMatch: 'full', redirectTo: 'auth/register' },
+  // JJ-Sprint3 21/10/2026: cascarón visual (HU futura les da funcionalidad). Traen su propia navegación
+  // inferior completa, por eso van fuera del MainLayout (que tiene su propia barra superior) y no dentro.
+  { path: '', canActivate: [authGuard], loadChildren: () => import('@features/home/home.routes') },
+  {
+    path: 'negocio',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('@features/cafeterias/presentation/pages/perfil-negocio/perfil-negocio.page').then(
+        (m) => m.PerfilNegocioPage,
+      ),
+  },
   {
     path: '',
     canActivate: [authGuard],
@@ -20,7 +31,6 @@ export const routes: Routes = [
         (m) => m.MainLayoutComponent,
       ),
     children: [
-      { path: '', loadChildren: () => import('@features/home/home.routes') },
       { path: 'productos', loadChildren: () => import('@features/products/products.routes') },
       // JJ-Sprint3 21/10/2026: panel admin dentro del MainLayout (sesión) y solo para AdminSistema
       {
