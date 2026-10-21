@@ -7,6 +7,7 @@ import { isJwtActive, readJwtClaim } from '@core/utils/jwt.util';
 import { AuthRepository } from '@features/auth/domain/repositories/auth.repository';
 import {
   Credentials,
+  RegisterCafeteriaData,
   RegisterData,
   Session,
   USER_ROLES,
@@ -85,6 +86,17 @@ export class AuthFacade {
    */
   registro(data: RegisterData): Observable<Session> {
     return this.trackSession(this.repo.registro(data));
+  }
+
+  /**
+   * JJ-Sprint3 21/10/2026: TEC-11. Autorregistra un negocio (`POST api/Auth/registro-cafeteria`): crea la
+   * cafetería (activa de inmediato) y a su primer encargado, con sesión iniciada como `AdminCafeteria`.
+   * @param data Datos del encargado y de la cafetería.
+   * @returns La sesión creada. Falla con `ApiError` (409 = correo o nombre de cafetería ya registrados,
+   *   400 = datos que no cumplen el formato; ver `errors` para el detalle por campo).
+   */
+  registroCafeteria(data: RegisterCafeteriaData): Observable<Session> {
+    return this.trackSession(this.repo.registroCafeteria(data));
   }
 
   /**

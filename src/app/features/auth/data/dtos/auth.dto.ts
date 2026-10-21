@@ -26,6 +26,30 @@ export interface RegistroRequestDto {
   telefono?: string | null;
 }
 
+/** Enum `MetodoPago` del backend; no acepta números. */
+export type MetodoPagoDto = 'Tarjeta' | 'Transferencia' | 'Efectivo';
+
+/** Body de `POST api/Auth/registro-cafeteria` (TEC-11). Crea el encargado y su cafetería en un solo paso. */
+export interface RegistroCafeteriaRequestDto {
+  /** Requerido (2–80). */
+  nombreEncargado: string;
+  /** Requerido, formato email (máx. 120). */
+  correo: string;
+  /** Requerido (8–72). */
+  password: string;
+  /** Opcional, `^[0-9+]{10,15}$`. */
+  telefono?: string | null;
+  /** Requerido (2–100), único sin distinguir mayúsculas. */
+  nombreCafeteria: string;
+  /** Requerido (máx. 150). */
+  ubicacion: string;
+  esDelCampus: boolean;
+  /** Requerido (máx. 100). */
+  puntoEntrega: string;
+  /** Requerido, al menos uno. */
+  metodosPago: MetodoPagoDto[];
+}
+
 /** Respuesta de `POST api/Auth/login` (200) y `POST api/Auth/registro` (201). */
 export interface AuthResponseDto {
   usuarioId: string;

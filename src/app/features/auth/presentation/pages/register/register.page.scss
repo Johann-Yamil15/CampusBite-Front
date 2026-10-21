@@ -52,6 +52,74 @@
 
 .optional { font-weight: 500; color: var(--cb-ink-muted); }
 
+/* JJ-Sprint3 21/10/2026: selector de tipo de cuenta (botones reales, no divs clicables) */
+.account-toggle {
+  display: flex;
+  gap: 0.4rem;
+  background: var(--cb-canvas);
+  border: 1px solid var(--cb-line-soft);
+  border-radius: var(--cb-radius);
+  padding: 0.3rem;
+  margin-bottom: var(--cb-space-lg);
+
+  button {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    padding: 0.6rem 0.75rem;
+    border: 0;
+    border-radius: calc(var(--cb-radius) - 0.2rem);
+    background: transparent;
+    color: var(--cb-ink-muted);
+    font: inherit;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+
+    &:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--cb-brand-ring); }
+
+    &.active {
+      background: var(--cb-surface);
+      color: var(--cb-primary);
+      box-shadow: var(--cb-shadow-sm);
+    }
+  }
+}
+
+/* Datos del negocio: separados visualmente del resto, no una tarjeta flotante */
+.business-section {
+  border-top: 1px dashed var(--cb-line);
+  padding-top: var(--cb-space-md);
+  margin-bottom: var(--cb-space-sm);
+}
+
+.section-label {
+  margin: 0 0 var(--cb-space-md);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cb-primary);
+}
+
+.pay-group { border: 0; padding: 0; }
+.pay-options { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.pay-option {
+  display: flex; align-items: center; gap: 0.5rem;
+  min-height: 44px; padding: 0 1rem;
+  border: 1px solid var(--cb-line); border-radius: var(--cb-radius-pill);
+  font-size: 0.9rem; color: var(--cb-ink-soft); cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+
+  input { width: 18px; height: 18px; accent-color: var(--cb-primary); cursor: pointer; }
+  &:has(input:checked) { border-color: var(--cb-primary); background: var(--cb-brand-soft); color: var(--cb-ink); }
+  &:has(input:focus-visible) { box-shadow: 0 0 0 3px var(--cb-brand-ring); }
+}
+
 .checkbox-group {
   display: flex; align-items: center; gap: 0.5rem; margin-bottom: var(--cb-space-md);
   label { font-size: 0.85rem; color: var(--cb-ink-soft); font-weight: 500; cursor: pointer; }

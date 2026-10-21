@@ -3,3 +3,8 @@ export { AuthFacade } from './application/auth.facade';
 export { authGuard, guestGuard, roleGuard } from './presentation/guards/auth.guard';
 export { provideAuth } from './auth.providers';
 export type { Session, User, UserRole } from './domain/models/user.model';
+export {
+  REGISTER_PAYMENT_METHODS,
+  type RegisterCafeteriaData,
+  type RegisterPaymentMethod,
+} from './domain/models/user.model';

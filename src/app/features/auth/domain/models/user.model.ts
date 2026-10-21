@@ -30,3 +30,23 @@ export interface Session {
   accessToken: string;
   expiresAt: Date;
 }
+
+// JJ-Sprint3 21/10/2026: TEC-11. Métodos de pago que acepta el backend (enum MetodoPago). Se repite aquí en
+// vez de importar @features/cafeterias: domain es TypeScript puro y no depende de otras features (ver README).
+export const REGISTER_PAYMENT_METHODS = ['Tarjeta', 'Transferencia', 'Efectivo'] as const;
+export type RegisterPaymentMethod = (typeof REGISTER_PAYMENT_METHODS)[number];
+
+/** Datos para autorregistrar un negocio (crea su cafetería y el primer encargado; rol AdminCafeteria). */
+export interface RegisterCafeteriaData {
+  ownerName: string;
+  email: string;
+  password: string;
+  /** Teléfono de 10 a 15 dígitos (opcional). */
+  phone?: string;
+  cafeteriaName: string;
+  location: string;
+  onCampus: boolean;
+  pickupPoint: string;
+  /** Al menos uno. */
+  paymentMethods: RegisterPaymentMethod[];
+}

@@ -1,8 +1,15 @@
-import { Credentials, RegisterData, Session, User } from '@features/auth/domain/models/user.model';
+import {
+  Credentials,
+  RegisterCafeteriaData,
+  RegisterData,
+  Session,
+  User,
+} from '@features/auth/domain/models/user.model';
 import {
   AuthResponseDto,
   LoginRequestDto,
   MeResponseDto,
+  RegistroCafeteriaRequestDto,
   RegistroRequestDto,
 } from '@features/auth/data/dtos/auth.dto';
 
@@ -30,6 +37,21 @@ export const AuthMapper = {
       password: data.password,
       matricula: data.studentId || null,
       telefono: data.phone || null,
+    };
+  },
+
+  // JJ-Sprint3 21/10/2026: TEC-11
+  toRegistroCafeteriaRequest(data: RegisterCafeteriaData): RegistroCafeteriaRequestDto {
+    return {
+      nombreEncargado: data.ownerName,
+      correo: data.email,
+      password: data.password,
+      telefono: data.phone || null,
+      nombreCafeteria: data.cafeteriaName,
+      ubicacion: data.location,
+      esDelCampus: data.onCampus,
+      puntoEntrega: data.pickupPoint,
+      metodosPago: data.paymentMethods,
     };
   },
 };
