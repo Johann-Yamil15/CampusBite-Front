@@ -128,7 +128,7 @@ body {
 .cb-btn--primary {
   background: var(--cb-brand-strong);
   color: #fff;
-  &:hover:not(:disabled) { background: #9a3412; }
+  &:hover:not(:disabled) { background: #8a2b00; }
 }
 
 .cb-btn--secondary {
@@ -141,7 +141,7 @@ body {
 .cb-btn--danger {
   background: var(--cb-danger-strong);
   color: #fff;
-  &:hover:not(:disabled) { background: #b91c1c; }
+  &:hover:not(:disabled) { background: #9f1616; }
 }
 
 .cb-btn--small {

@@ -1,20 +1,18 @@
-// FB-Sprint2 10/10/2026: página standalone de login con diseño a dos columnas, signals y OnPush
+// FB-Sprint2 10/10/2026: página standalone de login con signals y OnPush
+// JJ-Sprint3 21/10/2026: rediseño Campus Quick-Bite; se quita el toggle estudiante/personal (no cambiaba nada: el rol lo decide el backend)
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthFacade } from '@features/auth/application/auth.facade';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginPage {
-  // FB-Sprint2 10/10/2026: inyección de dependencias
   private readonly fb = inject(FormBuilder);
   protected readonly authFacade = inject(AuthFacade);
   private readonly router = inject(Router);
@@ -24,26 +22,19 @@ export class LoginPage {
     this.authFacade.clearError();
   }
 
-  // FB-Sprint2 10/10/2026: estados de la interfaz de usuario (UI)
   protected readonly isPasswordVisible = signal(false);
-  protected readonly userType = signal<'estudiante' | 'personal'>('estudiante');
 
   protected readonly loginForm = this.fb.nonNullable.group({
     // JJ-Sprint2 11/10/2026: el backend solo acepta correo en el login (LoginRequestDto.Correo)
     correo: ['', [Validators.required]],
     password: ['', [Validators.required]],
-    mantenerSesion: [true]
   });
 
   protected togglePasswordVisibility(): void {
-    this.isPasswordVisible.update(v => !v);
+    this.isPasswordVisible.update((v) => !v);
   }
 
-  protected setUserType(type: 'estudiante' | 'personal'): void {
-    this.userType.set(type);
-  }
-
-protected onSubmit(): void {
+  protected onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;

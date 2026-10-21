@@ -1,13 +1,14 @@
-<!-- FB-Sprint2 10/10/2026: template de registro responsivo -->
+<!-- FB-Sprint2 10/10/2026: template de registro responsivo (se conserva la estructura a dos columnas) -->
+<!-- JJ-Sprint3 21/10/2026: paleta Campus Quick-Bite; panel derecho recortado igual que en login -->
 <div class="login-layout">
   <main class="login-card">
-    
+
     <!-- Columna Izquierda: Formulario -->
     <section class="form-section">
       <!-- JJ-Sprint2 11/10/2026: logo visible solo en pantallas chicas (ahí se oculta el panel naranja) -->
-      <img class="brand-logo-mobile" src="assets/images/logo-campusbite.png" alt="CampusBite" width="64" height="64" />
-      <h1 class="title">Crear Cuenta</h1>
-      <p class="subtitle">Únete a CampusBite para pedir sin filas en la UTTT.</p>
+      <img class="brand-logo-mobile" src="assets/images/logo-campusbite.png" alt="CampusBite" width="56" height="56" />
+      <h1 class="title">Crear cuenta</h1>
+      <p class="subtitle">Únete a CampusBite con tu correo institucional.</p>
 
       <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" style="margin-top: 1.5rem;">
         
@@ -93,45 +94,34 @@
         }
 
         @if (authFacade.error()) {
-          <div class="alert-error">{{ authFacade.error() }}</div>
+          <div class="cb-alert-error" role="alert">{{ authFacade.error() }}</div>
         }
 
-        <button type="submit" class="btn-primary" [disabled]="authFacade.isLoading()">
-          @if (authFacade.isLoading()) {
-            <span>Registrando...</span>
-          } @else {
-            <span>Crear cuenta y entrar &rarr;</span>
-          }
+        <button type="submit" class="cb-btn cb-btn--primary cb-btn--block" [disabled]="authFacade.isLoading()">
+          @if (authFacade.isLoading()) { Registrando… } @else { Crear cuenta }
         </button>
       </form>
 
-      <div class="register-prompt" style="margin-top: 1.5rem; justify-content: center;">
+      <div class="register-prompt">
         <span>¿Ya tienes una cuenta?</span>
-        <a routerLink="/auth/login" class="register-link">Inicia sesión aquí</a>
+        <a routerLink="/auth/login" class="register-link">Inicia sesión</a>
       </div>
     </section>
 
-    <!-- Columna Derecha: Panel Informativo (Naranja) -->
+    <!-- Columna derecha: presencia de marca, sin párrafos descriptivos (igual que login) -->
     <section class="info-section">
       <div class="info-header">
-        <!-- JJ-Sprint2 11/10/2026: logo de CampusBite en el panel informativo -->
         <div class="app-logo-small">
           <img src="assets/images/logo-campusbite.png" alt="" width="40" height="40" />
-        </div>
-        <div class="version-tag">
-          <strong>NUEVO USUARIO</strong>
-          <span>Únete a CampusBite</span>
         </div>
       </div>
 
       <h2 class="info-title">Pide tu comida en segundos.</h2>
-      <p class="info-desc">Crea tu cuenta institucional y empieza a disfrutar de tus recesos sin tener que formarte en la cafetería.</p>
 
-      <div class="info-footer" style="margin-top: auto;">
+      <div class="info-footer">
         <div class="university-data">
           <strong>Universidad Tecnológica de Tula-Tepeji</strong>
         </div>
-        <span class="badge-white">Campus Conectado</span>
       </div>
     </section>
   </main>
