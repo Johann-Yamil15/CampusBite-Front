@@ -2,6 +2,9 @@
 /* JJ-Sprint3 21/10/2026: paleta Campus Quick-Bite. El panel usa --cb-primary-container (#FF6B35) con texto
    --cb-on-primary-container (#5f1900): blanco sobre ese naranja da solo 2.84:1 y no pasa WCAG AA; el café
    oscuro da 4.56:1. --cb-primary (#ab3500) es el único tono de marca válido para botones/texto pequeño. */
+/* JJ-Sprint3 21/10/2026: segunda pasada de diseño — el panel plano se sentía genérico; se le da profundidad
+   con un degradado de dos tonos (sigue dentro de 4.56–5.56:1), una textura de grano sutil y una ilustración
+   de línea decorativa (mismo grosor de trazo que el resto de los íconos de la app). */
 :host { display: block; }
 
 .login-layout {
@@ -17,23 +20,23 @@
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   background: var(--cb-surface);
-  border-radius: var(--cb-radius-lg);
-  box-shadow: var(--cb-shadow-md);
+  border-radius: var(--cb-radius-xl);
+  box-shadow: var(--cb-shadow-lg);
   overflow: hidden;
 }
 
 .icon-sm { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
 
-.brand-logo-mobile { display: none; border-radius: var(--cb-radius); }
+.brand-logo-mobile { display: none; border-radius: var(--cb-radius); box-shadow: var(--cb-shadow-sm); }
 
-.form-section { padding: var(--cb-space-xl); display: flex; flex-direction: column; }
+.form-section { padding: var(--cb-space-xl) var(--cb-space-xl) var(--cb-space-lg); display: flex; flex-direction: column; }
 
-.title { margin: 0; font-size: clamp(1.4rem, 2.2vw, 1.75rem); font-weight: 800; letter-spacing: -0.01em; color: var(--cb-ink); }
-.subtitle { color: var(--cb-ink-muted); font-size: 0.95rem; margin: 0.35rem 0 var(--cb-space-lg); }
+.title { margin: 0; font-size: clamp(1.5rem, 2.4vw, 1.85rem); font-weight: 800; letter-spacing: -0.015em; color: var(--cb-ink); }
+.subtitle { color: var(--cb-ink-muted); font-size: 0.95rem; margin: 0.4rem 0 var(--cb-space-xl); }
 
-.form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: var(--cb-space-md); }
+.form-group { display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: var(--cb-space-lg); }
 .label-row { display: flex; align-items: baseline; justify-content: space-between; gap: 0.5rem; }
-label { font-size: 0.85rem; font-weight: 600; color: var(--cb-ink-soft); }
+label { font-size: 0.85rem; font-weight: 700; color: var(--cb-ink-soft); }
 
 .forgot-link { font-size: 0.8rem; font-weight: 600; color: var(--cb-primary); text-decoration: none; }
 .forgot-link:hover { text-decoration: underline; }
@@ -41,58 +44,112 @@ label { font-size: 0.85rem; font-weight: 600; color: var(--cb-ink-soft); }
 .input-with-icon {
   position: relative; display: flex; align-items: center;
 
-  .icon-left { position: absolute; left: 1rem; width: 1.1rem; height: 1.1rem; color: var(--cb-ink-muted); }
+  .icon-left { position: absolute; left: 1rem; width: 1.15rem; height: 1.15rem; color: var(--cb-primary); opacity: 0.6; }
+
   .icon-btn.right {
     position: absolute; right: 0.9rem; background: none; border: none; padding: 0.25rem;
     cursor: pointer; color: var(--cb-ink-muted); display: flex; align-items: center; justify-content: center;
+    border-radius: 999px; transition: background 0.2s, color 0.2s;
+    &:hover { background: var(--cb-canvas); color: var(--cb-ink-soft); }
   }
 
   input {
-    width: 100%; min-height: 44px; padding: 0.8rem 1rem 0.8rem 2.9rem;
-    border: 1px solid var(--cb-line); border-radius: var(--cb-radius); font: inherit; font-size: 1rem;
-    color: var(--cb-ink); background: var(--cb-surface); transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+    min-height: 48px;
+    padding: 0.85rem 1rem 0.85rem 3rem;
+    border: 1.5px solid var(--cb-line-soft);
+    border-radius: var(--cb-radius);
+    font-size: 1rem;
+    font: inherit;
+    color: var(--cb-ink);
+    background: var(--cb-canvas);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 
     &::placeholder { color: #a99a93; }
-    &:focus { outline: none; border-color: var(--cb-primary); box-shadow: 0 0 0 3px var(--cb-brand-ring); }
+    &:hover { border-color: var(--cb-line); }
+    &:focus {
+      outline: none; background: var(--cb-surface);
+      border-color: var(--cb-primary); box-shadow: 0 0 0 4px var(--cb-brand-ring);
+    }
   }
 }
 
 .error-text { color: var(--cb-danger); font-size: 0.8rem; font-weight: 500; }
-.cb-btn--block { width: 100%; margin-top: 0.25rem; }
+
+.cb-btn--block {
+  width: 100%;
+  margin-top: 0.5rem;
+  min-height: 50px;
+  font-size: 1rem;
+  box-shadow: 0 10px 20px -8px rgba(171, 53, 0, 0.45);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.08s;
+  &:active:not(:disabled) { transform: scale(0.98); }
+}
 
 .register-prompt {
-  margin-top: var(--cb-space-lg); display: flex; justify-content: center; gap: 0.35rem;
+  margin-top: var(--cb-space-xl); display: flex; justify-content: center; gap: 0.35rem;
   font-size: 0.9rem; color: var(--cb-ink-muted);
 }
+
 .register-link { color: var(--cb-primary); font-weight: 700; text-decoration: none; }
 .register-link:hover { text-decoration: underline; }
 
-/* Columna derecha: presencia de marca, no un folleto de características */
+/* Columna derecha: degradado con profundidad + textura de grano + ilustración de línea, sin párrafos */
 .info-section {
-  background: var(--cb-primary-container);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(130% 100% at 15% -10%, var(--cb-primary-container-light) 0%, transparent 55%),
+    linear-gradient(165deg, var(--cb-primary-container) 0%, var(--cb-primary-container-dark) 100%);
   color: var(--cb-on-primary-container);
   padding: var(--cb-space-xl);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  // Grano sutil (SVG feTurbulence en línea): le quita planitud al relleno sin pesar como una imagen
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
 }
 
-.info-header { display: flex; }
+.info-illustration {
+  position: absolute;
+  bottom: -12%;
+  right: -14%;
+  width: 60%;
+  max-width: 260px;
+  height: auto;
+  color: #fff;
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.info-header { position: relative; display: flex; }
 .app-logo-small {
-  width: 48px; height: 48px; border-radius: var(--cb-radius);
-  background: rgba(255, 255, 255, 0.55);
+  width: 52px; height: 52px; border-radius: var(--cb-radius);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 6px 16px -4px rgba(27, 28, 28, 0.25);
   display: flex; align-items: center; justify-content: center;
 }
 
 .info-title {
+  position: relative;
   margin: auto 0;
-  font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+  font-size: clamp(1.9rem, 3vw, 2.4rem);
   font-weight: 800;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
 }
 
-.info-footer { font-size: 0.85rem; font-weight: 600; opacity: 0.85; }
+.info-footer { position: relative; font-size: 0.85rem; font-weight: 600; opacity: 0.85; }
 
 @media (max-width: 860px) {
   .login-card { grid-template-columns: 1fr; max-width: 460px; }
@@ -104,4 +161,8 @@ label { font-size: 0.85rem; font-weight: 600; color: var(--cb-ink-soft); }
   .login-layout { padding: 0; align-items: flex-start; }
   .login-card { border-radius: 0; box-shadow: none; min-height: 100dvh; }
   .form-section { padding: var(--cb-space-lg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cb-btn--block { transition: none; }
 }

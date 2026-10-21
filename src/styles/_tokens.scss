@@ -34,6 +34,11 @@
   --cb-primary-contrast: #ffffff;
   --cb-primary-container: #ff6b35; // superficies grandes, iconografía, badges con texto oscuro
   --cb-on-primary-container: #5f1900;
+  // JJ-Sprint3 21/10/2026: variantes SOLO decorativas (degradado/ilustración) del primary-container, para dar
+  // profundidad en vez de un relleno plano. Nunca como fondo de texto: --cb-primary-container-dark da 2.9:1
+  // con --cb-on-primary-container. El degradado en sí se mantiene dentro de 4.56–5.56:1 donde hay texto encima.
+  --cb-primary-container-light: #ff8a5c;
+  --cb-primary-container-dark: #e8561f;
   --cb-brand: #ab3500; // alias de compatibilidad (pantallas ya escritas con --cb-brand-*)
   --cb-brand-strong: #ab3500;
   --cb-brand-light: #ff6b35;
@@ -60,6 +65,7 @@
   // Forma y radio
   --cb-radius: 0.75rem; // rounded-md
   --cb-radius-lg: 1rem;
+  --cb-radius-xl: 1.5rem;
   --cb-radius-pill: 9999px;
 
   // Espaciado

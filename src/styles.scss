@@ -170,3 +170,13 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .cb-btn { transition: none; }
 }
+
+// JJ-Sprint3 21/10/2026: el autofill de Chrome pinta el input de azul claro con su propio fondo,
+// ignorando el nuestro; esto lo fuerza de vuelta a los tokens (mismo truco en todos los inputs de la app).
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--cb-ink);
+  box-shadow: 0 0 0 1000px var(--cb-surface) inset;
+  transition: background-color 9999s ease-in-out 0s;
+}

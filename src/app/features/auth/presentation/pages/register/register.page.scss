@@ -1,6 +1,8 @@
 /* FB-Sprint2 10/10/2026: layout a dos columnas (se conserva) */
 /* JJ-Sprint3 21/10/2026: paleta Campus Quick-Bite vía tokens (antes colores naranja fijos); se quita el
    position:fixed/z-index (no hace falta: el layout ya es independiente del padre con min-height). */
+/* JJ-Sprint3 21/10/2026: segunda pasada de diseño — mismo tratamiento de profundidad que login.page.scss
+   (degradado + grano + ilustración); inputs y botón más generosos, selector de cuenta con más contraste. */
 :host { display: block; }
 
 .login-layout {
@@ -16,22 +18,22 @@
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   background: var(--cb-surface);
-  border-radius: var(--cb-radius-lg);
-  box-shadow: var(--cb-shadow-md);
+  border-radius: var(--cb-radius-xl);
+  box-shadow: var(--cb-shadow-lg);
   overflow: hidden;
 }
 
 .icon-sm { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
-.icon-left { position: absolute; left: 1rem; width: 1.1rem; height: 1.1rem; color: var(--cb-ink-muted); }
+.icon-left { position: absolute; left: 1rem; width: 1.15rem; height: 1.15rem; color: var(--cb-primary); opacity: 0.6; }
 
-.form-section { padding: var(--cb-space-xl); display: flex; flex-direction: column; }
+.form-section { padding: var(--cb-space-xl) var(--cb-space-xl) var(--cb-space-lg); display: flex; flex-direction: column; }
 
-.title { font-size: clamp(1.4rem, 2.2vw, 1.75rem); font-weight: 800; letter-spacing: -0.01em; margin: 0; color: var(--cb-ink); }
-.subtitle { color: var(--cb-ink-muted); font-size: 0.95rem; margin: 0.35rem 0 var(--cb-space-lg); }
+.title { font-size: clamp(1.5rem, 2.4vw, 1.85rem); font-weight: 800; letter-spacing: -0.015em; margin: 0; color: var(--cb-ink); }
+.subtitle { color: var(--cb-ink-muted); font-size: 0.95rem; margin: 0.4rem 0 var(--cb-space-lg); }
 
 .form-group {
-  display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: var(--cb-space-md);
-  label { font-size: 0.85rem; font-weight: 600; color: var(--cb-ink-soft); }
+  display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: var(--cb-space-md);
+  label { font-size: 0.85rem; font-weight: 700; color: var(--cb-ink-soft); }
   .error-text { color: var(--cb-danger); font-size: 0.8rem; font-weight: 500; }
 }
 
@@ -40,19 +42,25 @@
   .icon-btn.right {
     position: absolute; right: 0.9rem; background: none; border: none; padding: 0.25rem;
     cursor: pointer; color: var(--cb-ink-muted); display: flex; align-items: center; justify-content: center;
+    border-radius: 999px; transition: background 0.2s, color 0.2s;
+    &:hover { background: var(--cb-canvas); color: var(--cb-ink-soft); }
   }
   input {
-    width: 100%; min-height: 44px; padding: 0.8rem 1rem 0.8rem 2.9rem;
-    border: 1px solid var(--cb-line); border-radius: var(--cb-radius); font: inherit; font-size: 1rem;
-    color: var(--cb-ink); background: var(--cb-surface); transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%; min-height: 48px; padding: 0.85rem 1rem 0.85rem 3rem;
+    border: 1.5px solid var(--cb-line-soft); border-radius: var(--cb-radius); font: inherit; font-size: 1rem;
+    color: var(--cb-ink); background: var(--cb-canvas); transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
     &::placeholder { color: #a99a93; }
-    &:focus { outline: none; border-color: var(--cb-primary); box-shadow: 0 0 0 3px var(--cb-brand-ring); }
+    &:hover { border-color: var(--cb-line); }
+    &:focus {
+      outline: none; background: var(--cb-surface);
+      border-color: var(--cb-primary); box-shadow: 0 0 0 4px var(--cb-brand-ring);
+    }
   }
 }
 
 .optional { font-weight: 500; color: var(--cb-ink-muted); }
 
-/* JJ-Sprint3 21/10/2026: selector de tipo de cuenta (botones reales, no divs clicables) */
+/* Selector de tipo de cuenta: botones reales, no divs clicables */
 .account-toggle {
   display: flex;
   gap: 0.4rem;
@@ -68,7 +76,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.4rem;
-    min-height: 44px;
+    min-height: 46px;
     padding: 0.6rem 0.75rem;
     border: 0;
     border-radius: calc(var(--cb-radius) - 0.2rem);
@@ -78,14 +86,16 @@
     font-weight: 700;
     font-size: 0.88rem;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.08s;
 
+    &:hover:not(.active) { color: var(--cb-ink-soft); }
     &:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--cb-brand-ring); }
+    &:active { transform: scale(0.98); }
 
     &.active {
-      background: var(--cb-surface);
-      color: var(--cb-primary);
-      box-shadow: var(--cb-shadow-sm);
+      background: var(--cb-primary);
+      color: #fff;
+      box-shadow: 0 6px 16px -6px rgba(171, 53, 0, 0.55);
     }
   }
 }
@@ -128,36 +138,72 @@
 
 .terms-error { display: block; color: var(--cb-danger); font-size: 0.8rem; font-weight: 500; margin: -0.5rem 0 var(--cb-space-md); }
 
-.cb-btn--block { width: 100%; margin-top: 0.25rem; }
+.cb-btn--block {
+  width: 100%;
+  margin-top: 0.5rem;
+  min-height: 50px;
+  font-size: 1rem;
+  box-shadow: 0 10px 20px -8px rgba(171, 53, 0, 0.45);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.08s;
+  &:active:not(:disabled) { transform: scale(0.98); }
+}
 
 .register-prompt {
-  margin-top: var(--cb-space-lg); display: flex; justify-content: center; gap: 0.35rem;
+  margin-top: var(--cb-space-xl); display: flex; justify-content: center; gap: 0.35rem;
   font-size: 0.9rem; color: var(--cb-ink-muted);
   .register-link { color: var(--cb-primary); font-weight: 700; text-decoration: none; }
   .register-link:hover { text-decoration: underline; }
 }
 
-/* Columna derecha: presencia de marca, no un folleto de características */
+/* Columna derecha: degradado con profundidad + textura de grano + ilustración de línea, sin párrafos */
 .info-section {
-  background: var(--cb-primary-container);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(130% 100% at 15% -10%, var(--cb-primary-container-light) 0%, transparent 55%),
+    linear-gradient(165deg, var(--cb-primary-container) 0%, var(--cb-primary-container-dark) 100%);
   color: var(--cb-on-primary-container);
   padding: var(--cb-space-xl);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 
-  .info-header { display: flex; }
-  .app-logo-small {
-    width: 48px; height: 48px; border-radius: var(--cb-radius);
-    background: rgba(255, 255, 255, 0.55);
-    display: flex; align-items: center; justify-content: center;
-    img { width: 40px; height: 40px; border-radius: 10px; display: block; }
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+    pointer-events: none;
   }
-  .info-title { margin: auto 0; font-size: clamp(1.6rem, 2.6vw, 2.1rem); font-weight: 800; line-height: 1.15; letter-spacing: -0.01em; }
-  .info-footer { font-size: 0.85rem; font-weight: 600; opacity: 0.85; }
+
+  .info-illustration {
+    position: absolute;
+    bottom: -12%;
+    right: -14%;
+    width: 60%;
+    max-width: 260px;
+    height: auto;
+    color: #fff;
+    opacity: 0.16;
+    pointer-events: none;
+  }
+
+  .info-header { position: relative; display: flex; }
+  .app-logo-small {
+    width: 52px; height: 52px; border-radius: var(--cb-radius);
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 6px 16px -4px rgba(27, 28, 28, 0.25);
+    display: flex; align-items: center; justify-content: center;
+    img { width: 44px; height: 44px; border-radius: 10px; display: block; }
+  }
+  .info-title { position: relative; margin: auto 0; font-size: clamp(1.8rem, 2.8vw, 2.3rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em; }
+  .info-footer { position: relative; font-size: 0.85rem; font-weight: 600; opacity: 0.85; }
 }
 
-.brand-logo-mobile { display: none; border-radius: var(--cb-radius); }
+.brand-logo-mobile { display: none; border-radius: var(--cb-radius); box-shadow: var(--cb-shadow-sm); }
 
 @media (max-width: 860px) {
   .login-card { grid-template-columns: 1fr; max-width: 460px; }
@@ -169,4 +215,8 @@
   .login-layout { padding: 0; align-items: flex-start; }
   .login-card { border-radius: 0; box-shadow: none; min-height: 100dvh; }
   .form-section { padding: var(--cb-space-lg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-toggle button, .cb-btn--block { transition: none; }
 }
