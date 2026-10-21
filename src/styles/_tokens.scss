@@ -11,6 +11,27 @@
   --cb-border: #e3e3e8;
   --cb-danger: #c62828;
   --cb-radius: 10px;
+
+  // JJ-Sprint3 21/10/2026: paleta de marca tomada de login/registro (naranja + grises), para pantallas nuevas.
+  // --cb-brand-strong (#C2410C) es el naranja accesible para texto/botones sobre blanco (5.2:1, WCAG AA).
+  --cb-brand: #ea580c;
+  --cb-brand-strong: #c2410c;
+  --cb-brand-light: #f97316;
+  --cb-brand-soft: #fff4e5;
+  --cb-brand-ring: rgba(234, 88, 12, 0.25);
+  --cb-brand-gradient: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  --cb-ink: #111827;
+  --cb-ink-soft: #374151;
+  --cb-ink-muted: #6b7280;
+  --cb-line: #d1d5db;
+  --cb-line-soft: #e5e7eb;
+  --cb-canvas: #f9fafb;
+  --cb-danger-strong: #dc2626;
+  --cb-danger-soft: #fef2f2;
+  --cb-danger-line: #fca5a5;
+  --cb-success: #166534;
+  --cb-success-soft: #f0fdf4;
+  --cb-success-line: #bbf7d0;
   --cb-font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 

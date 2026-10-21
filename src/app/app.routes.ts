@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '@features/auth';
+import { authGuard, roleGuard } from '@features/auth';
 
 /**
  * Rutas raíz: solo montan features (cada una define sus rutas en `<feature>.routes.ts`).
@@ -22,18 +22,18 @@ export const routes: Routes = [
     children: [
       { path: '', loadChildren: () => import('@features/home/home.routes') },
       { path: 'productos', loadChildren: () => import('@features/products/products.routes') },
+      // JJ-Sprint3 21/10/2026: panel admin dentro del MainLayout (sesión) y solo para AdminSistema
+      {
+        path: 'admin',
+        canActivate: [roleGuard('AdminSistema')],
+        loadChildren: () => import('@features/admin/admin.routes'),
+      },
     ],
-  },
-  {
-    path: 'admin',
-    loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES)
   },
   {
     path: '**',
     title: 'No encontrado · CampusBite',
     loadComponent: () => import('@shell/not-found/not-found.page').then((m) => m.NotFoundPage),
   },
-  
-  
 ];
 

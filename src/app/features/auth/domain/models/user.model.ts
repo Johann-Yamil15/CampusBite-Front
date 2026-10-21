@@ -1,5 +1,7 @@
 /** Entidad de dominio: independiente de cómo la devuelva el API. */
-export type UserRole = 'Alumno' | 'AdminCafeteria' | 'AdminSistema';
+// JJ-Sprint3 21/10/2026: lista de roles del backend (enum RolUsuario) para validar el claim del token
+export const USER_ROLES = ['Alumno', 'AdminCafeteria', 'AdminSistema'] as const;
+export type UserRole = (typeof USER_ROLES)[number];
 
 export interface User {
   id: string;

@@ -3,9 +3,16 @@ import { Observable, defer, finalize, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { ApiError } from '@core/http/api-error';
 import { TokenStorageService } from '@core/services/token-storage.service';
-import { isJwtActive } from '@core/utils/jwt.util';
+import { isJwtActive, readJwtClaim } from '@core/utils/jwt.util';
 import { AuthRepository } from '@features/auth/domain/repositories/auth.repository';
-import { Credentials, RegisterData, Session, User } from '@features/auth/domain/models/user.model';
+import {
+  Credentials,
+  RegisterData,
+  Session,
+  USER_ROLES,
+  User,
+  UserRole,
+} from '@features/auth/domain/models/user.model';
 
 /**
  * "Controlador" de autenticación: orquesta casos de uso y expone estado
@@ -37,6 +44,22 @@ export class AuthFacade {
    * vale `null` si no hay sesión (p. ej. tras recargar, hasta llamar a `loadCurrentUser()`).
    */
   readonly user = computed(() => (this.isAuthenticated() ? this._user() : null));
+
+  /**
+   * JJ-Sprint3 21/10/2026: rol de la sesión, leído del claim `role` del JWT (sobrevive a recargas).
+   * Solo decide qué mostrar; los permisos reales los valida el backend (403).
+   */
+  readonly role = computed<UserRole | null>(() => {
+    if (!this.isAuthenticated()) return null;
+    const role = readJwtClaim(this.tokens.token(), 'role');
+    return USER_ROLES.find((r) => r === role) ?? null;
+  });
+
+  /** `true` si hay sesión vigente y su rol es alguno de `roles`. */
+  hasRole(...roles: UserRole[]): boolean {
+    const role = this.role();
+    return role !== null && roles.includes(role);
+  }
 
   // FB-Sprint2 10/10/2026: Signals de estado para la vista (UI)
   readonly isLoading = signal(false);
