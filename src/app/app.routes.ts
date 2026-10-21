@@ -25,8 +25,15 @@ export const routes: Routes = [
     ],
   },
   {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES)
+  },
+  {
     path: '**',
     title: 'No encontrado · CampusBite',
     loadComponent: () => import('@shell/not-found/not-found.page').then((m) => m.NotFoundPage),
   },
+  
+  
 ];
+
