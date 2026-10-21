@@ -16,5 +16,7 @@ export abstract class AuthRepository {
   abstract registro(data: RegisterData): Observable<Session>;
   // JJ-Sprint3 21/10/2026: TEC-11. Autorregistro de un negocio (POST auth/registro-cafeteria)
   abstract registroCafeteria(data: RegisterCafeteriaData): Observable<Session>;
+  // JJ-Sprint3 21/10/2026: TEC-12. Completa aunque el correo no exista (el backend no lo revela)
+  abstract restablecerPassword(correo: string, nuevaPassword: string): Observable<void>;
   abstract me(): Observable<User>;
 }

@@ -1,10 +1,14 @@
 <!-- FB-Sprint2 10/10/2026: estructura a dos columnas (se conserva) -->
-<!-- JJ-Sprint3 21/10/2026: paleta Campus Quick-Bite; se quitan solo los textos de más (insignia, lista de
-     características, alerta de caché PWA) y el botón "Continuar con Cuenta UTTT" que no hacía nada -->
+<!-- JJ-Sprint3 21/10/2026: tarjeta "flotando" sobre un fondo con profundidad + lockup de marca + franja
+     de beneficios con ícono (sin SSO falso ni el isotipo oficial de la UTTT: ver nota al usuario) -->
 <div class="login-layout">
   <main class="login-card">
     <section class="form-section">
-      <img class="brand-logo-mobile" src="assets/images/logo-campusbite.png" alt="CampusBite" width="56" height="56" />
+      <!-- Lockup de marca: logo + nombre de CampusBite (nuestra propia identidad, no la de la UTTT) -->
+      <div class="brand-lockup">
+        <img src="assets/images/logo-campusbite.png" alt="" width="40" height="40" />
+        <span class="brand-name">Campus<strong>Bite</strong></span>
+      </div>
 
       <h1 class="title">Inicia sesión</h1>
       <p class="subtitle">Usa tu correo institucional de la UTTT.</p>
@@ -44,7 +48,12 @@
         }
 
         <button type="submit" class="cb-btn cb-btn--primary cb-btn--block" [disabled]="authFacade.isLoading()">
-          @if (authFacade.isLoading()) { Ingresando… } @else { Ingresar }
+          @if (authFacade.isLoading()) {
+            Ingresando…
+          } @else {
+            <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+            Ingresar
+          }
         </button>
       </form>
 
@@ -54,9 +63,9 @@
       </div>
     </section>
 
-    <!-- Columna derecha: presencia de marca, sin párrafos descriptivos -->
-    <!-- JJ-Sprint3 21/10/2026: degradado + textura + ilustración decorativa (aria-hidden) para dar profundidad -->
+    <!-- Columna derecha: degradado + acento diagonal + franja de beneficios (ícono + 2-3 palabras, sin párrafos) -->
     <section class="info-section">
+      <span class="info-accent" aria-hidden="true"></span>
       <svg class="info-illustration" aria-hidden="true" viewBox="0 0 220 220" fill="none">
         <path d="M30 95h110v55a35 35 0 01-35 35H65a35 35 0 01-35-35V95z" stroke="currentColor" stroke-width="7" />
         <path d="M140 110h20a22 22 0 010 44h-20" stroke="currentColor" stroke-width="7" />
@@ -69,7 +78,24 @@
         </div>
       </div>
 
-      <h2 class="info-title">Tu receso,<br />sin filas.</h2>
+      <div class="info-body">
+        <h2 class="info-title">Tu receso,<br /><span>sin filas.</span></h2>
+
+        <ul class="info-benefits">
+          <li>
+            <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            Pago seguro
+          </li>
+          <li>
+            <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            Pedido en tiempo real
+          </li>
+          <li>
+            <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5h16.5a.75.75 0 01.75.75v13.5a.75.75 0 01-.75.75H3.75a.75.75 0 01-.75-.75V5.25a.75.75 0 01.75-.75zM3 9h18" /></svg>
+            Folio con QR
+          </li>
+        </ul>
+      </div>
 
       <div class="info-footer">
         <div class="university-data">

@@ -1,12 +1,16 @@
 <!-- FB-Sprint2 10/10/2026: template de registro responsivo (se conserva la estructura a dos columnas) -->
-<!-- JJ-Sprint3 21/10/2026: paleta Campus Quick-Bite; selector Alumno/Negocio (TEC-11) con botones reales
-     aria-pressed (no divs clicables) y revelado progresivo de los campos de la cafetería -->
+<!-- JJ-Sprint3 21/10/2026: selector Alumno/Negocio (TEC-11) con botones reales aria-pressed; tarjeta
+     "flotando" + lockup de marca + franja de beneficios, mismo tratamiento que login.page.html -->
 <div class="login-layout">
   <main class="login-card">
 
     <!-- Columna Izquierda: Formulario -->
     <section class="form-section">
-      <img class="brand-logo-mobile" src="assets/images/logo-campusbite.png" alt="CampusBite" width="56" height="56" />
+      <div class="brand-lockup">
+        <img src="assets/images/logo-campusbite.png" alt="" width="40" height="40" />
+        <span class="brand-name">Campus<strong>Bite</strong></span>
+      </div>
+
       <h1 class="title">Crear cuenta</h1>
       <p class="subtitle">
         @if (accountType() === 'alumno') { Únete a CampusBite con tu correo institucional. }
@@ -181,10 +185,9 @@
         <button type="submit" class="cb-btn cb-btn--primary cb-btn--block" [disabled]="authFacade.isLoading()">
           @if (authFacade.isLoading()) {
             Creando cuenta…
-          } @else if (accountType() === 'alumno') {
-            Crear cuenta
           } @else {
-            Registrar mi cafetería
+            <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.25"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+            @if (accountType() === 'alumno') { Crear cuenta } @else { Registrar mi cafetería }
           }
         </button>
       </form>
@@ -195,9 +198,10 @@
       </div>
     </section>
 
-    <!-- Columna derecha: presencia de marca, sin párrafos descriptivos (igual que login) -->
-    <!-- JJ-Sprint3 21/10/2026: degradado + textura + ilustración; cambia de ícono según el tipo de cuenta -->
+    <!-- Columna derecha: degradado + grano + acento diagonal + franja de beneficios (cambia según el modo) -->
     <section class="info-section">
+      <span class="info-accent" aria-hidden="true"></span>
+
       @if (accountType() === 'alumno') {
         <svg class="info-illustration" aria-hidden="true" viewBox="0 0 220 220" fill="none">
           <path d="M30 95h110v55a35 35 0 01-35 35H65a35 35 0 01-35-35V95z" stroke="currentColor" stroke-width="7" />
@@ -218,10 +222,41 @@
         </div>
       </div>
 
-      <h2 class="info-title">
-        @if (accountType() === 'alumno') { Pide tu comida<br />en segundos. }
-        @else { Vende en<br />CampusBite hoy. }
-      </h2>
+      <div class="info-body">
+        @if (accountType() === 'alumno') {
+          <h2 class="info-title">Pide tu comida<br /><span>en segundos.</span></h2>
+          <ul class="info-benefits">
+            <li>
+              <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              <div><strong>Pedidos rápidos</strong><span>Haz tu pedido en segundos.</span></div>
+            </li>
+            <li>
+              <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <div><strong>Acceso institucional</strong><span>Solo para la comunidad UTTT.</span></div>
+            </li>
+            <li>
+              <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
+              <div><strong>Más opciones en campus</strong><span>Descubre tu cafetería favorita.</span></div>
+            </li>
+          </ul>
+        } @else {
+          <h2 class="info-title">Vende en<br /><span>CampusBite hoy.</span></h2>
+          <ul class="info-benefits">
+            <li>
+              <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+              <div><strong>Recibe más pedidos</strong><span>Llega a la comunidad UTTT.</span></div>
+            </li>
+            <li>
+              <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <div><strong>Alta inmediata</strong><span>Tu cafetería queda activa al instante.</span></div>
+            </li>
+            <li>
+              <svg class="icon-sm" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              <div><strong>Visible para estudiantes</strong><span>Aparece en el listado de inmediato.</span></div>
+            </li>
+          </ul>
+        }
+      </div>
 
       <div class="info-footer">
         <div class="university-data">

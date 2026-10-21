@@ -11,6 +11,7 @@ import {
   MeResponseDto,
   RegistroCafeteriaRequestDto,
   RegistroRequestDto,
+  RestablecerPasswordRequestDto,
 } from '@features/auth/data/dtos/auth.dto';
 
 export const AuthMapper = {
@@ -53,5 +54,10 @@ export const AuthMapper = {
       puntoEntrega: data.pickupPoint,
       metodosPago: data.paymentMethods,
     };
+  },
+
+  // JJ-Sprint3 21/10/2026: TEC-12
+  toRestablecerPasswordRequest(correo: string, nuevaPassword: string): RestablecerPasswordRequestDto {
+    return { correo, nuevaPassword };
   },
 };

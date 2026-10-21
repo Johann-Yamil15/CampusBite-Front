@@ -35,6 +35,13 @@ export class AuthHttpRepository extends AuthRepository {
       .pipe(map(AuthMapper.toSession));
   }
 
+  // JJ-Sprint3 21/10/2026: TEC-12. El backend responde { mensaje }; a la UI solo le importa que completó
+  restablecerPassword(correo: string, nuevaPassword: string): Observable<void> {
+    return this.api
+      .post<unknown>('auth/restablecer-password', AuthMapper.toRestablecerPasswordRequest(correo, nuevaPassword))
+      .pipe(map(() => undefined));
+  }
+
   me(): Observable<User> {
     return this.api.get<MeResponseDto>('auth/me').pipe(map(AuthMapper.toUser));
   }

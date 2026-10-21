@@ -69,4 +69,12 @@ describe('AuthMapper', () => {
       metodosPago: ['Efectivo'],
     });
   });
+
+  // JJ-Sprint3 21/10/2026: TEC-12
+  it('arma el body de restablecer-password', () => {
+    expect(AuthMapper.toRestablecerPasswordRequest('a@b.mx', 'nuevaSecreta123')).toEqual({
+      correo: 'a@b.mx',
+      nuevaPassword: 'nuevaSecreta123',
+    });
+  });
 });

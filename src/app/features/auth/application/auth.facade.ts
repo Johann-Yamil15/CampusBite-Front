@@ -100,6 +100,22 @@ export class AuthFacade {
   }
 
   /**
+   * JJ-Sprint3 21/10/2026: TEC-12. Recuperación simple (sin código de verificación): completa siempre,
+   * exista o no el correo, para no revelarlo. No toca la sesión actual.
+   * @returns Completa sin valor. Falla con `ApiError` (400 = datos con formato inválido).
+   */
+  restablecerPassword(correo: string, nuevaPassword: string): Observable<void> {
+    return defer(() => {
+      this.isLoading.set(true);
+      this.error.set(null);
+      return this.repo.restablecerPassword(correo, nuevaPassword).pipe(
+        tap({ error: (err: ApiError) => this.error.set(firstErrorMessage(err)) }),
+        finalize(() => this.isLoading.set(false)),
+      );
+    });
+  }
+
+  /**
    * Consulta el usuario del token actual (`GET api/Auth/me`) y actualiza `user`.
    * Útil al recargar la página, cuando el token sigue en localStorage pero `user` es `null`.
    * @returns El usuario. Con 401 el `errorInterceptor` cierra la sesión y manda al login.

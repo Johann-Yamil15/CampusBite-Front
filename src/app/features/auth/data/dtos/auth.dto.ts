@@ -50,6 +50,13 @@ export interface RegistroCafeteriaRequestDto {
   metodosPago: MetodoPagoDto[];
 }
 
+/** Body de `POST api/Auth/restablecer-password` (TEC-12). Responde 200 exista o no el correo. */
+export interface RestablecerPasswordRequestDto {
+  correo: string;
+  /** Requerido (8–72). */
+  nuevaPassword: string;
+}
+
 /** Respuesta de `POST api/Auth/login` (200) y `POST api/Auth/registro` (201). */
 export interface AuthResponseDto {
   usuarioId: string;
