@@ -1,0 +1,52 @@
+<div class="form-container">
+  <h3>Registrar Nueva Cafetería</h3>
+  
+  <form [formGroup]="cafeteriaForm" (ngSubmit)="onSubmit()">
+    <!-- Sección de Logo/Imagen -->
+    <div class="image-upload-section">
+      <div class="image-preview" *ngIf="imagePreview">
+        <img [src]="imagePreview" alt="Vista previa del logo">
+        <button type="button" class="remove-btn" (click)="removeImage()">✕</button>
+      </div>
+      
+      <div class="upload-controls" *ngIf="!imagePreview">
+        <!-- Input real (oculto por CSS) -->
+        <input 
+          type="file" 
+          #fileInput 
+          (change)="onFileSelected($event)" 
+          accept="image/png, image/jpeg, image/jpg" 
+          class="hidden-input">
+        
+        <!-- Botón falso que dispara el input real -->
+        <button type="button" class="upload-btn" (click)="fileInput.click()">
+          📷 Subir Logo o Foto
+        </button>
+        <small>Formatos: JPG, PNG (Max 2MB)</small>
+      </div>
+    </div>
+
+    <!-- Campos de texto -->
+    <div class="form-group">
+      <label>Nombre de la Cafetería:</label>
+      <input type="text" formControlName="nombre" placeholder="Ej. Cafetería Central">
+    </div>
+
+    <div class="form-group">
+      <label>Ubicación (Edificio/Zona):</label>
+      <input type="text" formControlName="ubicacion" placeholder="Ej. Edificio D">
+    </div>
+
+    <div class="form-group">
+      <label>Horario:</label>
+      <input type="text" formControlName="horario" placeholder="Ej. 07:00 - 18:00">
+    </div>
+
+    <div class="form-group">
+      <label>Descripción:</label>
+      <textarea formControlName="descripcion" rows="3" placeholder="Breve descripción..."></textarea>
+    </div>
+
+    <button type="submit" [disabled]="cafeteriaForm.invalid">Guardar Cafetería</button>
+  </form>
+</div>
