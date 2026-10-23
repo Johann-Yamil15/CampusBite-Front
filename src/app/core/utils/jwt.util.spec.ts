@@ -1,4 +1,4 @@
-import { decodeJwtPayload, isJwtActive, readJwtClaim } from './jwt.util';
+import { decodeJwtPayload, isJwtActive } from './jwt.util';
 
 function fakeJwt(payload: object): string {
   const encode = (value: object) =>
@@ -27,14 +27,5 @@ describe('jwt.util', () => {
     expect(isJwtActive(fakeJwt({ exp: inSeconds(-1) }), now)).toBe(false);
     expect(isJwtActive(null, now)).toBe(false);
     expect(isJwtActive('basura', now)).toBe(false);
-  });
-
-  // JJ-Sprint3 21/10/2026: lectura del claim de rol para los guards
-  it('lee un claim de texto y regresa null si no existe o no es texto', () => {
-    const token = fakeJwt({ role: 'AdminSistema', exp: 5 });
-    expect(readJwtClaim(token, 'role')).toBe('AdminSistema');
-    expect(readJwtClaim(token, 'email')).toBeNull();
-    expect(readJwtClaim(token, 'exp')).toBeNull();
-    expect(readJwtClaim(null, 'role')).toBeNull();
   });
 });

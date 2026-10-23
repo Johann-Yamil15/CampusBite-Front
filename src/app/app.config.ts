@@ -20,7 +20,6 @@ import { authInterceptor } from '@core/interceptors/auth.interceptor';
 import { errorInterceptor } from '@core/interceptors/error.interceptor';
 import { loadingInterceptor } from '@core/interceptors/loading.interceptor';
 import { provideAuth } from '@features/auth';
-import { provideCafeterias } from '@features/cafeterias';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -38,8 +37,6 @@ export const appConfig: ApplicationConfig = {
     ),
     // Solo features transversales (auth la usan guards y layout). El resto registra sus providers en su <feature>.routes.ts
     provideAuth(),
-    // CL-Sprint3 20/10/2026: cafeterías las usan el panel del admin y el alumno (elegir cafetería)
-    provideCafeterias(),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
