@@ -1,31 +1,51 @@
-// JJ-Sprint3 21/10/2026: HU-13 (cascarón visual). Pantalla de inicio del alumno: búsqueda, filtros y
-// tarjetas de productos cercanos. Es solo maqueta: los datos son fijos y la búsqueda/filtros no hacen
-// nada todavía (sin backend de productos por cafetería aún); se conectan en la siguiente historia.
-// Las fotos son de Picsum Photos (stock genérico, no son fotos reales de las cafeterías ni los platillos).
+// JJ-Sprint3 22/10/2026: HU-13 (cascarón visual, v2). Réplica del diseño de referencia del alumno:
+// sidebar de navegación + topbar (buscador, cafetería activa, carrito, usuario) + banner + categorías +
+// cafeterías destacadas + menú + panel derecho (mi pedido, promo, favoritas). Es solo maqueta: todos los
+// datos son fijos y ningún botón hace nada todavía (buscar, filtrar, agregar al carrito, guardar favorito);
+// se conectan en las siguientes historias. Las fotos son de Picsum Photos (stock genérico).
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
-import {
-  ALUMNO_NAV,
-  BottomNavComponent,
-} from '@shared/ui/bottom-nav/bottom-nav.component';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
-type CategoriaIcono = 'todos' | 'comida' | 'tacos' | 'bebidas' | 'postres' | 'snacks';
+type NavIcono = 'inicio' | 'explorar' | 'pedidos' | 'favoritos' | 'mensajes' | 'perfil';
 
-interface CategoriaVitrina {
+interface NavItem {
+  icono: NavIcono;
+  etiqueta: string;
+  enlace: string;
+  exacto?: boolean;
+  insignia?: number;
+}
+
+type CategoriaIcono = 'todos' | 'desayunos' | 'bebidas' | 'snacks' | 'comidas' | 'saludable' | 'promos';
+
+interface CategoriaPill {
   nombre: string;
   icono: CategoriaIcono;
 }
 
-interface ProductoVitrina {
+interface CafeteriaDestacada {
   nombre: string;
+  foto: string;
+  destacada?: boolean;
+}
+
+interface ProductoMenu {
+  nombre: string;
+  descripcion: string;
   negocio: string;
   logoNegocio: string;
-  precio: number;
   foto: string;
   calificacion: number;
-  tiempoMin: number;
-  categoria: string;
-  destacado?: boolean;
+  precio: number;
+}
+
+interface ItemCarrito {
+  nombre: string;
+  negocio: string;
+  foto: string;
+  cantidad: number;
+  precio: number;
 }
 
 interface PromoDestacada {
@@ -35,43 +55,97 @@ interface PromoDestacada {
   foto: string;
 }
 
-const CATEGORIAS: CategoriaVitrina[] = [
+interface CafeteriaFavorita {
+  nombre: string;
+  foto: string;
+  calificacion: number;
+  favorita: boolean;
+}
+
+const NAV: NavItem[] = [
+  { icono: 'inicio', etiqueta: 'Inicio', enlace: '/', exacto: true },
+  { icono: 'explorar', etiqueta: 'Explorar', enlace: '/buscar' },
+  { icono: 'pedidos', etiqueta: 'Pedidos', enlace: '/pedidos' },
+  { icono: 'favoritos', etiqueta: 'Favoritos', enlace: '/favoritos' },
+  { icono: 'mensajes', etiqueta: 'Mensajes', enlace: '/mensajes', insignia: 3 },
+  { icono: 'perfil', etiqueta: 'Perfil', enlace: '/perfil' },
+];
+
+const CATEGORIAS: CategoriaPill[] = [
   { nombre: 'Todos', icono: 'todos' },
-  { nombre: 'Comida corrida', icono: 'comida' },
-  { nombre: 'Tacos', icono: 'tacos' },
+  { nombre: 'Desayunos', icono: 'desayunos' },
   { nombre: 'Bebidas', icono: 'bebidas' },
-  { nombre: 'Postres', icono: 'postres' },
   { nombre: 'Snacks', icono: 'snacks' },
+  { nombre: 'Comidas', icono: 'comidas' },
+  { nombre: 'Saludable', icono: 'saludable' },
+  { nombre: 'Promos', icono: 'promos' },
+];
+
+const CAFETERIAS_DESTACADAS: CafeteriaDestacada[] = [
+  { nombre: 'Cafetería Central', foto: 'https://picsum.photos/seed/cb-dest-central/160/160', destacada: true },
+  { nombre: 'La Terraza', foto: 'https://picsum.photos/seed/cb-dest-terraza/160/160' },
+  { nombre: 'Rincón Verde', foto: 'https://picsum.photos/seed/cb-dest-rincon/160/160' },
+  { nombre: 'Sabor Universitario', foto: 'https://picsum.photos/seed/cb-dest-sabor/160/160' },
+  { nombre: 'Café Express', foto: 'https://picsum.photos/seed/cb-dest-express/160/160' },
+  { nombre: 'Snack Point', foto: 'https://picsum.photos/seed/cb-dest-snack/160/160' },
+  { nombre: 'Delis & Más', foto: 'https://picsum.photos/seed/cb-dest-delis/160/160' },
+  { nombre: 'Bowl Saludable', foto: 'https://picsum.photos/seed/cb-dest-bowl/160/160' },
+];
+
+const MENU: ProductoMenu[] = [
+  { nombre: 'Sándwich Clásico de Pollo', descripcion: 'Pan artesanal, pollo, lechuga, jitomate y aderezo de la casa.', negocio: 'Cafetería Central', logoNegocio: 'https://picsum.photos/seed/cb-logo-central/80/80', foto: 'https://picsum.photos/seed/cb-menu-sandwich/480/360', calificacion: 4.8, precio: 55 },
+  { nombre: 'Latte Helado', descripcion: 'Café espresso con leche y hielo. 355 ml.', negocio: 'Café Express', logoNegocio: 'https://picsum.photos/seed/cb-logo-express/80/80', foto: 'https://picsum.photos/seed/cb-menu-latte/480/360', calificacion: 4.7, precio: 38 },
+  { nombre: 'Bowl de Pollo', descripcion: 'Arroz integral, pollo a la plancha, aguacate, vegetales y aderezo.', negocio: 'Rincón Verde', logoNegocio: 'https://picsum.photos/seed/cb-logo-rincon/80/80', foto: 'https://picsum.photos/seed/cb-menu-bowlpollo/480/360', calificacion: 4.9, precio: 72 },
+  { nombre: 'Hamburguesa Clásica', descripcion: 'Carne de res, queso, lechuga, jitomate y papas.', negocio: 'Sabor Universitario', logoNegocio: 'https://picsum.photos/seed/cb-logo-sabor/80/80', foto: 'https://picsum.photos/seed/cb-menu-hamburguesa/480/360', calificacion: 4.6, precio: 79 },
+  { nombre: 'Smoothie de Frutos Rojos', descripcion: 'Fresa, plátano, avena y yogurt.', negocio: 'Bowl Saludable', logoNegocio: 'https://picsum.photos/seed/cb-logo-bowl/80/80', foto: 'https://picsum.photos/seed/cb-menu-smoothie/480/360', calificacion: 4.8, precio: 45 },
+  { nombre: 'Chilaquiles Verdes', descripcion: 'Con pollo, crema, queso y cebolla.', negocio: 'La Terraza', logoNegocio: 'https://picsum.photos/seed/cb-logo-terraza/80/80', foto: 'https://picsum.photos/seed/cb-menu-chilaquiles/480/360', calificacion: 4.6, precio: 58 },
+  { nombre: 'Papas a la Francesa', descripcion: 'Papas crujientes con aderezo de la casa.', negocio: 'Snack Point', logoNegocio: 'https://picsum.photos/seed/cb-logo-snack/80/80', foto: 'https://picsum.photos/seed/cb-menu-papas/480/360', calificacion: 4.5, precio: 32 },
+  { nombre: 'Panini Caprese', descripcion: 'Pan artesanal, queso mozzarella, jitomate, albahaca y pesto.', negocio: 'Delis & Más', logoNegocio: 'https://picsum.photos/seed/cb-logo-delis/80/80', foto: 'https://picsum.photos/seed/cb-menu-panini/480/360', calificacion: 4.7, precio: 49 },
+];
+
+const CARRITO: ItemCarrito[] = [
+  { nombre: 'Hamburguesa Clásica', negocio: 'Sabor Universitario', foto: 'https://picsum.photos/seed/cb-menu-hamburguesa/120/120', cantidad: 1, precio: 79 },
+  { nombre: 'Latte Helado', negocio: 'Café Express', foto: 'https://picsum.photos/seed/cb-menu-latte/120/120', cantidad: 1, precio: 38 },
 ];
 
 const PROMO: PromoDestacada = {
-  etiqueta: 'Promo del día',
-  titulo: 'Desayuna rico, paga menos',
-  subtitulo: '20% de descuento con el código BIENVENIDA',
-  foto: 'https://picsum.photos/seed/cb-promo-brunch/900/560',
+  etiqueta: 'Promos de hoy',
+  titulo: 'Combo Estudiantil',
+  subtitulo: 'Hamburguesa + bebida por solo $99',
+  foto: 'https://picsum.photos/seed/cb-promo-combo/200/200',
 };
 
-const PRODUCTOS: ProductoVitrina[] = [
-  { nombre: 'Combo del día', negocio: 'Cafetería Central', logoNegocio: 'https://picsum.photos/seed/cb-logo-central/80/80', precio: 65, foto: 'https://picsum.photos/seed/cb-combo1/480/360', calificacion: 4.8, tiempoMin: 12, categoria: 'Comida corrida', destacado: true },
-  { nombre: 'Tacos de guisado (3)', negocio: 'Cafetería Central', logoNegocio: 'https://picsum.photos/seed/cb-logo-central/80/80', precio: 45, foto: 'https://picsum.photos/seed/cb-tacos1/480/360', calificacion: 4.6, tiempoMin: 10, categoria: 'Tacos' },
-  { nombre: 'Café americano 12oz', negocio: 'Snacks & Baguettes El Lobo', logoNegocio: 'https://picsum.photos/seed/cb-logo-lobo/80/80', precio: 25, foto: 'https://picsum.photos/seed/cb-cafe1/480/360', calificacion: 4.9, tiempoMin: 5, categoria: 'Bebidas' },
-  { nombre: 'Baguette de pavo', negocio: 'Snacks & Baguettes El Lobo', logoNegocio: 'https://picsum.photos/seed/cb-logo-lobo/80/80', precio: 55, foto: 'https://picsum.photos/seed/cb-baguette1/480/360', calificacion: 4.7, tiempoMin: 8, categoria: 'Comida corrida' },
-  { nombre: 'Frappé de moka', negocio: 'Express Coffee & Donas', logoNegocio: 'https://picsum.photos/seed/cb-logo-express/80/80', precio: 48, foto: 'https://picsum.photos/seed/cb-frappe1/480/360', calificacion: 4.5, tiempoMin: 7, categoria: 'Bebidas', destacado: true },
-  { nombre: 'Dona glaseada (2)', negocio: 'Express Coffee & Donas', logoNegocio: 'https://picsum.photos/seed/cb-logo-express/80/80', precio: 30, foto: 'https://picsum.photos/seed/cb-dona1/480/360', calificacion: 4.4, tiempoMin: 4, categoria: 'Postres' },
-  { nombre: 'Comida corrida completa', negocio: 'Cocina Doña Lupe', logoNegocio: 'https://picsum.photos/seed/cb-logo-lupe/80/80', precio: 60, foto: 'https://picsum.photos/seed/cb-corrida1/480/360', calificacion: 4.9, tiempoMin: 15, categoria: 'Comida corrida' },
-  { nombre: 'Papas gajo', negocio: 'Cafetería Central', logoNegocio: 'https://picsum.photos/seed/cb-logo-central/80/80', precio: 35, foto: 'https://picsum.photos/seed/cb-papas1/480/360', calificacion: 4.3, tiempoMin: 6, categoria: 'Snacks' },
+const FAVORITAS: CafeteriaFavorita[] = [
+  { nombre: 'Cafetería Central', foto: 'https://picsum.photos/seed/cb-dest-central/80/80', calificacion: 4.8, favorita: true },
+  { nombre: 'Rincón Verde', foto: 'https://picsum.photos/seed/cb-dest-rincon/80/80', calificacion: 4.9, favorita: false },
+  { nombre: 'Café Express', foto: 'https://picsum.photos/seed/cb-dest-express/80/80', calificacion: 4.7, favorita: true },
+  { nombre: 'Snack Point', foto: 'https://picsum.photos/seed/cb-dest-snack/80/80', calificacion: 4.5, favorita: false },
 ];
 
 @Component({
   selector: 'app-home-page',
-  imports: [CurrencyPipe, BottomNavComponent],
+  imports: [CurrencyPipe, RouterLink, RouterLinkActive],
   templateUrl: './home.page.html',
   styleUrl: './home.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomePage {
-  protected readonly nav = ALUMNO_NAV;
+  protected readonly nav = NAV;
   protected readonly categorias = CATEGORIAS;
-  protected readonly productos = PRODUCTOS;
+  protected readonly cafeteriasDestacadas = CAFETERIAS_DESTACADAS;
+  protected readonly menu = MENU;
+  protected readonly carrito = CARRITO;
   protected readonly promo = PROMO;
+  protected readonly favoritas = FAVORITAS;
+
+  protected readonly usuario = { nombre: 'Juan Pérez', foto: 'https://picsum.photos/seed/cb-user-juan/96/96' };
+  protected readonly cafeteriaActiva = 'Cafetería Central';
+
+  protected get totalCarrito(): number {
+    return this.carrito.reduce((suma, item) => suma + item.precio * item.cantidad, 0);
+  }
+
+  protected get totalItemsCarrito(): number {
+    return this.carrito.reduce((suma, item) => suma + item.cantidad, 0);
+  }
 }
