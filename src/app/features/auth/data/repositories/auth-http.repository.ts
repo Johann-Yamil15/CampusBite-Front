@@ -2,7 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiClient } from '@core/http/api-client.service';
 import { AuthRepository } from '@features/auth/domain/repositories/auth.repository';
-import { Credentials, RegisterData, Session, User } from '@features/auth/domain/models/user.model';
+import {
+  Credentials,
+  RegisterCafeteriaData,
+  RegisterData,
+  Session,
+  User,
+} from '@features/auth/domain/models/user.model';
 import { AuthResponseDto, MeResponseDto } from '@features/auth/data/dtos/auth.dto';
 import { AuthMapper } from '@features/auth/data/mappers/auth.mapper';
 
@@ -20,6 +26,20 @@ export class AuthHttpRepository extends AuthRepository {
     return this.api
       .post<AuthResponseDto>('auth/registro', AuthMapper.toRegistroRequest(data))
       .pipe(map(AuthMapper.toSession));
+  }
+
+  // JJ-Sprint3 21/10/2026: TEC-11
+  registroCafeteria(data: RegisterCafeteriaData): Observable<Session> {
+    return this.api
+      .post<AuthResponseDto>('auth/registro-cafeteria', AuthMapper.toRegistroCafeteriaRequest(data))
+      .pipe(map(AuthMapper.toSession));
+  }
+
+  // JJ-Sprint3 21/10/2026: TEC-12. El backend responde { mensaje }; a la UI solo le importa que completó
+  restablecerPassword(correo: string, nuevaPassword: string): Observable<void> {
+    return this.api
+      .post<unknown>('auth/restablecer-password', AuthMapper.toRestablecerPasswordRequest(correo, nuevaPassword))
+      .pipe(map(() => undefined));
   }
 
   me(): Observable<User> {

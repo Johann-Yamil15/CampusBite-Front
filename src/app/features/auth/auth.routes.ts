@@ -19,5 +19,15 @@ export default [
         (m) => m.RegisterPage,
       ),
   },
+  {
+    // JJ-Sprint3 21/10/2026: TEC-12
+    path: 'recuperar',
+    title: 'Recuperar contraseña · CampusBite',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('@features/auth/presentation/pages/recuperar/recuperar.page').then(
+        (m) => m.RecuperarPage,
+      ),
+  },
   { path: '', pathMatch: 'full', redirectTo: 'login' },
 ] satisfies Routes;
