@@ -6,6 +6,10 @@
       >Inicio</a
     >
     <a routerLink="/productos" routerLinkActive="active">Menú</a>
+    <!-- JJ-Sprint3 21/10/2026: acceso al panel solo para AdminSistema -->
+    @if (auth.hasRole('AdminSistema')) {
+      <a routerLink="/admin" routerLinkActive="active">Administración</a>
+    }
   </nav>
 
   @if (auth.isAuthenticated()) {
