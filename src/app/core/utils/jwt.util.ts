@@ -22,16 +22,6 @@ export function decodeJwtPayload(token: string): Record<string, unknown> | null 
   }
 }
 
-/**
- * JJ-Sprint3 21/10/2026: lee un claim de texto del payload (p. ej. `role`, que emite el backend).
- * Solo sirve para decidir qué mostrar; los permisos reales los valida el backend.
- */
-export function readJwtClaim(token: string | null, claim: string): string | null {
-  if (!token) return null;
-  const value = decodeJwtPayload(token)?.[claim];
-  return typeof value === 'string' ? value : null;
-}
-
 /** `true` si el token existe, se puede decodificar y su `exp` (segundos) no ha pasado. */
 export function isJwtActive(token: string | null, now: number = Date.now()): boolean {
   if (!token) return false;

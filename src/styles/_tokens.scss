@@ -1,120 +1,26 @@
-// JJ-Sprint3 21/10/2026: Design tokens — sistema "Campus Quick-Bite" (ver DESIGN.md del proyecto).
-// Reemplaza la paleta naranja/gradiente anterior por una paleta cálida de cafetería, profesional.
-//
-// Regla de contraste: --cb-primary (#ab3500) es el único tono de marca válido para texto y botones
-// sobre superficies claras (6.2–6.5:1, WCAG AA). --cb-primary-container (#FF6B35) es MÁS vibrante pero
-// NO pasa 4.5:1 sobre fondos claros: úsalo solo en superficies grandes, íconos o fondos con texto oscuro
-// encima, nunca como color de texto pequeño ni de borde de foco.
+// Design tokens globales (CSS custom properties) — claro / oscuro.
 :root {
   color-scheme: light dark;
 
-  // Tipografía
-  --cb-font: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-
-  // Superficies
-  --cb-bg: #fcf9f8; // surface
-  --cb-surface: #ffffff; // surface-container-lowest
-  --cb-surface-low: #f6f3f2; // surface-container-low
-  --cb-surface-container: #f0eded;
-  --cb-surface-high: #eae7e7;
-  --cb-canvas: #f6f3f2; // alias usado por pantallas existentes (antes --cb-canvas)
-
-  // Texto y bordes
-  --cb-text: #1b1c1c; // on-surface
-  --cb-text-muted: #594139; // on-surface-variant (cálido, no gris frío)
-  --cb-border: #e1bfb5; // outline-variant (línea suave, tono cálido)
-  --cb-line: #e1bfb5;
-  --cb-line-soft: #eae7e7;
-  --cb-ink: #1b1c1c;
-  --cb-ink-soft: #3a2e29;
-  --cb-ink-muted: #594139;
-
-  // Marca — Naranja Coral
-  --cb-primary: #ab3500; // texto/botones (6.2–6.5:1 sobre bg/surface)
+  --cb-primary: #e4572e;
   --cb-primary-contrast: #ffffff;
-  --cb-primary-container: #ff6b35; // superficies grandes, iconografía, badges con texto oscuro
-  --cb-on-primary-container: #5f1900;
-  // JJ-Sprint3 21/10/2026: variantes SOLO decorativas (degradado/ilustración) del primary-container, para dar
-  // profundidad en vez de un relleno plano. Nunca como fondo de texto: --cb-primary-container-dark da 2.9:1
-  // con --cb-on-primary-container. El degradado en sí se mantiene dentro de 4.56–5.56:1 donde hay texto encima.
-  --cb-primary-container-light: #ff8a5c;
-  --cb-primary-container-dark: #e8561f;
-  --cb-brand: #ab3500; // alias de compatibilidad (pantallas ya escritas con --cb-brand-*)
-  --cb-brand-strong: #ab3500;
-  --cb-brand-light: #ff6b35;
-  --cb-brand-soft: #fff1ea;
-  --cb-brand-ring: rgba(171, 53, 0, 0.25);
-
-  // Secundario — Amarillo Mango (promos, destacados; nunca para texto de cuerpo)
-  --cb-secondary: #7f5700;
-  --cb-on-secondary: #ffffff;
-  --cb-secondary-container: #ffb628;
-  --cb-on-secondary-container: #6d4a00;
-
-  // Terciario — Verde Éxito
-  --cb-success: #006d43;
-  --cb-success-soft: #e3f6ec;
-  --cb-success-line: #9fd9bf;
-
-  // Error
-  --cb-danger: #ba1a1a;
-  --cb-danger-strong: #ba1a1a;
-  --cb-danger-soft: #ffdad6;
-  --cb-danger-line: #ffb4ab;
-
-  // Forma y radio
-  --cb-radius: 0.75rem; // rounded-md
-  --cb-radius-lg: 1rem;
-  --cb-radius-xl: 1.5rem;
-  --cb-radius-pill: 9999px;
-
-  // Espaciado
-  --cb-space-xs: 0.25rem;
-  --cb-space-sm: 0.5rem;
-  --cb-space-md: 1rem;
-  --cb-space-lg: 1.5rem;
-  --cb-space-xl: 2rem;
-
-  // Elevación (sombras cálidas y difusas, no negro puro)
-  --cb-shadow-sm: 0 4px 16px -2px rgba(255, 107, 53, 0.08), 0 2px 6px -1px rgba(27, 28, 28, 0.05);
-  --cb-shadow-md: 0 8px 24px -4px rgba(255, 107, 53, 0.12), 0 4px 12px -2px rgba(27, 28, 28, 0.07);
-  --cb-shadow-lg: 0 16px 36px -6px rgba(27, 28, 28, 0.16);
+  --cb-bg: #f7f7f8;
+  --cb-surface: #ffffff;
+  --cb-text: #1b1b1f;
+  --cb-text-muted: #5f6068;
+  --cb-border: #e3e3e8;
+  --cb-danger: #c62828;
+  --cb-radius: 10px;
+  --cb-font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --cb-bg: #141311;
-    --cb-surface: #211f1d;
-    --cb-surface-low: #1b1a18;
-    --cb-surface-container: #262422;
-    --cb-surface-high: #302d2a;
-    --cb-canvas: #1b1a18;
-
-    --cb-text: #f3f0ef;
-    --cb-text-muted: #dcc3b8;
-    --cb-border: #594139;
-    --cb-line: #594139;
-    --cb-line-soft: #3a2e29;
-    --cb-ink: #f3f0ef;
-    --cb-ink-soft: #e4d8d2;
-    --cb-ink-muted: #dcc3b8;
-
-    --cb-primary: #ffb59d; // inverse-primary: tono claro para texto de marca sobre fondo oscuro
-    --cb-primary-contrast: #5f1900;
-    --cb-brand: #ffb59d;
-    --cb-brand-strong: #ffb59d;
-    --cb-brand-soft: #3a2017;
-    --cb-brand-ring: rgba(255, 181, 157, 0.3);
-
-    --cb-secondary: #ffba3b;
-    --cb-on-secondary: #281900;
-
-    --cb-success: #65dd9d;
-    --cb-success-soft: #0f2e20;
-    --cb-success-line: #1f5c3f;
-
-    --cb-danger: #ffb4ab;
-    --cb-danger-soft: #3a0a0a;
-    --cb-danger-line: #7a2a2a;
+    --cb-bg: #121214;
+    --cb-surface: #1c1c20;
+    --cb-text: #ececf1;
+    --cb-text-muted: #a0a0ab;
+    --cb-border: #2c2c33;
+    --cb-danger: #ef5350;
   }
 }

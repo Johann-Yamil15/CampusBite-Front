@@ -3,17 +3,9 @@ import { Observable, defer, finalize, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { ApiError } from '@core/http/api-error';
 import { TokenStorageService } from '@core/services/token-storage.service';
-import { isJwtActive, readJwtClaim } from '@core/utils/jwt.util';
+import { isJwtActive } from '@core/utils/jwt.util';
 import { AuthRepository } from '@features/auth/domain/repositories/auth.repository';
-import {
-  Credentials,
-  RegisterCafeteriaData,
-  RegisterData,
-  Session,
-  USER_ROLES,
-  User,
-  UserRole,
-} from '@features/auth/domain/models/user.model';
+import { Credentials, RegisterData, Session, User } from '@features/auth/domain/models/user.model';
 
 /**
  * "Controlador" de autenticación: orquesta casos de uso y expone estado
@@ -46,22 +38,6 @@ export class AuthFacade {
    */
   readonly user = computed(() => (this.isAuthenticated() ? this._user() : null));
 
-  /**
-   * JJ-Sprint3 21/10/2026: rol de la sesión, leído del claim `role` del JWT (sobrevive a recargas).
-   * Solo decide qué mostrar; los permisos reales los valida el backend (403).
-   */
-  readonly role = computed<UserRole | null>(() => {
-    if (!this.isAuthenticated()) return null;
-    const role = readJwtClaim(this.tokens.token(), 'role');
-    return USER_ROLES.find((r) => r === role) ?? null;
-  });
-
-  /** `true` si hay sesión vigente y su rol es alguno de `roles`. */
-  hasRole(...roles: UserRole[]): boolean {
-    const role = this.role();
-    return role !== null && roles.includes(role);
-  }
-
   // FB-Sprint2 10/10/2026: Signals de estado para la vista (UI)
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
@@ -86,33 +62,6 @@ export class AuthFacade {
    */
   registro(data: RegisterData): Observable<Session> {
     return this.trackSession(this.repo.registro(data));
-  }
-
-  /**
-   * JJ-Sprint3 21/10/2026: TEC-11. Autorregistra un negocio (`POST api/Auth/registro-cafeteria`): crea la
-   * cafetería (activa de inmediato) y a su primer encargado, con sesión iniciada como `AdminCafeteria`.
-   * @param data Datos del encargado y de la cafetería.
-   * @returns La sesión creada. Falla con `ApiError` (409 = correo o nombre de cafetería ya registrados,
-   *   400 = datos que no cumplen el formato; ver `errors` para el detalle por campo).
-   */
-  registroCafeteria(data: RegisterCafeteriaData): Observable<Session> {
-    return this.trackSession(this.repo.registroCafeteria(data));
-  }
-
-  /**
-   * JJ-Sprint3 21/10/2026: TEC-12. Recuperación simple (sin código de verificación): completa siempre,
-   * exista o no el correo, para no revelarlo. No toca la sesión actual.
-   * @returns Completa sin valor. Falla con `ApiError` (400 = datos con formato inválido).
-   */
-  restablecerPassword(correo: string, nuevaPassword: string): Observable<void> {
-    return defer(() => {
-      this.isLoading.set(true);
-      this.error.set(null);
-      return this.repo.restablecerPassword(correo, nuevaPassword).pipe(
-        tap({ error: (err: ApiError) => this.error.set(firstErrorMessage(err)) }),
-        finalize(() => this.isLoading.set(false)),
-      );
-    });
   }
 
   /**
