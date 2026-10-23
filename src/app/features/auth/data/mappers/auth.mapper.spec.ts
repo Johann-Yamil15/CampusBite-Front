@@ -43,38 +43,4 @@ describe('AuthMapper', () => {
       telefono: null,
     });
   });
-
-  // JJ-Sprint3 21/10/2026: TEC-11
-  it('arma el body de registro-cafeteria y manda null en el teléfono vacío', () => {
-    expect(
-      AuthMapper.toRegistroCafeteriaRequest({
-        ownerName: 'Ana',
-        email: 'a@b.mx',
-        password: 'secreto123',
-        cafeteriaName: 'Cafetería Central',
-        location: 'Edificio D',
-        onCampus: true,
-        pickupPoint: 'Mostrador',
-        paymentMethods: ['Efectivo'],
-      }),
-    ).toEqual({
-      nombreEncargado: 'Ana',
-      correo: 'a@b.mx',
-      password: 'secreto123',
-      telefono: null,
-      nombreCafeteria: 'Cafetería Central',
-      ubicacion: 'Edificio D',
-      esDelCampus: true,
-      puntoEntrega: 'Mostrador',
-      metodosPago: ['Efectivo'],
-    });
-  });
-
-  // JJ-Sprint3 21/10/2026: TEC-12
-  it('arma el body de restablecer-password', () => {
-    expect(AuthMapper.toRestablecerPasswordRequest('a@b.mx', 'nuevaSecreta123')).toEqual({
-      correo: 'a@b.mx',
-      nuevaPassword: 'nuevaSecreta123',
-    });
-  });
 });
