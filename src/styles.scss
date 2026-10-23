@@ -84,3 +84,257 @@ body {
   border: 1px solid var(--cb-danger);
   color: var(--cb-danger);
 }
+
+// JJ-Sprint3 21/10/2026: componentes base con la paleta de marca (login/registro), para reutilizar en pantallas nuevas.
+// Botones de 44px mínimo (táctil), foco visible y contraste AA (texto blanco sobre --cb-brand-strong).
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.cb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0.7rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--cb-brand-ring);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.cb-btn--primary {
+  background: var(--cb-brand-strong);
+  color: #fff;
+  &:hover:not(:disabled) { background: #8a2b00; }
+}
+
+.cb-btn--secondary {
+  border-color: var(--cb-line);
+  background: #fff;
+  color: var(--cb-ink-soft);
+  &:hover:not(:disabled) { background: var(--cb-canvas); }
+}
+
+.cb-btn--danger {
+  background: var(--cb-danger-strong);
+  color: #fff;
+  &:hover:not(:disabled) { background: #9f1616; }
+}
+
+.cb-btn--small {
+  padding: 0 0.85rem;
+  font-size: 0.85rem;
+  border-color: var(--cb-line);
+  background: #fff;
+  color: var(--cb-ink-soft);
+  &:hover:not(:disabled) { border-color: var(--cb-brand); color: var(--cb-brand-strong); }
+  &.cb-btn--danger-text:hover:not(:disabled) { border-color: var(--cb-danger-strong); color: var(--cb-danger-strong); }
+}
+
+.cb-alert-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--cb-danger-line);
+  border-radius: 8px;
+  background: var(--cb-danger-soft);
+  color: var(--cb-danger-strong);
+  font-size: 0.9rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cb-btn { transition: none; }
+}
+
+// JJ-Sprint3 21/10/2026: el autofill de Chrome pinta el input de azul claro con su propio fondo,
+// ignorando el nuestro; esto lo fuerza de vuelta a los tokens (mismo truco en todos los inputs de la app).
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--cb-ink);
+  box-shadow: 0 0 0 1000px var(--cb-surface) inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+// JJ-Sprint3 21/10/2026: "cáscara" de login/registro (idéntica en las dos páginas, cada una solo agrega
+// lo propio en su .page.scss). Vive aquí porque el presupuesto de tamaño es por componente, no global,
+// y las dos páginas comparten ~90% de este CSS: duplicarlo hacía que register.page.scss pasara el límite.
+// Tarjeta "flotando" sobre una foto de cafetería (genérica/stock, no es una foto real de la UTTT — igual
+// que las fotos de producto en home) con un velo cálido en tonos de marca para que el blanco de la tarjeta
+// siga teniendo buen contraste; degradado + grano + ilustración en el panel derecho, franja de beneficios.
+.login-layout {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--cb-space-xl) var(--cb-space-md);
+  background:
+    linear-gradient(165deg, rgba(95, 25, 0, 0.75) 0%, rgba(171, 53, 0, 0.45) 45%, rgba(255, 107, 53, 0.35) 100%),
+    radial-gradient(70% 60% at 85% 10%, rgba(255, 138, 92, 0.3), transparent 65%),
+    url('/assets/images/login-bg.jpg') center / cover no-repeat;
+}
+
+// JJ-Sprint3 21/10/2026: solo el formulario es una tarjeta (fondo/sombra/radio); el panel derecho ya no
+// lleva una caja de color encima de la foto — es texto flotando directo sobre el fondo, como el ícono
+// de taza que ya vivía fuera de la tarjeta.
+.login-card {
+  position: relative;
+  width: min(100%, 1040px);
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  align-items: stretch;
+  column-gap: var(--cb-space-xl);
+}
+
+.icon-sm { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
+.icon-left { position: absolute; left: 1rem; width: 1.15rem; height: 1.15rem; color: var(--cb-primary); opacity: 0.6; }
+
+.form-section {
+  background: var(--cb-surface);
+  border-radius: var(--cb-radius-xl);
+  box-shadow: var(--cb-shadow-lg);
+  padding: var(--cb-space-xl) var(--cb-space-xl) var(--cb-space-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-lockup {
+  display: flex; align-items: center; gap: 0.6rem; margin-bottom: var(--cb-space-lg);
+  img { border-radius: 10px; box-shadow: var(--cb-shadow-sm); }
+}
+.brand-name {
+  font-size: 1.1rem; font-weight: 700; color: var(--cb-ink);
+  strong { color: var(--cb-primary); font-weight: 800; }
+}
+
+.title { font-size: clamp(1.5rem, 2.4vw, 1.85rem); font-weight: 800; letter-spacing: -0.015em; margin: 0; color: var(--cb-ink); }
+.subtitle { color: var(--cb-ink-muted); font-size: 0.95rem; margin: 0.4rem 0 var(--cb-space-lg); }
+
+.form-group {
+  display: flex; flex-direction: column; gap: 0.45rem; margin-bottom: var(--cb-space-md);
+  label { font-size: 0.85rem; font-weight: 700; color: var(--cb-ink-soft); }
+  .error-text { color: var(--cb-danger); font-size: 0.8rem; font-weight: 500; }
+}
+
+.input-with-icon {
+  position: relative; display: flex; align-items: center;
+  .icon-btn.right {
+    position: absolute; right: 0.9rem; background: none; border: none; padding: 0.25rem;
+    cursor: pointer; color: var(--cb-ink-muted); display: flex; align-items: center; justify-content: center;
+    border-radius: 999px; transition: background 0.2s, color 0.2s;
+    &:hover { background: var(--cb-canvas); color: var(--cb-ink-soft); }
+  }
+  input {
+    width: 100%; min-height: 48px; padding: 0.85rem 1rem 0.85rem 3rem;
+    border: 1.5px solid var(--cb-line-soft); border-radius: var(--cb-radius); font: inherit; font-size: 1rem;
+    color: var(--cb-ink); background: var(--cb-canvas); transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    &::placeholder { color: #a99a93; }
+    &:hover { border-color: var(--cb-line); }
+    &:focus {
+      outline: none; background: var(--cb-surface);
+      border-color: var(--cb-primary); box-shadow: 0 0 0 4px var(--cb-brand-ring);
+    }
+  }
+}
+
+.cb-btn--block {
+  width: 100%;
+  margin-top: 0.5rem;
+  min-height: 50px;
+  font-size: 1rem;
+  box-shadow: 0 10px 20px -8px rgba(171, 53, 0, 0.45);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.08s;
+  &:active:not(:disabled) { transform: scale(0.98); }
+}
+
+.register-prompt {
+  margin-top: var(--cb-space-xl); display: flex; justify-content: center; gap: 0.35rem;
+  font-size: 0.9rem; color: var(--cb-ink-muted);
+  .register-link { color: var(--cb-primary); font-weight: 700; text-decoration: none; }
+  .register-link:hover { text-decoration: underline; }
+}
+
+.info-section {
+  position: relative;
+  color: #fff;
+  text-shadow: 0 2px 14px rgba(27, 16, 10, 0.55);
+  padding: var(--cb-space-xl) var(--cb-space-lg) var(--cb-space-xl) clamp(5rem, 18vw, 9.5rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  .info-header { position: relative; display: flex; }
+  .app-logo-small {
+    width: 52px; height: 52px; border-radius: var(--cb-radius);
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 6px 16px -4px rgba(27, 16, 10, 0.45);
+    display: flex; align-items: center; justify-content: center;
+    img { width: 44px; height: 44px; border-radius: 10px; display: block; }
+  }
+
+  .info-body { position: relative; margin: auto 0; display: flex; flex-direction: column; gap: var(--cb-space-lg); }
+
+  .info-title {
+    margin: 0; font-size: clamp(1.8rem, 2.8vw, 2.3rem); font-weight: 800; line-height: 1.1; letter-spacing: -0.02em;
+    span { color: var(--cb-secondary-container); }
+  }
+
+  .info-benefits {
+    margin: 0; padding: 0; list-style: none;
+    display: flex; flex-direction: column; gap: 0.75rem;
+
+    li { display: flex; align-items: flex-start; gap: 0.65rem; }
+
+    .icon-sm {
+      flex-shrink: 0; margin-top: 0.1rem; padding: 0.35rem; box-sizing: content-box;
+      background: rgba(255, 255, 255, 0.22); border-radius: var(--cb-radius);
+      backdrop-filter: blur(2px);
+    }
+
+    strong { display: block; font-size: 0.9rem; font-weight: 700; }
+    span { display: block; font-size: 0.8rem; opacity: 0.9; margin-top: 0.1rem; }
+  }
+
+  .info-footer {
+    position: relative; font-size: 0.85rem; font-weight: 600; opacity: 0.9;
+    padding-top: var(--cb-space-md); border-top: 1px solid rgba(255, 255, 255, 0.35);
+  }
+}
+
+@media (max-width: 860px) {
+  .login-card { grid-template-columns: 1fr; max-width: 460px; }
+  .info-section { display: none; }
+}
+
+@media (max-width: 480px) {
+  .login-layout { padding: 0; align-items: flex-start; }
+  .form-section { border-radius: 0; box-shadow: none; min-height: 100dvh; padding: var(--cb-space-lg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cb-btn--block { transition: none; }
+}
