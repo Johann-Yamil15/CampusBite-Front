@@ -1,0 +1,131 @@
+<!-- FB-Sprint3 21/10/2026: maquetación del Panel de Administración -->
+<!-- JJ-Sprint3 21/10/2026: lista de cafeterías con acciones, estados vacío/carga/error y confirmación de baja -->
+<div class="admin-layout">
+  <header class="admin-header">
+    <div class="title-block">
+      <img src="assets/images/logo-campusbite.png" alt="" width="48" height="48" class="brand-logo" />
+      <div>
+        <p class="eyebrow">Panel de administración</p>
+        <h1>Cafeterías</h1>
+        <p class="subtitle">Gestión de establecimientos de tu comunidad universitaria</p>
+      </div>
+    </div>
+    @if (!formOpen()) {
+      <button type="button" class="cb-btn cb-btn--primary" (click)="openCreate()">
+        <svg aria-hidden="true" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+        Nueva cafetería
+      </button>
+    }
+  </header>
+
+  <div class="notice-region" role="status" aria-live="polite">
+    @if (notice(); as message) {
+      <p class="notice">
+        <svg aria-hidden="true" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+        {{ message }}
+      </p>
+    }
+  </div>
+
+  @if (formOpen()) {
+    <app-cafeteria-form [cafeteria]="editing()" (saved)="onSaved($event)" (cancelled)="closeForm()" />
+  } @else {
+    <section class="list-card" aria-labelledby="list-title">
+      <div class="list-toolbar">
+        <h2 id="list-title">
+          Establecimientos
+          @if (loaded()) {
+            <span class="count">{{ activeCount() }} activas de {{ cafeterias.list().length }}</span>
+          }
+        </h2>
+        <label class="toggle">
+          <input type="checkbox" [checked]="showInactive()" (change)="toggleInactive($event)" />
+          Mostrar dadas de baja
+        </label>
+      </div>
+
+      @if (cafeterias.error(); as message) {
+        <div class="cb-alert-error" role="alert">
+          <span>{{ message }}</span>
+          @if (!cafeterias.list().length) {
+            <button type="button" class="link-btn" (click)="reload()">Reintentar</button>
+          }
+        </div>
+      }
+
+      @if (!loaded()) {
+        <ul class="skeleton" aria-hidden="true">
+          <li></li><li></li><li></li>
+        </ul>
+        <p class="sr-only">Cargando cafeterías…</p>
+      } @else if (!visible().length) {
+        <div class="empty">
+          <svg aria-hidden="true" class="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72" /></svg>
+          <p><strong>{{ cafeterias.list().length ? 'No hay cafeterías activas.' : 'Aún no hay cafeterías registradas.' }}</strong></p>
+          <p class="muted">Registra la primera para que los alumnos puedan hacer pedidos.</p>
+          <button type="button" class="cb-btn cb-btn--primary" (click)="openCreate()">Registrar cafetería</button>
+        </div>
+      } @else {
+        <table class="cafe-table">
+          <caption class="sr-only">Cafeterías registradas</caption>
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Ubicación</th>
+              <th scope="col">Punto de entrega</th>
+              <th scope="col">Pagos</th>
+              <th scope="col">Estado</th>
+              <th scope="col"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (cafe of visible(); track cafe.id) {
+              <tr [class.inactive]="!cafe.active">
+                <th scope="row" data-label="Nombre">
+                  {{ cafe.name }}
+                  @if (!cafe.onCampus) { <span class="tag">Fuera del campus</span> }
+                </th>
+                <td data-label="Ubicación">{{ cafe.location }}</td>
+                <td data-label="Punto de entrega">{{ cafe.pickupPoint }}</td>
+                <td data-label="Pagos">
+                  <ul class="chips">
+                    @for (method of cafe.paymentMethods; track method) { <li>{{ method }}</li> }
+                  </ul>
+                </td>
+                <td data-label="Estado">
+                  <span class="badge" [class.badge-off]="!cafe.active">{{ cafe.active ? 'Activa' : 'Dada de baja' }}</span>
+                </td>
+                <td class="row-actions">
+                  <button type="button" class="cb-btn cb-btn--small" (click)="openEdit(cafe)" [disabled]="cafeterias.loading()">
+                    <svg aria-hidden="true" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" /></svg>
+                    Editar<span class="sr-only"> {{ cafe.name }}</span>
+                  </button>
+                  @if (cafe.active) {
+                    <button type="button" class="cb-btn cb-btn--small cb-btn--danger-text" (click)="askDeactivate(cafe)" [disabled]="cafeterias.loading()">
+                      <svg aria-hidden="true" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                      Dar de baja<span class="sr-only"> {{ cafe.name }}</span>
+                    </button>
+                  } @else {
+                    <button type="button" class="cb-btn cb-btn--small" (click)="reactivate(cafe)" [disabled]="cafeterias.loading()">
+                      <svg aria-hidden="true" class="icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992V4.356M2.985 19.644v-4.992h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" /></svg>
+                      Reactivar<span class="sr-only"> {{ cafe.name }}</span>
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </section>
+  }
+</div>
+
+<dialog #confirmDialog class="confirm" aria-labelledby="confirm-title" aria-describedby="confirm-desc" (close)="pendingDeactivate.set(null)">
+  <h2 id="confirm-title">¿Dar de baja «{{ pendingDeactivate()?.name }}»?</h2>
+  <p id="confirm-desc">Dejará de aparecer para los alumnos y no recibirá pedidos. Su historial se conserva y puedes reactivarla después.</p>
+  <div class="confirm-actions">
+    <button type="button" class="cb-btn cb-btn--secondary" (click)="closeConfirm()" autofocus>Cancelar</button>
+    <button type="button" class="cb-btn cb-btn--danger" (click)="confirmDeactivate()">Dar de baja</button>
+  </div>
+</dialog>
