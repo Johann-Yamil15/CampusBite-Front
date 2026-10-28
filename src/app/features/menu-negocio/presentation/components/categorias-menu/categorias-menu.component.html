@@ -1,0 +1,33 @@
+<!-- CL-Sprint4 28/10/2026: HU-07B. Categorías en círculos: filtro de la galería -->
+<div class="bubbles" role="group" aria-label="Filtrar platillos por categoría">
+  <button type="button" class="bubble new" (click)="create.emit()">
+    <span class="circle">
+      <svg
+        aria-hidden="true"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="1.6"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+    </span>
+    <span class="label">Nuevo</span>
+  </button>
+
+  @for (b of bubbles(); track b.key) {
+    <button
+      type="button"
+      class="bubble"
+      [class.active]="b.key === activeKey()"
+      [attr.aria-pressed]="b.key === activeKey()"
+      (click)="selectFilter.emit(b.filter)"
+    >
+      <span class="circle">
+        <img [src]="b.image" alt="" width="72" height="72" loading="lazy" />
+      </span>
+      <span class="label">{{ b.label }}</span>
+      <span class="count">{{ b.count }} {{ b.count === 1 ? 'platillo' : 'platillos' }}</span>
+    </button>
+  }
+</div>

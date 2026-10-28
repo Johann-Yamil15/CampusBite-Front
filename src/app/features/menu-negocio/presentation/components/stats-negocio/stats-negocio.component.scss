@@ -1,0 +1,95 @@
+// CL-Sprint4 28/10/2026: HU-07B. Panel de estadísticas
+:host {
+  display: block;
+}
+
+.stats {
+  padding: 1.25rem;
+  border: 1px solid var(--cb-line-soft);
+  border-radius: var(--cb-radius-lg);
+  background: var(--cb-surface);
+  box-shadow: var(--cb-shadow-sm);
+
+  h2 {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--cb-ink);
+  }
+}
+
+dl {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--cb-radius);
+  background: var(--cb-surface-low);
+
+  dt {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cb-ink-soft);
+  }
+  dd {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--cb-ink);
+  }
+
+  &.ok {
+    background: var(--cb-success-soft);
+    dd {
+      color: var(--cb-success);
+    }
+  }
+  &.off dd {
+    color: var(--cb-ink-muted);
+  }
+}
+
+.bar {
+  height: 0.5rem;
+  margin-top: 1rem;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-surface-high);
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+    background: var(--cb-success);
+    transition: width 0.3s;
+  }
+}
+
+.hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: var(--cb-ink-muted);
+}
+
+/* En celular las tres cifras van en una fila */
+@media (max-width: 960px) {
+  dl {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .stat {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 0.15rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar span {
+    transition: none;
+  }
+}

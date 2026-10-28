@@ -1,0 +1,251 @@
+// CL-Sprint4 28/10/2026: HU-07B. Tarjeta de platillo (tokens de _tokens.scss)
+:host {
+  display: block;
+  height: 100%;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid var(--cb-line-soft);
+  border-radius: var(--cb-radius-lg);
+  background: var(--cb-surface);
+  box-shadow: var(--cb-shadow-sm);
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+  &[aria-busy='true'] {
+    opacity: 0.7;
+  }
+  &.inactive .media img {
+    filter: grayscale(0.85);
+    opacity: 0.7;
+  }
+}
+
+.media {
+  aspect-ratio: 16 / 11;
+  overflow: hidden;
+  border-radius: var(--cb-radius-lg) var(--cb-radius-lg) 0 0;
+  background: var(--cb-surface-low);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+  padding: 0.7rem 0.85rem 0.85rem;
+}
+
+.category {
+  margin: 0;
+  overflow: hidden;
+  color: var(--cb-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.category-empty {
+  color: var(--cb-ink-muted);
+}
+
+.title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.25rem;
+}
+
+.name {
+  min-width: 0;
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--cb-ink);
+  overflow-wrap: anywhere;
+}
+
+.menu {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.menu-trigger {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin: -0.4rem -0.5rem 0 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--cb-ink-muted);
+  cursor: pointer;
+
+  svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+  &:hover:not(:disabled) {
+    background: var(--cb-surface-low);
+    color: var(--cb-ink);
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--cb-brand-ring);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.menu-list {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  right: -0.5rem;
+  z-index: 5;
+  min-width: 12rem;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  border: 1px solid var(--cb-line-soft);
+  border-radius: var(--cb-radius);
+  background: var(--cb-surface);
+  box-shadow: var(--cb-shadow-md);
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 0.75rem;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--cb-ink-soft);
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+
+    svg {
+      width: 1.1rem;
+      height: 1.1rem;
+      flex-shrink: 0;
+    }
+    &:hover,
+    &:focus-visible {
+      outline: none;
+      background: var(--cb-surface-low);
+      color: var(--cb-ink);
+    }
+    &.danger {
+      color: var(--cb-danger);
+    }
+    &.danger:hover,
+    &.danger:focus-visible {
+      background: var(--cb-danger-soft);
+    }
+  }
+}
+
+.description {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--cb-ink-muted);
+  font-size: 0.82rem;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.price {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--cb-ink);
+}
+
+/* Píldora "Disponible": es el toggle de disponibilidad (role="switch") */
+.availability {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 32px;
+  padding: 0 0.7rem;
+  border: 1px solid var(--cb-line);
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-surface-high);
+  color: var(--cb-ink-muted);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+
+  .dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &.on {
+    border-color: var(--cb-success-line);
+    background: var(--cb-success-soft);
+    color: var(--cb-success);
+  }
+  &:hover:not(:disabled) {
+    border-color: currentColor;
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--cb-brand-ring);
+  }
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card,
+  .availability {
+    transition: none;
+  }
+  .product-card:hover {
+    transform: none;
+  }
+}

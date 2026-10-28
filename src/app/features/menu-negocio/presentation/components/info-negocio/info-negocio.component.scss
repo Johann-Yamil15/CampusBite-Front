@@ -1,0 +1,67 @@
+// CL-Sprint4 28/10/2026: HU-07B. Pestaña Información
+:host {
+  display: block;
+}
+
+.info {
+  padding: 1.5rem;
+  border: 1px solid var(--cb-line-soft);
+  border-radius: var(--cb-radius-xl);
+  background: var(--cb-surface);
+  box-shadow: var(--cb-shadow-sm);
+
+  h2 {
+    margin: 0 0 1.25rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--cb-ink);
+  }
+}
+
+.warning {
+  margin: 0 0 1.25rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--cb-danger-line);
+  border-radius: var(--cb-radius);
+  background: var(--cb-danger-soft);
+  color: var(--cb-danger);
+  font-size: 0.9rem;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1.25rem;
+  margin: 0;
+
+  dt {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--cb-ink-muted);
+  }
+  dd {
+    margin: 0.25rem 0 0;
+    color: var(--cb-ink);
+    overflow-wrap: anywhere;
+  }
+}
+
+.methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 0.2rem 0.7rem;
+    border-radius: var(--cb-radius-pill);
+    background: var(--cb-brand-soft);
+    color: var(--cb-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+}

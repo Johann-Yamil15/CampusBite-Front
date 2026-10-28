@@ -7,6 +7,11 @@ export interface User {
   id: string;
   email: string;
   role: UserRole;
+  /**
+   * CL-Sprint4 28/10/2026: HU-07B. Cafetería del encargado (solo AdminCafeteria). Opcional: hoy el backend aún no
+   * la manda en login ni en /me; cuando la mande, negocioHomeGuard lo lleva directo a su panel.
+   */
+  cafeteriaId?: string;
 }
 
 export interface Credentials {

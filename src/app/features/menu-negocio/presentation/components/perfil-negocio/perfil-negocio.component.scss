@@ -1,0 +1,175 @@
+// CL-Sprint4 28/10/2026: HU-07B. Cabecera del perfil del negocio
+:host {
+  display: block;
+}
+
+.cover {
+  height: 150px;
+  overflow: hidden;
+  border-radius: var(--cb-radius-xl) var(--cb-radius-xl) 0 0;
+  background: var(--cb-primary-container);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    // La foto de la cafetería está en la mitad izquierda de login-bg.jpg
+    object-position: 15% 40%;
+  }
+}
+
+.identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 0 1.5rem;
+}
+
+// Solo el avatar se monta sobre la portada; el nombre queda debajo, sobre la tarjeta
+.avatar {
+  flex-shrink: 0;
+  margin-top: -62px;
+  width: 132px;
+  height: 132px;
+  padding: 5px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cb-primary-container-light), #ab3500);
+  box-shadow: var(--cb-shadow-md);
+
+  img {
+    width: 100%;
+    height: 100%;
+    border: 4px solid var(--cb-surface);
+    border-radius: 50%;
+    background: #fff;
+    object-fit: cover;
+  }
+}
+
+.identity-text {
+  min-width: 0;
+  padding-top: 0.85rem;
+
+  h1 {
+    margin: 0 0 0.6rem;
+    font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    color: var(--cb-ink);
+    overflow-wrap: anywhere;
+  }
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--cb-line-soft);
+    border-radius: var(--cb-radius-pill);
+    background: var(--cb-surface-low);
+    color: var(--cb-ink-soft);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+    color: var(--cb-primary);
+  }
+
+  .status {
+    border-color: var(--cb-success-line);
+    background: var(--cb-success-soft);
+    color: var(--cb-success);
+
+    .dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    &.off {
+      border-color: var(--cb-danger-line);
+      background: var(--cb-danger-soft);
+      color: var(--cb-danger);
+    }
+  }
+}
+
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 1.5rem 1.5rem 0;
+  padding: 0 0 1.25rem;
+  border-bottom: 1px solid var(--cb-line-soft);
+
+  div {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 0.2rem;
+    text-align: center;
+
+    & + div {
+      border-left: 1px solid var(--cb-line-soft);
+    }
+  }
+
+  dt {
+    font-size: 0.85rem;
+    color: var(--cb-ink-muted);
+  }
+  dd {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--cb-ink);
+  }
+}
+
+.bio {
+  margin: 1rem 1.5rem 0;
+  color: var(--cb-ink-soft);
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .cover {
+    height: 110px;
+  }
+  .identity {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: 0 1rem;
+  }
+  .avatar {
+    width: 96px;
+    height: 96px;
+    margin-top: -48px;
+  }
+  .numbers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 1rem;
+    margin: 1.25rem 1rem 0;
+
+    div:nth-child(3) {
+      border-left: 0;
+    }
+  }
+  .bio {
+    margin: 1rem 1rem 0;
+  }
+}
