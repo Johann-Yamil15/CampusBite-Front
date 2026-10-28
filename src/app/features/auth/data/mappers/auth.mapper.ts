@@ -16,12 +16,17 @@ import {
 
 export const AuthMapper = {
   toUser(dto: MeResponseDto): User {
-    return { id: dto.id, email: dto.correo, role: dto.rol };
+    return { id: dto.id, email: dto.correo, role: dto.rol, ...cafeteriaOf(dto.idCafeteria) };
   },
 
   toSession(dto: AuthResponseDto): Session {
     return {
-      user: { id: dto.usuarioId, email: dto.correo, role: dto.rol },
+      user: {
+        id: dto.usuarioId,
+        email: dto.correo,
+        role: dto.rol,
+        ...cafeteriaOf(dto.idCafeteria),
+      },
       accessToken: dto.token,
       expiresAt: new Date(dto.expiraEn),
     };
@@ -61,3 +66,8 @@ export const AuthMapper = {
     return { correo, nuevaPassword };
   },
 };
+
+// CL-Sprint4 28/10/2026: HU-07B. Solo agrega cafeteriaId si el backend lo mandó (si no, el campo no existe)
+function cafeteriaOf(idCafeteria: string | null | undefined): Pick<User, 'cafeteriaId'> {
+  return idCafeteria ? { cafeteriaId: idCafeteria } : {};
+}
