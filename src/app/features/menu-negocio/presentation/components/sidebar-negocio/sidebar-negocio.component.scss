@@ -1,0 +1,113 @@
+// CL-Sprint4 28/10/2026: HU-07B. Sidebar con los datos del negocio
+:host {
+  display: block;
+}
+
+.sidebar {
+  padding: 1.25rem;
+  border: 1px solid var(--cb-line-soft);
+  border-radius: var(--cb-radius-lg);
+  background: var(--cb-surface);
+  box-shadow: var(--cb-shadow-sm);
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+
+  h1 {
+    margin: 0.1rem 0 0.35rem;
+    font-size: 1.2rem;
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--cb-ink);
+    overflow-wrap: anywhere;
+  }
+}
+
+.avatar {
+  flex-shrink: 0;
+  border: 3px solid var(--cb-brand-soft);
+  border-radius: 50%;
+  background: var(--cb-surface);
+  object-fit: cover;
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cb-primary);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-success-soft);
+  color: var(--cb-success);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.badge-off {
+  background: var(--cb-danger-soft);
+  color: var(--cb-danger);
+}
+
+.warning {
+  margin: 1rem 0 0;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--cb-danger-line);
+  border-radius: var(--cb-radius);
+  background: var(--cb-danger-soft);
+  color: var(--cb-danger);
+  font-size: 0.85rem;
+}
+
+.facts {
+  display: grid;
+  gap: 0.85rem;
+  margin: 1.25rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--cb-line-soft);
+
+  dt {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--cb-ink-muted);
+  }
+  dd {
+    margin: 0.15rem 0 0;
+    color: var(--cb-ink);
+    font-size: 0.95rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+.methods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.15rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    padding: 0.15rem 0.6rem;
+    border-radius: var(--cb-radius-pill);
+    background: var(--cb-surface-low);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 960px) {
+  .facts {
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  }
+}

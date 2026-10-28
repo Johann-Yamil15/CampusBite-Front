@@ -1,0 +1,115 @@
+// CL-Sprint4 28/10/2026: HU-07B. Layout de 3 columnas (sidebar · galería · estadísticas) → 1 columna en < 960px
+.panel-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 220px;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.panel-sidebar,
+.panel-stats {
+  position: sticky;
+  top: 80px;
+  align-self: start;
+}
+
+.panel-main {
+  min-height: 60vh;
+  min-width: 0;
+}
+
+.notice-region:empty {
+  display: none;
+}
+
+.notice {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--cb-success-line);
+  border-radius: var(--cb-radius);
+  background: var(--cb-success-soft);
+  color: var(--cb-success);
+  font-weight: 600;
+}
+.notice-error {
+  border-color: var(--cb-danger-line);
+  background: var(--cb-danger-soft);
+  color: var(--cb-danger);
+}
+
+.link-btn {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+%shimmer {
+  border-radius: var(--cb-radius-lg);
+  background: linear-gradient(
+    90deg,
+    var(--cb-surface-low),
+    var(--cb-surface-high),
+    var(--cb-surface-low)
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+.skeleton-sidebar {
+  @extend %shimmer;
+  height: 18rem;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin: 3.5rem 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    @extend %shimmer;
+    aspect-ratio: 3 / 4;
+  }
+}
+
+/* Celular y tableta: una columna. Primero el negocio, luego los números y al final la galería */
+@media (max-width: 960px) {
+  .panel-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .panel-sidebar,
+  .panel-stats {
+    position: static;
+  }
+  .panel-sidebar {
+    order: 1;
+  }
+  .panel-stats {
+    order: 2;
+  }
+  .panel-main {
+    order: 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-sidebar,
+  .skeleton-grid li {
+    animation: none;
+  }
+}

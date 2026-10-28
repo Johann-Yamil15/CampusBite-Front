@@ -1,0 +1,47 @@
+<!-- CL-Sprint4 28/10/2026: HU-07B. Panel del negocio: 3 columnas en escritorio, una en celular -->
+<div class="panel-layout">
+  <aside class="panel-sidebar" aria-label="Datos del negocio">
+    @if (cafeteria(); as c) {
+      <app-sidebar-negocio [cafeteria]="c" />
+    } @else if (cafeteriaError(); as message) {
+      <div class="cb-alert-error" role="alert"><span>{{ message }}</span></div>
+    } @else {
+      <div class="skeleton skeleton-sidebar" aria-hidden="true"></div>
+    }
+  </aside>
+
+  <section class="panel-main" aria-label="Productos">
+    <div class="notice-region" role="status" aria-live="polite">
+      @if (notice(); as n) {
+        <p class="notice" [class.notice-error]="n.kind === 'error'">{{ n.text }}</p>
+      }
+    </div>
+
+    @if (menu.error(); as message) {
+      <div class="cb-alert-error" role="alert">
+        <span>{{ message }}</span>
+        <button type="button" class="link-btn" (click)="reload()">Reintentar</button>
+      </div>
+    } @else if (!loaded()) {
+      <ul class="skeleton-grid" aria-hidden="true">
+        <li></li><li></li><li></li><li></li><li></li><li></li>
+      </ul>
+      <p class="sr-only">Cargando productos…</p>
+    } @else {
+      <app-galeria-productos
+        [products]="menu.products()"
+        [categories]="menu.categories()"
+        [pending]="menu.pending()"
+        (availabilityChange)="onAvailabilityChange($event)"
+      />
+    }
+  </section>
+
+  <aside class="panel-stats" aria-label="Estadísticas">
+    <app-stats-negocio
+      [total]="menu.total()"
+      [available]="menu.availableCount()"
+      [unavailable]="menu.unavailableCount()"
+    />
+  </aside>
+</div>

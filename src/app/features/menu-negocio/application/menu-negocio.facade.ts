@@ -36,6 +36,8 @@ export class MenuNegocioFacade {
   readonly products = this._products.asReadonly();
   /** Categorías de la cafetería, ordenadas por nombre. */
   readonly categories = this._categories.asReadonly();
+  /** Ids de los productos con una petición en curso (toggle, imagen, guardar o eliminar). */
+  readonly pending = this._pending.asReadonly();
   /** `true` mientras se carga el menú (`load`). Las acciones no lo tocan: no se oculta la galería. */
   readonly loading = signal(false);
   /** Mensaje del error de la carga, o `null`. */
