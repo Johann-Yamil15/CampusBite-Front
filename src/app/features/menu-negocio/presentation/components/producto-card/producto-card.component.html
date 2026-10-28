@@ -1,4 +1,4 @@
-<!-- CL-Sprint4 28/10/2026: HU-07B. Tarjeta de producto del panel del encargado -->
+<!-- CL-Sprint4 28/10/2026: HU-07B. Tarjeta de platillo del panel del encargado -->
 @let p = product();
 <article class="product-card" [class.inactive]="!p.available" [attr.aria-busy]="pending()">
   <div class="media">
@@ -10,16 +10,15 @@
       height="300"
       (error)="onImageError(p)"
     />
-    @if (!p.available) {
-      <span class="badge-off">No disponible</span>
-    }
   </div>
 
   <div class="body">
-    <div class="header">
-      <span class="chip" [class.chip-empty]="!p.categoryName">{{
-        p.categoryName ?? 'Sin categoría'
-      }}</span>
+    <p class="category" [class.category-empty]="!p.categoryName">
+      {{ p.categoryName ?? 'Sin categoría' }}
+    </p>
+
+    <div class="title-row">
+      <h3 class="name">{{ p.name }}</h3>
 
       <div class="menu">
         <button
@@ -104,25 +103,25 @@
       </div>
     </div>
 
-    <h3 class="name">{{ p.name }}</h3>
     @if (p.description) {
       <p class="description">{{ p.description }}</p>
     }
-    <p class="price">{{ p.price | currency: 'MXN' : 'symbol-narrow' }}</p>
 
-    <label class="switch">
-      <input
-        type="checkbox"
+    <div class="footer-row">
+      <p class="price">{{ p.price | currency: 'MXN' : 'symbol-narrow' }}</p>
+      <button
+        type="button"
         role="switch"
-        [checked]="p.available"
+        class="availability"
+        [class.on]="p.available"
+        [attr.aria-checked]="p.available"
         [disabled]="pending()"
-        (change)="onToggle($event)"
-      />
-      <span class="track" aria-hidden="true"></span>
-      <span class="switch-label"
-        >{{ p.available ? 'Disponible' : 'No disponible'
-        }}<span class="sr-only"> · {{ p.name }}</span></span
+        (click)="onToggle()"
       >
-    </label>
+        <span class="dot" aria-hidden="true"></span>
+        {{ p.available ? 'Disponible' : 'No disponible'
+        }}<span class="sr-only">: {{ p.name }}</span>
+      </button>
+    </div>
   </div>
 </article>

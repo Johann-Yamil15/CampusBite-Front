@@ -1,16 +1,7 @@
-<!-- CL-Sprint4 28/10/2026: HU-07B. Datos del negocio -->
+<!-- CL-Sprint4 28/10/2026: HU-07B. Datos del negocio (pestaña Información) -->
 @let c = cafeteria();
-<section class="sidebar" aria-labelledby="negocio-title">
-  <div class="identity">
-    <img class="avatar" src="assets/images/logo-campusbite.png" alt="" width="72" height="72" />
-    <div>
-      <p class="eyebrow">Mi negocio</p>
-      <h1 id="negocio-title">{{ c.name }}</h1>
-      <span class="badge" [class.badge-off]="!c.active">{{
-        c.active ? 'Activa' : 'Dada de baja'
-      }}</span>
-    </div>
-  </div>
+<section class="info" aria-labelledby="info-title">
+  <h2 id="info-title">Información del negocio</h2>
 
   @if (!c.active) {
     <p class="warning">
@@ -32,6 +23,10 @@
       <dd>{{ c.onCampus ? 'Dentro del campus' : 'Fuera del campus' }}</dd>
     </div>
     <div>
+      <dt>Estado</dt>
+      <dd>{{ c.active ? 'Activa' : 'Dada de baja' }}</dd>
+    </div>
+    <div>
       <dt>Métodos de pago</dt>
       <dd>
         <ul class="methods">
@@ -40,6 +35,10 @@
           }
         </ul>
       </dd>
+    </div>
+    <div>
+      <dt>En CampusBite desde</dt>
+      <dd>{{ c.createdAt | date: 'dd/MM/yyyy' }}</dd>
     </div>
   </dl>
 </section>

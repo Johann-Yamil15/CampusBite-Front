@@ -1,65 +1,33 @@
-<!-- CL-Sprint4 28/10/2026: HU-07B. Galería de productos con filtro por categoría -->
-<section class="gallery" aria-labelledby="gallery-title">
-  <header class="toolbar">
-    <h2 id="gallery-title">Mi menú</h2>
+<!-- CL-Sprint4 28/10/2026: HU-07B. Cuadrícula de platillos -->
+@if (menuEmpty()) {
+  <div class="empty">
+    <img src="assets/images/producto-sin-imagen.svg" alt="" width="160" height="120" />
+    <p><strong>Aún no tienes platillos en tu menú.</strong></p>
+    <p class="muted">Agrega el primero para que los alumnos puedan pedirlo.</p>
     <button type="button" class="cb-btn cb-btn--primary" (click)="create.emit()">
-      <svg
-        aria-hidden="true"
-        class="icon"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-      </svg>
-      Nuevo producto
+      Agregar platillo
     </button>
-  </header>
-
-  @if (products().length) {
-    <div class="chips" role="group" aria-label="Filtrar por categoría">
-      @for (chip of chips(); track chip.key) {
-        <button
-          type="button"
-          class="chip"
-          [class.active]="isActive(chip)"
-          [attr.aria-pressed]="isActive(chip)"
-          (click)="select(chip)"
-        >
-          {{ chip.label }} <span class="count">{{ chip.count }}</span>
-        </button>
-      }
-    </div>
-  }
-
-  @if (!products().length) {
-    <div class="empty">
-      <img src="assets/images/producto-sin-imagen.svg" alt="" width="160" height="120" />
-      <p><strong>Aún no tienes productos en tu menú.</strong></p>
-      <p class="muted">Agrega el primero para que los alumnos puedan pedirlo.</p>
-      <button type="button" class="cb-btn cb-btn--primary" (click)="create.emit()">
-        Agregar producto
-      </button>
-    </div>
-  } @else if (!visible().length) {
-    <div class="empty">
-      <p><strong>No hay productos en esta categoría.</strong></p>
-    </div>
-  } @else {
-    <ul class="grid">
-      @for (product of visible(); track product.id) {
-        <li>
-          <app-producto-card
-            [product]="product"
-            [pending]="pending().has(product.id)"
-            (edit)="edit.emit($event)"
-            (changeImage)="changeImage.emit($event)"
-            (remove)="remove.emit($event)"
-            (availabilityChange)="availabilityChange.emit({ product, available: $event })"
-          />
-        </li>
-      }
-    </ul>
-  }
-</section>
+  </div>
+} @else if (!products().length) {
+  <div class="empty">
+    <p><strong>No hay platillos que coincidan.</strong></p>
+    <button type="button" class="cb-btn cb-btn--secondary" (click)="clearFilter.emit()">
+      Ver todos
+    </button>
+  </div>
+} @else {
+  <ul class="grid">
+    @for (product of products(); track product.id) {
+      <li>
+        <app-producto-card
+          [product]="product"
+          [pending]="pending().has(product.id)"
+          (edit)="edit.emit($event)"
+          (changeImage)="changeImage.emit($event)"
+          (remove)="remove.emit($event)"
+          (availabilityChange)="availabilityChange.emit({ product, available: $event })"
+        />
+      </li>
+    }
+  </ul>
+}

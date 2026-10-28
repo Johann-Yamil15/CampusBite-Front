@@ -63,8 +63,9 @@ export class ProductoCardComponent {
     this[action].emit(this.product());
   }
 
-  protected onToggle(event: Event): void {
-    this.availabilityChange.emit((event.target as HTMLInputElement).checked);
+  /** La píldora "Disponible" es un switch: emite el valor contrario al actual. */
+  protected onToggle(): void {
+    this.availabilityChange.emit(!this.product().available);
   }
 
   protected closeMenu(returnFocus: boolean): void {

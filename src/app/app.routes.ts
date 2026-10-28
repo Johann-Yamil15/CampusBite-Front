@@ -39,6 +39,13 @@ export const routes: Routes = [
         (m) => m.PerfilNegocioPage,
       ),
   },
+  // CL-Sprint4 28/10/2026: HU-07B. Panel del negocio (/negocio/{idCafeteria}), solo para AdminCafeteria. Trae su
+  // propia navegación (sidebar del Panel de Negocio), por eso va fuera del MainLayout. roleGuard ya exige sesión.
+  {
+    matcher: negocioIdMatcher,
+    canActivate: [roleGuard('AdminCafeteria')],
+    loadChildren: () => import('@features/menu-negocio/menu-negocio.routes'),
+  },
   {
     path: '',
     canActivate: [authGuard],
@@ -54,12 +61,6 @@ export const routes: Routes = [
         path: 'admin',
         canActivate: [roleGuard('AdminSistema')],
         loadChildren: () => import('@features/admin/admin.routes'),
-      },
-      // CL-Sprint4 28/10/2026: HU-07B. Panel del negocio (/negocio/{idCafeteria}), solo para AdminCafeteria
-      {
-        matcher: negocioIdMatcher,
-        canActivate: [roleGuard('AdminCafeteria')],
-        loadChildren: () => import('@features/menu-negocio/menu-negocio.routes'),
       },
     ],
   },

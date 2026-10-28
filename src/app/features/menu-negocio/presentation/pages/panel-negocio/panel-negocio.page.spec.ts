@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
+import { AuthFacade } from '@features/auth';
 import { Cafeteria, CafeteriaFacade } from '@features/cafeterias';
 import { MenuRepository } from '@features/menu-negocio/domain/repositories/menu.repository';
 import { MenuProduct } from '@features/menu-negocio/domain/models/menu.model';
@@ -73,7 +74,10 @@ describe('PanelNegocioPage', () => {
     };
   });
 
+  let auth: { logout: ReturnType<typeof vi.fn> };
+
   beforeEach(async () => {
+    auth = { logout: vi.fn() };
     repo = {
       listProducts: vi.fn(() =>
         of([
@@ -101,6 +105,7 @@ describe('PanelNegocioPage', () => {
         MenuNegocioFacade,
         { provide: MenuRepository, useValue: repo },
         { provide: CafeteriaFacade, useValue: fakeCafeterias() },
+        { provide: AuthFacade, useValue: auth },
       ],
     }).compileComponents();
 
@@ -110,9 +115,13 @@ describe('PanelNegocioPage', () => {
     await fixture.whenStable();
   });
 
-  it('muestra las 3 columnas: negocio, galería con todos los productos y estadísticas', () => {
-    expect(el.querySelector('.panel-sidebar')!.textContent).toContain('Cafetería Central (prueba)');
-    expect(el.querySelector('.panel-sidebar')!.textContent).toContain('Puerta 1');
+  it('muestra navegación, perfil del negocio con la galería y la columna de estadísticas', () => {
+    expect(el.querySelector('app-negocio-nav')!.textContent).toContain('Panel de Negocio');
+    expect(el.querySelector('.profile-card h1')!.textContent).toContain(
+      'Cafetería Central (prueba)',
+    );
+    expect(el.querySelector('.rail')!.textContent).toContain('Puerta 1');
+    expect(el.querySelector('.numbers')!.textContent).toContain('Platillos');
     expect(cardNames()).toEqual(['Café americano', 'Chilaquiles verdes', 'Agua']);
     expect(stat('Total')).toBe('3');
     expect(stat('No disponibles')).toBe('1');
@@ -121,21 +130,21 @@ describe('PanelNegocioPage', () => {
   });
 
   it('filtra por categoría y por "Sin categoría"', async () => {
-    button('Desayunos', el.querySelector('.chips')!).click();
+    button('Desayunos', el.querySelector('.bubbles')!).click();
     await fixture.whenStable();
     expect(cardNames()).toEqual(['Chilaquiles verdes']);
 
-    button('Sin categoría', el.querySelector('.chips')!).click();
+    button('Sin categoría', el.querySelector('.bubbles')!).click();
     await fixture.whenStable();
     expect(cardNames()).toEqual(['Agua']);
 
-    button('Todos', el.querySelector('.chips')!).click();
+    button('Todos', el.querySelector('.bubbles')!).click();
     await fixture.whenStable();
     expect(cardNames()).toHaveLength(3);
   });
 
   it('el toggle hace PATCH y actualiza las estadísticas sin recargar', async () => {
-    el.querySelector<HTMLInputElement>('input[role="switch"]')!.click();
+    el.querySelector<HTMLButtonElement>('[role="switch"]')!.click();
     await fixture.whenStable();
     expect(repo.setAvailable).toHaveBeenCalledWith(CAF_ID, 'p-1', false);
     expect(repo.listProducts).toHaveBeenCalledTimes(1);
@@ -146,7 +155,7 @@ describe('PanelNegocioPage', () => {
     repo.setAvailable.mockReturnValue(
       throwError(() => ({ status: 404, message: 'El producto no existe' })),
     );
-    el.querySelector<HTMLInputElement>('input[role="switch"]')!.click();
+    el.querySelector<HTMLButtonElement>('[role="switch"]')!.click();
     await fixture.whenStable();
     expect(stat('No disponibles')).toBe('1');
     expect(el.querySelector('[role="status"]')!.textContent).toContain('El producto no existe');
@@ -228,5 +237,36 @@ describe('PanelNegocioPage', () => {
     expect(el.querySelector('[role="status"]')!.textContent).toContain(
       'El servicio de imágenes no está disponible por ahora',
     );
+  });
+
+  it('el buscador filtra por nombre sin distinguir acentos', async () => {
+    const search = el.querySelector<HTMLInputElement>('.topbar input[type="search"]')!;
+    search.value = 'cafe';
+    search.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    expect(cardNames()).toEqual(['Café americano']);
+    expect(el.querySelector('.active-filter')!.textContent).toContain('«cafe»');
+
+    button('Ver todos', el.querySelector('.active-filter')!).click();
+    await fixture.whenStable();
+    expect(cardNames()).toHaveLength(3);
+  });
+
+  it('"No disponibles" de accesos rápidos filtra la galería', async () => {
+    button('No disponibles', el.querySelector('.quick')!).click();
+    await fixture.whenStable();
+    expect(cardNames()).toEqual(['Agua']);
+  });
+
+  it('la pestaña Información muestra los datos del negocio', async () => {
+    button('Información', el.querySelector('[role="tablist"]')!).click();
+    await fixture.whenStable();
+    expect(el.querySelector('app-info-negocio')!.textContent).toContain('Edificio principal');
+    expect(el.querySelector('app-galeria-productos')).toBeNull();
+  });
+
+  it('Cerrar sesión desde la navegación', () => {
+    el.querySelector<HTMLButtonElement>('app-negocio-nav .logout')!.click();
+    expect(auth.logout).toHaveBeenCalled();
   });
 });

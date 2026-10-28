@@ -52,7 +52,7 @@ describe('ProductoCardComponent', () => {
     await render();
     const values: boolean[] = [];
     fixture.componentInstance.availabilityChange.subscribe((v) => values.push(v));
-    const toggle = el.querySelector<HTMLInputElement>('input[role="switch"]')!;
+    const toggle = el.querySelector<HTMLButtonElement>('[role="switch"]')!;
     toggle.click();
     expect(values).toEqual([false]);
   });
@@ -85,7 +85,7 @@ describe('ProductoCardComponent', () => {
 
   it('bloquea el toggle y el menú mientras hay una petición en curso', async () => {
     await render(PRODUCT, true);
-    expect(el.querySelector<HTMLInputElement>('input[role="switch"]')!.disabled).toBe(true);
+    expect(el.querySelector<HTMLButtonElement>('[role="switch"]')!.disabled).toBe(true);
     expect(button('Opciones').disabled).toBe(true);
   });
 });
