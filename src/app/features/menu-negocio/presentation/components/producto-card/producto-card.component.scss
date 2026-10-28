@@ -3,7 +3,7 @@
   display: block;
 }
 
-.card {
+.product-card {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -44,7 +44,8 @@
   left: 0.6rem;
   padding: 0.2rem 0.6rem;
   border-radius: var(--cb-radius-pill);
-  background: var(--cb-ink);
+  // Fijo (no token): va sobre la foto y debe leerse igual en modo claro y oscuro
+  background: rgba(27, 28, 28, 0.85);
   color: #fff;
   font-size: 0.75rem;
   font-weight: 700;

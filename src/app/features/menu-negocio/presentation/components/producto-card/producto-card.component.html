@@ -1,6 +1,6 @@
 <!-- CL-Sprint4 28/10/2026: HU-07B. Tarjeta de producto del panel del encargado -->
 @let p = product();
-<article class="card" [class.inactive]="!p.available" [attr.aria-busy]="pending()">
+<article class="product-card" [class.inactive]="!p.available" [attr.aria-busy]="pending()">
   <div class="media">
     <img
       [src]="imageOf(p)"

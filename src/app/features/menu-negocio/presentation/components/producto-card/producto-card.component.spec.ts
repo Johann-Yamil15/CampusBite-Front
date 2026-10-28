@@ -43,7 +43,7 @@ describe('ProductoCardComponent', () => {
 
   it('marca la tarjeta inactiva cuando no está disponible', async () => {
     await render({ ...PRODUCT, available: false, categoryName: 'Desayunos' });
-    expect(el.querySelector('.card')!.classList).toContain('inactive');
+    expect(el.querySelector('.product-card')!.classList).toContain('inactive');
     expect(el.textContent).toContain('Desayunos');
     expect(el.textContent).toContain('No disponible');
   });

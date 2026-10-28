@@ -68,9 +68,9 @@
   &.active {
     border-color: var(--cb-primary);
     background: var(--cb-primary);
-    color: #fff;
+    color: var(--cb-primary-contrast);
     .count {
-      background: rgba(255, 255, 255, 0.2);
+      background: color-mix(in srgb, var(--cb-primary-contrast) 15%, transparent);
     }
   }
 }
