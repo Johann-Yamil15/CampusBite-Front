@@ -5,19 +5,24 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   OnInit,
   computed,
   inject,
   input,
   signal,
+  viewChild,
 } from '@angular/core';
 import { ApiError } from '@core/http/api-error';
 import { CafeteriaFacade } from '@features/cafeterias';
 import { MenuNegocioFacade } from '@features/menu-negocio/application/menu-negocio.facade';
+import { MenuProduct, PRODUCT_IMAGE_RULES } from '@features/menu-negocio/domain/models/menu.model';
+import { ConfirmarEliminarComponent } from '@features/menu-negocio/presentation/components/confirmar-eliminar/confirmar-eliminar.component';
 import {
   AvailabilityChange,
   GaleriaProductosComponent,
 } from '@features/menu-negocio/presentation/components/galeria-productos/galeria-productos.component';
+import { ProductoFormComponent } from '@features/menu-negocio/presentation/components/producto-form/producto-form.component';
 import { SidebarNegocioComponent } from '@features/menu-negocio/presentation/components/sidebar-negocio/sidebar-negocio.component';
 import { StatsNegocioComponent } from '@features/menu-negocio/presentation/components/stats-negocio/stats-negocio.component';
 
@@ -31,7 +36,13 @@ interface Notice {
 
 @Component({
   selector: 'app-panel-negocio-page',
-  imports: [SidebarNegocioComponent, GaleriaProductosComponent, StatsNegocioComponent],
+  imports: [
+    SidebarNegocioComponent,
+    GaleriaProductosComponent,
+    StatsNegocioComponent,
+    ProductoFormComponent,
+    ConfirmarEliminarComponent,
+  ],
   templateUrl: './panel-negocio.page.html',
   styleUrl: './panel-negocio.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -54,6 +65,16 @@ export class PanelNegocioPage implements OnInit {
   protected readonly loaded = signal(false);
   protected readonly notice = signal<Notice | null>(null);
 
+  /** Diálogo de crear/editar: abierto y producto en edición (`null` = alta). */
+  protected readonly formOpen = signal(false);
+  protected readonly editing = signal<MenuProduct | null>(null);
+  /** Producto esperando confirmación para eliminarse. */
+  protected readonly toDelete = signal<MenuProduct | null>(null);
+
+  protected readonly imageAccept = PRODUCT_IMAGE_RULES.accept;
+  private readonly imageInput = viewChild<ElementRef<HTMLInputElement>>('imageInput');
+  /** Producto al que se le cambiará la imagen cuando el usuario elija el archivo. */
+  private imageTarget: MenuProduct | null = null;
   private noticeTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
@@ -81,6 +102,56 @@ export class PanelNegocioPage implements OnInit {
     this.menu.setAvailable(product.id, available).subscribe({
       error: (err: ApiError) =>
         this.showNotice('error', `No se pudo cambiar «${product.name}»: ${err.message}`),
+    });
+  }
+
+  protected openCreate(): void {
+    this.editing.set(null);
+    this.formOpen.set(true);
+  }
+
+  protected openEdit(product: MenuProduct): void {
+    this.editing.set(product);
+    this.formOpen.set(true);
+  }
+
+  protected closeForm(): void {
+    this.formOpen.set(false);
+    this.editing.set(null);
+  }
+
+  protected onSaved(name: string): void {
+    const wasEdit = this.editing() !== null;
+    this.closeForm();
+    this.showNotice(
+      'ok',
+      wasEdit ? `Se guardaron los cambios de «${name}».` : `Se agregó «${name}» a tu menú.`,
+    );
+  }
+
+  protected onDeleted(name: string): void {
+    this.toDelete.set(null);
+    this.showNotice('ok', `Se eliminó «${name}» de tu menú.`);
+  }
+
+  /** "Cambiar imagen": abre el selector de archivos del sistema. */
+  protected pickImage(product: MenuProduct): void {
+    const input = this.imageInput()?.nativeElement;
+    if (!input) return;
+    this.imageTarget = product;
+    input.value = '';
+    input.click();
+  }
+
+  protected onImagePicked(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    const product = this.imageTarget;
+    this.imageTarget = null;
+    if (!file || !product) return;
+    this.menu.uploadImage(product.id, file).subscribe({
+      next: () => this.showNotice('ok', `Se actualizó la imagen de «${product.name}».`),
+      // 503 → "El servicio de imágenes no está disponible por ahora…" (MenuNegocioFacade)
+      error: (err: ApiError) => this.showNotice('error', err.message),
     });
   }
 

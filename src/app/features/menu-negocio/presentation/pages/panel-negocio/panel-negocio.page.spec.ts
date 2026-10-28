@@ -62,6 +62,17 @@ describe('PanelNegocioPage', () => {
       .find((s) => s.textContent?.includes(label))
       ?.querySelector('dd')?.textContent;
 
+  beforeAll(() => {
+    // jsdom no implementa <dialog>.showModal()/close()
+    HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+      this.open = true;
+    };
+    HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+      this.open = false;
+      this.dispatchEvent(new Event('close'));
+    };
+  });
+
   beforeEach(async () => {
     repo = {
       listProducts: vi.fn(() =>
@@ -139,5 +150,83 @@ describe('PanelNegocioPage', () => {
     await fixture.whenStable();
     expect(stat('No disponibles')).toBe('1');
     expect(el.querySelector('[role="status"]')!.textContent).toContain('El producto no existe');
+  });
+
+  const openMenuAction = async (cardIndex: number, action: string) => {
+    const card = el.querySelectorAll('app-producto-card')[cardIndex];
+    button('Opciones', card).click();
+    await fixture.whenStable();
+    button(action, card).click();
+    await fixture.whenStable();
+  };
+
+  it('Editar abre el diálogo con los datos del producto', async () => {
+    await openMenuAction(1, 'Editar');
+    const dialog = el.querySelector('app-producto-form dialog') as HTMLDialogElement;
+    expect(dialog.open).toBe(true);
+    expect(dialog.querySelector<HTMLInputElement>('#product-name')!.value).toBe(
+      'Chilaquiles verdes',
+    );
+  });
+
+  it('Eliminar pide confirmación y quita el producto', async () => {
+    repo.deleteProduct.mockReturnValue(of(undefined));
+    await openMenuAction(2, 'Eliminar');
+    const dialog = el.querySelector('app-confirmar-eliminar dialog')!;
+    expect(dialog.textContent).toContain('¿Eliminar «Agua»?');
+    button('Eliminar', dialog).click();
+    await fixture.whenStable();
+    expect(repo.deleteProduct).toHaveBeenCalledWith(CAF_ID, 'p-3');
+    expect(cardNames()).toEqual(['Café americano', 'Chilaquiles verdes']);
+    expect(stat('Total')).toBe('2');
+    expect(el.querySelector('app-confirmar-eliminar')).toBeNull();
+  });
+
+  it('con órdenes activas muestra el error del backend y conserva el producto', async () => {
+    repo.deleteProduct.mockReturnValue(
+      throwError(() => ({
+        status: 409,
+        message: 'El producto tiene 2 orden(es) activa(s); desactívalo en su lugar',
+      })),
+    );
+    await openMenuAction(0, 'Eliminar');
+    const dialog = el.querySelector('app-confirmar-eliminar dialog')!;
+    button('Eliminar', dialog).click();
+    await fixture.whenStable();
+    expect(dialog.querySelector('[role="alert"]')!.textContent).toContain('2 orden(es) activa(s)');
+    expect(stat('Total')).toBe('3');
+  });
+
+  it('Cambiar imagen sube el archivo elegido y actualiza la tarjeta', async () => {
+    repo.uploadImage.mockReturnValue(of('https://blob/productos/p-1.webp'));
+    const picker = el.querySelector<HTMLInputElement>('input[type="file"]')!;
+    const click = vi.spyOn(picker, 'click').mockImplementation(() => undefined);
+    await openMenuAction(0, 'Cambiar imagen');
+    expect(click).toHaveBeenCalled();
+
+    const file = new File(['x'], 'cafe.webp', { type: 'image/webp' });
+    Object.defineProperty(picker, 'files', { value: [file], configurable: true });
+    picker.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+    expect(repo.uploadImage).toHaveBeenCalledWith(CAF_ID, 'p-1', file);
+    expect(el.querySelector('app-producto-card img')!.getAttribute('src')).toBe(
+      'https://blob/productos/p-1.webp',
+    );
+  });
+
+  it('si el servicio de imágenes no responde (503) lo avisa con un mensaje claro', async () => {
+    repo.uploadImage.mockReturnValue(throwError(() => ({ status: 503, message: 'x' })));
+    const picker = el.querySelector<HTMLInputElement>('input[type="file"]')!;
+    vi.spyOn(picker, 'click').mockImplementation(() => undefined);
+    await openMenuAction(0, 'Cambiar imagen');
+    Object.defineProperty(picker, 'files', {
+      value: [new File(['x'], 'a.png', { type: 'image/png' })],
+      configurable: true,
+    });
+    picker.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+    expect(el.querySelector('[role="status"]')!.textContent).toContain(
+      'El servicio de imágenes no está disponible por ahora',
+    );
   });
 });

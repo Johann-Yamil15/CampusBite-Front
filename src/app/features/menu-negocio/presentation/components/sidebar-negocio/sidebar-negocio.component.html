@@ -6,12 +6,16 @@
     <div>
       <p class="eyebrow">Mi negocio</p>
       <h1 id="negocio-title">{{ c.name }}</h1>
-      <span class="badge" [class.badge-off]="!c.active">{{ c.active ? 'Activa' : 'Dada de baja' }}</span>
+      <span class="badge" [class.badge-off]="!c.active">{{
+        c.active ? 'Activa' : 'Dada de baja'
+      }}</span>
     </div>
   </div>
 
   @if (!c.active) {
-    <p class="warning">Tu cafetería está dada de baja: los alumnos no ven tu menú ni pueden hacer pedidos.</p>
+    <p class="warning">
+      Tu cafetería está dada de baja: los alumnos no ven tu menú ni pueden hacer pedidos.
+    </p>
   }
 
   <dl class="facts">
