@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, RedirectCommand, ResolveFn, Router } from '@angular/router';
 import { catchError, map, of, switchMap } from 'rxjs';
 import { AuthFacade } from '@features/auth/application/auth.facade';
 import { resolverCafeteriaDelEncargado } from '@features/auth/application/resolver-cafeteria-del-encargado';
@@ -35,23 +35,29 @@ export function roleGuard(...roles: UserRole[]): CanActivateFn {
 }
 
 /**
- * CL-Sprint4 28/10/2026: HU-07B. Va en la ruta raíz: si el encargado (AdminCafeteria) conoce su cafetería,
- * lo lleva a su panel `/negocio/{id}`. Los demás roles pasan sin hacer ninguna petición.
- * Si no la conoce (hoy el backend aún no manda `idCafeteria`), la busca con resolverCafeteriaDelEncargado
- * (TEMPORAL). Si tampoco así aparece, o hay error, lo lleva a `/negocio`: nunca al inicio del alumno.
+ * CL-Sprint4 28/10/2026: HU-07B. Va en la ruta raíz: el encargado (AdminCafeteria) nunca ve el
+ * inicio del alumno, va a su panel `/mi-negocio`. Los demás roles pasan sin hacer ninguna petición.
  */
-export const negocioHomeGuard: CanActivateFn = () => {
-  const auth = inject(AuthFacade);
-  const router = inject(Router);
-  if (!auth.hasRole('AdminCafeteria')) return true;
+export const negocioHomeGuard: CanActivateFn = () =>
+  inject(AuthFacade).hasRole('AdminCafeteria')
+    ? inject(Router).createUrlTree(['/mi-negocio'])
+    : true;
 
-  const toPanel = (cafeteriaId: string | null | undefined) =>
-    router.createUrlTree(cafeteriaId ? ['/negocio', cafeteriaId] : ['/negocio']);
+/**
+ * CL-Sprint4 28/10/2026: HU-07B. Resolver de `/mi-negocio`: da al panel el id de la cafetería del
+ * encargado sin ponerlo en la URL. Usa `user.cafeteriaId`, o el de /me tras recargar; si no viene
+ * (hoy el backend aún no manda `idCafeteria`), lo busca con resolverCafeteriaDelEncargado
+ * (TEMPORAL). Si tampoco así aparece, o hay error, lleva a `/negocio` como último recurso.
+ */
+export const cafeteriaDelEncargadoResolver: ResolveFn<string> = () => {
+  const auth = inject(AuthFacade);
+  const fallback = new RedirectCommand(inject(Router).parseUrl('/negocio'));
 
   const user = auth.user();
-  if (user?.cafeteriaId) return toPanel(user.cafeteriaId);
+  if (user?.cafeteriaId) return user.cafeteriaId;
 
-  // TEMPORAL: borrar cuando el backend devuelva idCafeteria en login y /me (se crea aquí: necesita inject)
+  // TEMPORAL: borrar cuando el backend devuelva idCafeteria en login y /me.
+  // Se crea aquí y no en el switchMap: necesita inject.
   const resolver$ = resolverCafeteriaDelEncargado();
 
   // Tras recargar la página `user` es null hasta consultar /me
@@ -64,8 +70,8 @@ export const negocioHomeGuard: CanActivateFn = () => {
 
   return known$.pipe(
     switchMap((cafeteriaId) => (cafeteriaId ? of(cafeteriaId) : resolver$)),
-    map(toPanel),
-    catchError(() => of(toPanel(null))),
+    map((cafeteriaId) => cafeteriaId ?? fallback),
+    catchError(() => of(fallback)),
   );
 };
 
