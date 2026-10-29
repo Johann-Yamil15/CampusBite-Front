@@ -1,17 +1,10 @@
-import { Routes, UrlMatchResult, UrlSegment } from '@angular/router';
-import { authGuard, negocioHomeGuard, roleGuard } from '@features/auth';
-
-const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-/**
- * CL-Sprint4 28/10/2026: HU-07B. Solo `negocio/<GUID>` (el id de la cafetería, como parámetro `id`).
- * Así `/negocio/productos`, `/negocio/pedidos`... (enlaces de NEGOCIO_NAV) no caen en el panel.
- */
-export function negocioIdMatcher(segments: UrlSegment[]): UrlMatchResult | null {
-  return segments.length === 2 && segments[0].path === 'negocio' && GUID.test(segments[1].path)
-    ? { consumed: segments, posParams: { id: segments[1] } }
-    : null;
-}
+import { Routes } from '@angular/router';
+import {
+  authGuard,
+  cafeteriaDelEncargadoResolver,
+  negocioHomeGuard,
+  roleGuard,
+} from '@features/auth';
 
 /**
  * Rutas raíz: solo montan features (cada una define sus rutas en `<feature>.routes.ts`).
@@ -25,7 +18,7 @@ export const routes: Routes = [
   { path: 'register', pathMatch: 'full', redirectTo: 'auth/register' },
   // JJ-Sprint3 21/10/2026: cascarón visual (HU futura les da funcionalidad). Traen su propia navegación
   // inferior completa, por eso van fuera del MainLayout (que tiene su propia barra superior) y no dentro.
-  // CL-Sprint4 28/10/2026: HU-07B. negocioHomeGuard lleva al encargado a su panel si conoce su cafetería
+  // CL-Sprint4 28/10/2026: HU-07B. negocioHomeGuard lleva al encargado a su panel /mi-negocio
   {
     path: '',
     canActivate: [authGuard, negocioHomeGuard],
@@ -39,11 +32,14 @@ export const routes: Routes = [
         (m) => m.PerfilNegocioPage,
       ),
   },
-  // CL-Sprint4 28/10/2026: HU-07B. Panel del negocio (/negocio/{idCafeteria}), solo para AdminCafeteria. Trae su
-  // propia navegación (sidebar del Panel de Negocio), por eso va fuera del MainLayout. roleGuard ya exige sesión.
+  // CL-Sprint4 28/10/2026: HU-07B. Panel del negocio, solo para AdminCafeteria. Trae su propia
+  // navegación (sidebar del Panel de Negocio), por eso va fuera del MainLayout. roleGuard ya exige
+  // sesión. El id de la cafetería no va en la URL: lo resuelve cafeteriaDelEncargadoResolver y
+  // llega al panel como input `id`.
   {
-    matcher: negocioIdMatcher,
+    path: 'mi-negocio',
     canActivate: [roleGuard('AdminCafeteria')],
+    resolve: { id: cafeteriaDelEncargadoResolver },
     loadChildren: () => import('@features/menu-negocio/menu-negocio.routes'),
   },
   {
