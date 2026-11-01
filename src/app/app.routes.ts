@@ -40,6 +40,13 @@ export const routes: Routes = [
       },
     ],
   },
+  // FB-Sprint4 29/10/2026: Ruta para la pantalla de inicio del alumno (Catálogo de cafeterías)
+  {
+    path: 'inicio',
+    canActivate: [authGuard],
+    loadComponent: () => import('@features/inicio-alumno/inicio-alumno').then(m => m.InicioAlumnoComponent)
+  },
+  
   {
     path: '**',
     title: 'No encontrado · CampusBite',

@@ -1,0 +1,46 @@
+<!-- FB-Sprint4 29/10/2026: Estructura visual de inicio alumno adaptando el UI del diseño original -->
+<div class="inicio-container">
+  <div class="inicio-header">
+    <h1>¿Qué se te antoja hoy?</h1>
+
+    <!-- Buscador estilo "Pill" basado en el diseño del Panel -->
+    <div class="search-bar">
+      <mat-icon>search</mat-icon>
+      <input
+        type="text"
+        placeholder="Buscar negocio o platillo..."
+        aria-label="Buscar negocio o platillo"
+        [value]="busqueda()"
+        (input)="actualizarBusqueda($event)"
+      />
+    </div>
+  </div>
+
+  <div class="content-area">
+    @if (cargando()) {
+      <div class="loading-state">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Cargando menú...</p>
+      </div>
+    } @else if (error()) {
+      <!-- FB-Sprint4 01/11/2026: estado de error con opción de reintentar -->
+      <div class="empty-state">
+        <mat-icon>cloud_off</mat-icon>
+        <p>{{ error() }}</p>
+        <button type="button" class="btn-reintentar" (click)="cargar()">Reintentar</button>
+      </div>
+    } @else {
+      <div class="negocios-list">
+        <!-- Ciclo que renderizará cada tarjeta de negocio -->
+        @for (negocio of negociosFiltrados(); track negocio.idCafeteria) {
+          <app-negocio-card [negocio]="negocio"></app-negocio-card>
+        } @empty {
+          <div class="empty-state">
+            <mat-icon>search_off</mat-icon>
+            <p>{{ busqueda() ? 'No hay negocios o platillos que coincidan con tu búsqueda.' : 'Por ahora no hay negocios abiertos.' }}</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
