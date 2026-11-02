@@ -2,6 +2,7 @@
 export { AuthFacade } from './application/auth.facade';
 export {
   authGuard,
+  cafeteriaDelEncargadoResolver,
   guestGuard,
   negocioHomeGuard,
   roleGuard,

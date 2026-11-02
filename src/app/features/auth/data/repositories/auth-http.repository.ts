@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { ApiClient } from '@core/http/api-client.service';
+import { ApiError } from '@core/http/api-error';
 import { AuthRepository } from '@features/auth/domain/repositories/auth.repository';
 import {
   Credentials,
@@ -44,5 +45,13 @@ export class AuthHttpRepository extends AuthRepository {
 
   me(): Observable<User> {
     return this.api.get<MeResponseDto>('auth/me').pipe(map(AuthMapper.toUser));
+  }
+
+  // CL-Sprint4 28/10/2026: HU-07B. TEMPORAL: borrar cuando el backend devuelva idCafeteria en login y /me
+  puedeVerProductos(cafeteriaId: string): Observable<boolean> {
+    return this.api.get<unknown>(`cafeterias/${cafeteriaId}/productos`).pipe(
+      map(() => true),
+      catchError((err: ApiError) => (err.status === 403 ? of(false) : throwError(() => err))),
+    );
   }
 }

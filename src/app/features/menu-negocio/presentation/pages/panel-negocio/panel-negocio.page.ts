@@ -67,7 +67,7 @@ type Tab = 'platillos' | 'info';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PanelNegocioPage implements OnInit {
-  /** Id de la cafetería, de la ruta `/negocio/:id` (withComponentInputBinding). */
+  /** Id de la cafetería: lo pone el resolver de `/mi-negocio` (no va en la URL). */
   readonly id = input.required<string>();
 
   protected readonly menu = inject(MenuNegocioFacade);
