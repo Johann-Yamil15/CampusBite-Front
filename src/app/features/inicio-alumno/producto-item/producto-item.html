@@ -1,0 +1,25 @@
+<!-- FB-Sprint4 29/10/2026: UI del platillo inspirado en la lista de productos del diseño de referencia -->
+<div class="producto-card">
+  <div class="imagen-wrapper">
+    <!-- Si no hay imagen, mostramos un recuadro gris sutil -->
+    <img *ngIf="producto.imagenUrl" [src]="producto.imagenUrl" [alt]="producto.producto">
+    <div *ngIf="!producto.imagenUrl" class="placeholder-img">
+      <mat-icon>restaurant</mat-icon>
+    </div>
+  </div>
+  
+  <div class="info-wrapper">
+    <h4 class="prod-nombre">{{ producto.producto }}</h4>
+    <div class="precio-badge">
+      <span class="prod-precio">{{ producto.precio | currency:'MXN' }}</span>
+      <span class="badge-disponible">Disponible</span>
+    </div>
+    <p class="prod-desc" *ngIf="producto.descripcion">{{ producto.descripcion }}</p>
+  </div>
+
+  <div class="action-wrapper">
+    <button mat-mini-fab class="btn-add" (click)="agregar()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+</div>

@@ -1,0 +1,114 @@
+/* FB-Sprint4 29/10/2026: Estilos base heredando el "Design System" del mockup (fondos claros, sombras suaves) */
+.inicio-container {
+  padding: 32px;
+  background-color: #f8f9fa; /* Fondo claro similar al del diseño */
+  min-height: 100vh;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+}
+
+.inicio-header {
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  h1 {
+    font-size: 28px;
+    color: #1a1a1a;
+    margin: 0;
+    font-weight: 700;
+  }
+
+  /* Buscador idéntico al de la barra superior de la imagen */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 12px 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    width: 100%;
+    max-width: 500px;
+    border: 1px solid #f0f0f0;
+    transition: box-shadow 0.3s ease;
+
+    &:focus-within {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      border-color: #e0e0e0;
+    }
+
+    mat-icon {
+      color: #9e9e9e;
+      margin-right: 12px;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+
+    input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 15px;
+      color: #333;
+      background: transparent;
+      
+      &::placeholder {
+        color: #9e9e9e;
+      }
+    }
+  }
+}
+
+.loading-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #757575;
+  text-align: center;
+
+  p {
+    margin-top: 16px;
+    font-size: 16px;
+  }
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #bdbdbd;
+  }
+}
+
+/* FB-Sprint4 01/11/2026: botón para reintentar la carga del menú */
+.btn-reintentar {
+  margin-top: 16px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: 12px;
+  background: #e65100;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: #ef6c00;
+  }
+}
+
+.negocios-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Responsividad básica */
+@media (max-width: 768px) {
+  .inicio-container {
+    padding: 20px;
+  }
+}
