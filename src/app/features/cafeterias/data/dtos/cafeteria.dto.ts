@@ -7,7 +7,7 @@
 /** Enum `MetodoPago` del backend. No acepta números. */
 export type MetodoPagoDto = 'Tarjeta' | 'Transferencia' | 'Efectivo';
 
-/** Respuesta de `GET api/cafeterias` (arreglo), `GET api/cafeterias/{id}`, `POST` (201) y `PUT` (200). */
+/** Elemento de `GET api/cafeterias` (ver `ListaCafeteriasDto`) y respuesta de `GET api/cafeterias/{id}`, `POST` (201) y `PUT` (200). */
 export interface CafeteriaDto {
   /** GUID. */
   idCafeteria: string;
@@ -23,6 +23,26 @@ export interface CafeteriaDto {
   /** Fecha ISO-8601 con zona. */
   actualizadoEn: string;
 }
+
+/**
+ * CL-Sprint4 04/11/2026: HU-06B. `PaginaDto<T>` del backend (rama feature/JY-Sprint4-paginacion-cafeterias).
+ * `total` cuenta todos los que cumplen el filtro, no solo los de esta página.
+ */
+export interface PaginaDto<T> {
+  items: T[];
+  total: number;
+  /** Empieza en 1. */
+  pagina: number;
+  /** 1 a 100. */
+  tamanoPagina: number;
+}
+
+/**
+ * CL-Sprint4 04/11/2026: HU-06B. Respuesta de `GET api/cafeterias`.
+ * Compatibilidad con GET /api/cafeterias en arreglo (Sprint4) y paginado (rama de Joseph).
+ * Cuando todo el backend esté paginado, quitar el caso de arreglo.
+ */
+export type ListaCafeteriasDto = CafeteriaDto[] | PaginaDto<CafeteriaDto>;
 
 /** Body de `POST api/cafeterias` y `PUT api/cafeterias/{id}`. Validaciones del backend entre paréntesis. */
 export interface GuardarCafeteriaRequestDto {

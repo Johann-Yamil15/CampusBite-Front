@@ -1,0 +1,66 @@
+<!-- FB-Sprint4 01/11/2026: Panel lateral derecho con los productos del carrito y el total -->
+<button
+  type="button"
+  class="carrito-fab"
+  [class.oculto]="abierto()"
+  [attr.aria-label]="'Abrir carrito (' + carrito.totalItems() + ' productos)'"
+  [matBadge]="carrito.totalItems()"
+  [matBadgeHidden]="carrito.isEmpty()"
+  (click)="alternar()"
+>
+  <mat-icon>shopping_cart</mat-icon>
+</button>
+
+@if (abierto()) {
+  <div class="backdrop" (click)="cerrar()" aria-hidden="true"></div>
+}
+
+<aside
+  class="drawer"
+  [class.abierto]="abierto()"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="carrito-titulo"
+  [attr.aria-hidden]="!abierto()"
+  [attr.inert]="abierto() ? null : ''"
+>
+  <header class="drawer-header">
+    <div>
+      <h2 id="carrito-titulo">Tu pedido</h2>
+      @if (carrito.cafeteria(); as cafeteria) {
+        <p class="cafeteria"><mat-icon>storefront</mat-icon>{{ cafeteria }}</p>
+      }
+    </div>
+    <button mat-icon-button type="button" aria-label="Cerrar carrito" (click)="cerrar()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="drawer-body">
+    @for (item of carrito.items(); track item.idProducto) {
+      <app-carrito-item [item]="item" />
+    } @empty {
+      <div class="vacio">
+        <mat-icon>shopping_bag</mat-icon>
+        <p>Tu carrito está vacío</p>
+        <span>Agrega platillos desde el menú de una cafetería.</span>
+      </div>
+    }
+  </div>
+
+  @if (!carrito.isEmpty()) {
+    <footer class="drawer-footer">
+      <div class="total-fila">
+        <span>{{ carrito.totalItems() }} {{ carrito.totalItems() === 1 ? 'producto' : 'productos' }}</span>
+        <button type="button" class="btn-vaciar" (click)="vaciar()">Vaciar</button>
+      </div>
+      <div class="total-fila total">
+        <span>Total</span>
+        <span>{{ carrito.totalPrecio() | currency: 'MXN' }}</span>
+      </div>
+      <button mat-flat-button type="button" class="btn-confirmar" (click)="confirmar()">
+        Confirmar pedido
+      </button>
+    </footer>
+  }
+</aside>

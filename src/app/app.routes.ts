@@ -1,5 +1,10 @@
 import { Routes } from '@angular/router';
-import { authGuard, roleGuard } from '@features/auth';
+import {
+  authGuard,
+  cafeteriaDelEncargadoResolver,
+  negocioHomeGuard,
+  roleGuard,
+} from '@features/auth';
 
 /**
  * Rutas raíz: solo montan features (cada una define sus rutas en `<feature>.routes.ts`).
@@ -13,7 +18,12 @@ export const routes: Routes = [
   { path: 'register', pathMatch: 'full', redirectTo: 'auth/register' },
   // JJ-Sprint3 21/10/2026: cascarón visual (HU futura les da funcionalidad). Traen su propia navegación
   // inferior completa, por eso van fuera del MainLayout (que tiene su propia barra superior) y no dentro.
-  { path: '', canActivate: [authGuard], loadChildren: () => import('@features/home/home.routes') },
+  // CL-Sprint4 28/10/2026: HU-07B. negocioHomeGuard lleva al encargado a su panel /mi-negocio
+  {
+    path: '',
+    canActivate: [authGuard, negocioHomeGuard],
+    loadChildren: () => import('@features/home/home.routes'),
+  },
   {
     path: 'negocio',
     canActivate: [authGuard],
@@ -21,6 +31,16 @@ export const routes: Routes = [
       import('@features/cafeterias/presentation/pages/perfil-negocio/perfil-negocio.page').then(
         (m) => m.PerfilNegocioPage,
       ),
+  },
+  // CL-Sprint4 28/10/2026: HU-07B. Panel del negocio, solo para AdminCafeteria. Trae su propia
+  // navegación (sidebar del Panel de Negocio), por eso va fuera del MainLayout. roleGuard ya exige
+  // sesión. El id de la cafetería no va en la URL: lo resuelve cafeteriaDelEncargadoResolver y
+  // llega al panel como input `id`.
+  {
+    path: 'mi-negocio',
+    canActivate: [roleGuard('AdminCafeteria')],
+    resolve: { id: cafeteriaDelEncargadoResolver },
+    loadChildren: () => import('@features/menu-negocio/menu-negocio.routes'),
   },
   {
     path: '',
@@ -40,6 +60,13 @@ export const routes: Routes = [
       },
     ],
   },
+  // FB-Sprint4 29/10/2026: Ruta para la pantalla de inicio del alumno (Catálogo de cafeterías)
+  {
+    path: 'inicio',
+    canActivate: [authGuard],
+    loadComponent: () => import('@features/inicio-alumno/inicio-alumno').then(m => m.InicioAlumnoComponent)
+  },
+  
   {
     path: '**',
     title: 'No encontrado · CampusBite',

@@ -1,4 +1,14 @@
+import { AuthResponseDto } from '@features/auth/data/dtos/auth.dto';
 import { AuthMapper } from './auth.mapper';
+
+const authResponse = (extra: Partial<AuthResponseDto> = {}): AuthResponseDto => ({
+  usuarioId: 'u-1',
+  correo: 'a@b.mx',
+  rol: 'AdminCafeteria',
+  token: 'jwt',
+  expiraEn: '2026-10-09T12:00:00Z',
+  ...extra,
+});
 
 describe('AuthMapper', () => {
   it('convierte la respuesta de login/registro en una sesión de dominio', () => {
@@ -23,6 +33,26 @@ describe('AuthMapper', () => {
       email: 'a@b.mx',
       role: 'AdminCafeteria',
     });
+  });
+
+  // CL-Sprint4 28/10/2026: HU-07B. idCafeteria es opcional: se usa si viene y no aparece si no
+  it('sin idCafeteria el usuario no trae cafeteriaId', () => {
+    const user = AuthMapper.toUser({
+      id: 'u-1',
+      correo: 'a@b.mx',
+      rol: 'AdminCafeteria',
+      idCafeteria: null,
+    });
+    expect('cafeteriaId' in user).toBe(false);
+    expect('cafeteriaId' in AuthMapper.toSession(authResponse()).user).toBe(false);
+  });
+
+  it('con idCafeteria lo pasa a cafeteriaId en /me y en la sesión', () => {
+    expect(
+      AuthMapper.toUser({ id: 'u-1', correo: 'a@b.mx', rol: 'AdminCafeteria', idCafeteria: 'c-1' })
+        .cafeteriaId,
+    ).toBe('c-1');
+    expect(AuthMapper.toSession(authResponse({ idCafeteria: 'c-1' })).user.cafeteriaId).toBe('c-1');
   });
 
   it('arma el body de login con los nombres del backend', () => {
