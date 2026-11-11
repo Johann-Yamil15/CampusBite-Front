@@ -1,51 +1,135 @@
-// FB-Sprint4 29/10/2026: Componente principal de inicio para el alumno con buscador en tiempo real.
-// CL-Sprint5 11/11/2026: se mueve de features/inicio-alumno a la feature alumno y lee el menú de la
-// CatalogoFacade (antes MenuService de shared/menu). El diseño no cambia en esta etapa.
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatIconModule } from '@angular/material/icon';
-import { CatalogoFacade } from '@features/catalogo';
-import { NegocioCardComponent } from '@features/alumno/presentation/components/negocio-card/negocio-card.component';
+// FB-Sprint4 29/10/2026: pantalla principal del alumno (catálogo de cafeterías).
+// CL-Sprint5 11/11/2026: etapa 3 del rediseño. Inicio estilo app de comida: saludo, pedido en curso,
+// carrusel de promociones, categorías con foto, cafeterías destacadas y platillos populares con "+" rápido.
+// El buscador ya no se repite aquí: vive en la barra superior (tableta/escritorio) y en la pestaña Buscar.
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  OnInit,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { ApiError } from '@core/http/api-error';
+import { AuthFacade } from '@features/auth';
+import { CatalogoFacade, Promocion } from '@features/catalogo';
+import { ETIQUETA_ETAPA, MisPedidosFacade, etapa } from '@features/ordenes';
+import { IconComponent } from '@shared/ui/icon/icon.component';
+import { ToastService } from '@shared/ui/toast/toast.service';
+import { FavoritosFacade } from '@features/alumno/application/favoritos.facade';
+import { CafeteriaCardComponent } from '@features/alumno/presentation/components/cafeteria-card/cafeteria-card.component';
+import { PlatilloCardComponent } from '@features/alumno/presentation/components/platillo-card/platillo-card.component';
+import { nombreDesdeCorreo } from '@features/alumno/presentation/nombre';
+
+interface CategoriaVisual {
+  nombre: string;
+  foto: string | null;
+}
 
 @Component({
   selector: 'app-inicio-page',
-  standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule, MatIconModule, NegocioCardComponent],
+  imports: [DatePipe, RouterLink, IconComponent, CafeteriaCardComponent, PlatilloCardComponent],
   templateUrl: './inicio.page.html',
-  styleUrl: './inicio.page.scss'
+  styleUrl: './inicio.page.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InicioPage implements OnInit {
   private readonly catalogo = inject(CatalogoFacade);
+  private readonly favoritos = inject(FavoritosFacade);
+  private readonly pedidos = inject(MisPedidosFacade);
+  private readonly auth = inject(AuthFacade);
+  private readonly toast = inject(ToastService);
 
-  readonly cargando = this.catalogo.cargando;
-  readonly menu     = this.catalogo.menu;
-  readonly busqueda = signal('');
-  // FB-Sprint4 01/11/2026: mensaje cuando no se pudo cargar el menú (para no confundirlo con "sin resultados")
-  readonly error    = this.catalogo.error;
+  protected readonly cargando = this.catalogo.cargando;
+  protected readonly error = this.catalogo.error;
+  protected readonly cafeterias = this.catalogo.destacadas;
+  protected readonly populares = this.catalogo.populares;
+  protected readonly promociones = this.catalogo.promociones;
+  protected readonly etiquetaEtapa = ETIQUETA_ETAPA;
+  protected readonly etapa = etapa;
 
-  // FB-Sprint4 29/10/2026: Filtra negocios y productos según lo que el alumno escriba
-  readonly negociosFiltrados = computed(() => {
-    const q = this.busqueda().toLowerCase();
-    if (!q) return this.menu();
-    return this.menu().filter(n =>
-      n.cafeteria.toLowerCase().includes(q) ||
-      n.productos.some(p => p.producto.toLowerCase().includes(q))
-    );
+  protected readonly primerNombre = computed(
+    () => nombreDesdeCorreo(this.auth.user()?.email).split(' ')[0],
+  );
+
+  /** Cada categoría con la foto de su platillo mejor calificado. */
+  protected readonly categorias = computed<CategoriaVisual[]>(() => {
+    const platillos = this.catalogo.platillos();
+    return this.catalogo.categorias().map((nombre) => {
+      const mejor = platillos
+        .filter((p) => p.categoria === nombre && p.imagenUrl)
+        .sort((a, b) => (b.calificacion ?? 0) - (a.calificacion ?? 0))[0];
+      return { nombre, foto: mejor?.imagenUrl ?? null };
+    });
   });
 
-  ngOnInit() {
+  /** El pedido en curso más urgente: primero el que ya está listo para recoger. */
+  protected readonly pedidoActivo = computed(() => {
+    const enCurso = this.pedidos.enCurso();
+    return enCurso.find((o) => o.estado === 'lista') ?? enCurso[0] ?? null;
+  });
+
+  protected readonly esqueletos = [1, 2, 3, 4];
+
+  ngOnInit(): void {
     this.cargar();
+    // El carrusel es un extra: si las promociones fallan, simplemente no se muestra
+    this.catalogo.cargarPromociones().subscribe({ error: () => undefined });
+    this.favoritos.cargar().subscribe({ error: () => undefined });
   }
 
-  // FB-Sprint4 01/11/2026: carga (o reintenta cargar) el menú de las cafeterías activas
-  // CL-Sprint5 11/11/2026: el mensaje de error ya lo deja la facade en error()
-  cargar(forzar = false) {
+  protected cargar(forzar = false): void {
     this.catalogo.cargar(forzar).subscribe({ error: () => undefined });
   }
 
-  actualizarBusqueda(event: Event) {
-    const target = event.target as HTMLInputElement;
-    this.busqueda.set(target.value);
+  protected esFavorita(idCafeteria: string): boolean {
+    return this.favoritos.esFavorita(idCafeteria);
+  }
+
+  protected alternarFavorito(idCafeteria: string): void {
+    const nombre = this.catalogo.cafeteria(idCafeteria)?.cafeteria ?? 'La cafetería';
+    this.favoritos.alternar(idCafeteria).subscribe({
+      next: (guardada) =>
+        this.toast.ok(guardada ? `${nombre} se guardó en tus favoritos.` : `${nombre} salió de tus favoritos.`),
+      error: (e: ApiError) => this.toast.error(e?.message ?? 'No se pudo actualizar tus favoritos.'),
+    });
+  }
+
+  /** A dónde lleva una promoción: la tienda de su cafetería o el buscador por categoría. */
+  protected enlacePromo(promo: Promocion): string[] {
+    return promo.idCafeteria ? ['/cafeterias', promo.idCafeteria] : ['/buscar'];
+  }
+
+  protected parametrosPromo(promo: Promocion): Record<string, string> | null {
+    return !promo.idCafeteria && promo.categoria ? { categoria: promo.categoria } : null;
+  }
+
+  // ---------- Carrusel ----------
+  private readonly carrusel = viewChild<ElementRef<HTMLElement>>('carrusel');
+  protected readonly diapositiva = signal(0);
+
+  /** Avanza o regresa una diapositiva (botones de escritorio; en teléfono se desliza con el dedo). */
+  protected mover(direccion: 1 | -1): void {
+    const el = this.carrusel()?.nativeElement;
+    if (!el) return;
+    el.scrollBy({ left: direccion * el.clientWidth * 0.9, behavior: 'smooth' });
+  }
+
+  /** Marca el punto de la diapositiva visible mientras se desliza. */
+  protected alDeslizar(): void {
+    const el = this.carrusel()?.nativeElement;
+    const ancho = el?.firstElementChild?.clientWidth;
+    if (!el || !ancho) return;
+    this.diapositiva.set(Math.round(el.scrollLeft / ancho));
+  }
+
+  protected irA(indice: number): void {
+    const el = this.carrusel()?.nativeElement;
+    const tarjeta = el?.children[indice] as HTMLElement | undefined;
+    if (el && tarjeta) el.scrollTo({ left: tarjeta.offsetLeft - el.offsetLeft, behavior: 'smooth' });
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, defer, finalize, forkJoin, map, of, tap } from 'rxjs';
+import { Observable, catchError, defer, finalize, forkJoin, map, of, tap } from 'rxjs';
 import { ApiError } from '@core/http/api-error';
 import { FavoritosRepository } from '@features/alumno/domain/repositories/favoritos.repository';
 import { CafeteriaFavorita } from '@features/alumno/domain/models/favorito.model';
@@ -44,6 +44,42 @@ export class FavoritosFacade {
         this.quitadas.update((l) => [...l, cafeteria]);
       }),
     );
+  }
+
+  /** Ids de las favoritas, para pintar el corazón de las tarjetas. */
+  readonly ids = computed(() => new Set(this._cafeterias().map((c) => c.idCafeteria)));
+
+  esFavorita(idCafeteria: string): boolean {
+    return this.ids().has(idCafeteria);
+  }
+
+  /**
+   * CL-Sprint5 11/11/2026 (etapa 3): corazón de las tarjetas del inicio y la tienda. Cambia en el acto
+   * (respuesta inmediata al toque) y, si el back falla, lo regresa como estaba y propaga el error.
+   * @returns `true` si quedó como favorita.
+   */
+  alternar(idCafeteria: string): Observable<boolean> {
+    return defer(() => {
+      const antes = this._cafeterias();
+      const actual = antes.find((c) => c.idCafeteria === idCafeteria);
+      const revertir = (e: unknown) => {
+        this._cafeterias.set(antes);
+        throw e;
+      };
+
+      if (actual) {
+        this._cafeterias.set(antes.filter((c) => c.idCafeteria !== idCafeteria));
+        return this.repo.quitarCafeteria(idCafeteria).pipe(
+          map(() => false),
+          catchError(revertir),
+        );
+      }
+      return this.repo.agregarCafeteria(idCafeteria).pipe(
+        tap((favorita) => this._cafeterias.update((l) => [...l, favorita])),
+        map(() => true),
+        catchError(revertir),
+      );
+    });
   }
 
   /** Vuelve a guardar las que se quitaron en esta visita. */

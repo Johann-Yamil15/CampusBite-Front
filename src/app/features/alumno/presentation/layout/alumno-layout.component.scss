@@ -570,6 +570,95 @@ $ancho-side: 248px;
   }
 }
 
+// Con la barra "Ver carrito" visible, el final de la página no queda debajo de ella
+.al-contenido.con-barra {
+  padding-bottom: calc(var(--cb-space-2xl) + 4.5rem);
+}
+
+// ---------- Barra "Ver carrito" ----------
+// Teléfono: ancho completo encima de la navegación inferior. Tableta y escritorio: píldora abajo a la derecha.
+.al-barra-carrito {
+  position: fixed;
+  left: var(--cb-gutter);
+  right: var(--cb-gutter);
+  bottom: calc(#{$alto-barra} + env(safe-area-inset-bottom) + 0.6rem);
+  z-index: var(--cb-z-nav);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 56px;
+  padding: 0.5rem 1rem 0.5rem 0.5rem;
+  border: 0;
+  border-radius: var(--cb-radius-lg);
+  background: var(--cb-action);
+  color: var(--cb-on-action);
+  font: inherit;
+  text-align: left;
+  box-shadow: 0 14px 30px -12px var(--cb-action-shadow), var(--cb-shadow-md);
+  cursor: pointer;
+  animation: al-barra-sube var(--cb-dur-enter) var(--cb-ease-out);
+
+  &:hover {
+    background: var(--cb-action-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--cb-focus-ring), var(--cb-shadow-md);
+  }
+
+  @media (min-width: $cb-bp-tablet) {
+    left: auto;
+    right: var(--cb-gutter);
+    bottom: 1.25rem;
+    width: 22rem;
+  }
+}
+
+.al-barra-n {
+  display: grid;
+  place-items: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 0.4rem;
+  border-radius: var(--cb-radius);
+  background: color-mix(in srgb, var(--cb-on-action) 16%, transparent);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.al-barra-texto {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.2;
+
+  strong {
+    font-size: var(--cb-text-md);
+  }
+
+  small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--cb-text-xs);
+    opacity: 0.85;
+  }
+}
+
+.al-barra-total {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes al-barra-sube {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+}
+
 .al-modal-texto {
   margin: 0;
   color: var(--cb-text-muted);
@@ -585,7 +674,8 @@ $ancho-side: 248px;
   .al-buscador {
     transition: none;
   }
-  .al-menu-lista {
+  .al-menu-lista,
+  .al-barra-carrito {
     animation: none;
   }
 }

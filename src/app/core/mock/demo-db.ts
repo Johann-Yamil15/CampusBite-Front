@@ -1,8 +1,8 @@
 // CL-Sprint5 11/11/2026: "base de datos" de demostración que comparten los repositorios mock de varias
 // features (catálogo, órdenes, favoritos). Así hablan de las mismas cafeterías y productos, como lo harían
 // con el backend. Son datos planos (sin tipos de las features): cada mock los convierte a su dominio.
-// Fotos de platillos: Unsplash (ver public/assets/demo/README.md). Portadas y logos de cafeterías: Picsum
-// Photos (stock genérico, no son fotos reales de la UTTT ni de sus cafeterías).
+// Fotos de platillos, portadas, logos y banners: Unsplash, guardadas en public/assets/demo (fuentes y
+// licencia en el README de esa carpeta). No son fotos reales de la UTTT ni de sus cafeterías.
 
 export type DemoMetodoPago = 'efectivo' | 'tarjeta' | 'transferencia';
 
@@ -15,7 +15,13 @@ export interface DemoCafeteria {
   logo: string;
   portada: string;
   calificacion: number;
+  /** Cuántas personas calificaron. */
+  resenas: number;
   abierta: boolean;
+  /** Hora de cierre de hoy (HH:mm), o null si hoy no abre. */
+  cierraA: string | null;
+  /** Tiempo típico de preparación, en minutos. */
+  minutosEstimados: number;
 }
 
 export interface DemoProducto {
@@ -27,6 +33,24 @@ export interface DemoProducto {
   descripcion: string;
   /** Archivo en public/assets/demo (sin extensión). Fuentes y licencia en el README de esa carpeta. */
   foto: string;
+  calificacion: number;
+  minutosPreparacion: number;
+  /** Precio antes de la promoción; null si no está en promoción. */
+  precioAnterior: number | null;
+  /** Lo más pedido: sale en "Populares" del inicio. */
+  popular: boolean;
+}
+
+/** Promoción destacada del carrusel del inicio. */
+export interface DemoPromocion {
+  id: string;
+  etiqueta: string;
+  titulo: string;
+  subtitulo: string;
+  banner: string;
+  /** A dónde lleva: una cafetería o una búsqueda por categoría. */
+  idCafeteria: string | null;
+  categoria: string | null;
 }
 
 export const DEMO_CAFETERIA = {
@@ -69,13 +93,13 @@ const P = DEMO_PRODUCTO;
 const cafeteria = (
   id: string,
   nombre: string,
-  semilla: string,
+  archivo: string,
   datos: Omit<DemoCafeteria, 'id' | 'nombre' | 'logo' | 'portada'>,
 ): DemoCafeteria => ({
   id,
   nombre,
-  logo: `https://picsum.photos/seed/cb-logo-${semilla}/80/80`,
-  portada: `https://picsum.photos/seed/cb-dest-${semilla}/320/200`,
+  logo: `assets/demo/logo-${archivo}.webp`,
+  portada: `assets/demo/portada-${archivo}.webp`,
   ...datos,
 });
 
@@ -85,70 +109,119 @@ export const DEMO_CAFETERIAS: DemoCafeteria[] = [
     puntoEntrega: 'Barra principal, Edificio A',
     metodosPago: ['efectivo', 'tarjeta', 'transferencia'],
     calificacion: 4.8,
+    resenas: 312,
     abierta: true,
+    cierraA: '17:00',
+    minutosEstimados: 10,
   }),
   cafeteria(C.express, 'Café Express', 'express', {
     esDelCampus: false,
     puntoEntrega: 'Kiosco, Entrada norte',
     metodosPago: ['efectivo', 'tarjeta'],
     calificacion: 4.7,
+    resenas: 189,
     abierta: false,
+    cierraA: null,
+    minutosEstimados: 5,
   }),
   cafeteria(C.rincon, 'Rincón Verde', 'rincon', {
     esDelCampus: true,
     puntoEntrega: 'Mostrador, Patio central',
     metodosPago: ['efectivo', 'transferencia'],
     calificacion: 4.9,
+    resenas: 141,
     abierta: true,
+    cierraA: '16:00',
+    minutosEstimados: 12,
   }),
   cafeteria(C.sabor, 'Sabor Universitario', 'sabor', {
     esDelCampus: true,
     puntoEntrega: 'Barra 2, Comedor',
     metodosPago: ['efectivo', 'tarjeta'],
     calificacion: 4.6,
+    resenas: 256,
     abierta: true,
+    cierraA: '18:00',
+    minutosEstimados: 15,
   }),
   cafeteria(C.terraza, 'La Terraza', 'terraza', {
     esDelCampus: true,
     puntoEntrega: 'Terraza, Edificio C',
     metodosPago: ['efectivo'],
     calificacion: 4.6,
+    resenas: 98,
     abierta: true,
+    cierraA: '13:00',
+    minutosEstimados: 12,
   }),
   cafeteria(C.snack, 'Snack Point', 'snack', {
     esDelCampus: false,
     puntoEntrega: 'Local 4, Plaza estudiantil',
     metodosPago: ['efectivo', 'transferencia'],
     calificacion: 4.5,
+    resenas: 74,
     abierta: true,
+    cierraA: '19:00',
+    minutosEstimados: 6,
   }),
 ];
 
 export const DEMO_PRODUCTOS: DemoProducto[] = [
-  { id: P.sandwich, idCafeteria: C.central, nombre: 'Sándwich Clásico de Pollo', categoria: 'Comidas', precio: 55, foto: 'sandwich',
+  { id: P.sandwich, idCafeteria: C.central, nombre: 'Sándwich Clásico de Pollo', categoria: 'Comidas', precio: 55, foto: 'sandwich', calificacion: 4.8, minutosPreparacion: 8, precioAnterior: null, popular: true,
     descripcion: 'Pan artesanal, pollo, lechuga, jitomate y aderezo de la casa.' },
-  { id: P.panini, idCafeteria: C.central, nombre: 'Panini Caprese', categoria: 'Comidas', precio: 49, foto: 'panini',
+  { id: P.panini, idCafeteria: C.central, nombre: 'Panini Caprese', categoria: 'Comidas', precio: 49, foto: 'panini', calificacion: 4.7, minutosPreparacion: 8, precioAnterior: 59, popular: true,
     descripcion: 'Pan artesanal, mozzarella, jitomate, albahaca y pesto.' },
-  { id: P.latte, idCafeteria: C.express, nombre: 'Latte Helado', categoria: 'Bebidas', precio: 38, foto: 'latte',
+  { id: P.latte, idCafeteria: C.express, nombre: 'Latte Helado', categoria: 'Bebidas', precio: 38, foto: 'latte', calificacion: 4.7, minutosPreparacion: 4, precioAnterior: null, popular: true,
     descripcion: 'Café espresso con leche y hielo. 355 ml.' },
-  { id: P.americano, idCafeteria: C.express, nombre: 'Café Americano', categoria: 'Bebidas', precio: 28, foto: 'americano',
+  { id: P.americano, idCafeteria: C.express, nombre: 'Café Americano', categoria: 'Bebidas', precio: 28, foto: 'americano', calificacion: 4.6, minutosPreparacion: 3, precioAnterior: null, popular: false,
     descripcion: 'Café de grano recién molido. 355 ml.' },
-  { id: P.bowlPollo, idCafeteria: C.rincon, nombre: 'Bowl de Pollo', categoria: 'Saludable', precio: 72, foto: 'bowl-pollo',
+  { id: P.bowlPollo, idCafeteria: C.rincon, nombre: 'Bowl de Pollo', categoria: 'Saludable', precio: 72, foto: 'bowl-pollo', calificacion: 4.9, minutosPreparacion: 12, precioAnterior: null, popular: true,
     descripcion: 'Arroz integral, pollo a la plancha, aguacate, vegetales y aderezo.' },
-  { id: P.smoothie, idCafeteria: C.rincon, nombre: 'Smoothie de Frutos Rojos', categoria: 'Bebidas', precio: 45, foto: 'smoothie',
+  { id: P.smoothie, idCafeteria: C.rincon, nombre: 'Smoothie de Frutos Rojos', categoria: 'Bebidas', precio: 45, foto: 'smoothie', calificacion: 4.8, minutosPreparacion: 5, precioAnterior: null, popular: false,
     descripcion: 'Fresa, plátano, avena y yogurt.' },
-  { id: P.ensalada, idCafeteria: C.rincon, nombre: 'Ensalada César', categoria: 'Saludable', precio: 62, foto: 'ensalada-cesar',
+  { id: P.ensalada, idCafeteria: C.rincon, nombre: 'Ensalada César', categoria: 'Saludable', precio: 62, foto: 'ensalada-cesar', calificacion: 4.5, minutosPreparacion: 7, precioAnterior: null, popular: false,
     descripcion: 'Lechuga romana, crutones, parmesano y aderezo césar.' },
-  { id: P.hamburguesa, idCafeteria: C.sabor, nombre: 'Hamburguesa Clásica', categoria: 'Comidas', precio: 79, foto: 'hamburguesa',
+  { id: P.hamburguesa, idCafeteria: C.sabor, nombre: 'Hamburguesa Clásica', categoria: 'Comidas', precio: 79, foto: 'hamburguesa', calificacion: 4.6, minutosPreparacion: 15, precioAnterior: 89, popular: true,
     descripcion: 'Carne de res, queso, lechuga, jitomate y papas.' },
-  { id: P.chilaquiles, idCafeteria: C.terraza, nombre: 'Chilaquiles Verdes', categoria: 'Desayunos', precio: 58, foto: 'chilaquiles',
+  { id: P.chilaquiles, idCafeteria: C.terraza, nombre: 'Chilaquiles Verdes', categoria: 'Desayunos', precio: 58, foto: 'chilaquiles', calificacion: 4.6, minutosPreparacion: 10, precioAnterior: null, popular: true,
     descripcion: 'Con pollo, crema, queso y cebolla.' },
-  { id: P.molletes, idCafeteria: C.terraza, nombre: 'Molletes de Frijol', categoria: 'Desayunos', precio: 42, foto: 'molletes',
+  { id: P.molletes, idCafeteria: C.terraza, nombre: 'Molletes de Frijol', categoria: 'Desayunos', precio: 42, foto: 'molletes', calificacion: 4.4, minutosPreparacion: 8, precioAnterior: null, popular: false,
     descripcion: 'Pan bolillo, frijoles refritos, queso gratinado y pico de gallo.' },
-  { id: P.papas, idCafeteria: C.snack, nombre: 'Papas a la Francesa', categoria: 'Snacks', precio: 32, foto: 'papas',
+  { id: P.papas, idCafeteria: C.snack, nombre: 'Papas a la Francesa', categoria: 'Snacks', precio: 32, foto: 'papas', calificacion: 4.5, minutosPreparacion: 6, precioAnterior: null, popular: true,
     descripcion: 'Papas crujientes con aderezo de la casa.' },
-  { id: P.galletas, idCafeteria: C.snack, nombre: 'Galletas de Avena', categoria: 'Snacks', precio: 25, foto: 'galletas',
+  { id: P.galletas, idCafeteria: C.snack, nombre: 'Galletas de Avena', categoria: 'Snacks', precio: 25, foto: 'galletas', calificacion: 4.3, minutosPreparacion: 1, precioAnterior: null, popular: false,
     descripcion: 'Paquete de 3 piezas, hechas en casa.' },
+];
+
+/** CL-Sprint5 11/11/2026: promociones del carrusel del inicio (etapa 3). */
+export const DEMO_PROMOCIONES: DemoPromocion[] = [
+  {
+    id: 'promo-receso',
+    etiqueta: 'Receso de 20 min',
+    titulo: 'Pide ahora, recoge sin fila',
+    subtitulo: 'Bebidas listas en 5 minutos o menos',
+    banner: 'assets/demo/banner-receso.webp',
+    idCafeteria: null,
+    categoria: 'Bebidas',
+  },
+  {
+    id: 'promo-combo',
+    etiqueta: 'Combo estudiante',
+    titulo: 'Panini Caprese a $49',
+    subtitulo: 'Antes $59 · Cafetería Central',
+    banner: 'assets/demo/banner-combo.webp',
+    idCafeteria: C.central,
+    categoria: null,
+  },
+  {
+    id: 'promo-desayunos',
+    etiqueta: 'Hasta las 10:00',
+    titulo: 'Desayunos para empezar bien',
+    subtitulo: 'Chilaquiles, molletes y más',
+    banner: 'assets/demo/banner-desayunos.webp',
+    idCafeteria: null,
+    categoria: 'Desayunos',
+  },
 ];
 
 /**

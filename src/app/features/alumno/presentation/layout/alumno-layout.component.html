@@ -115,11 +115,25 @@
       </div>
     </header>
 
-    <main id="contenido" class="al-contenido" tabindex="-1">
+    <main id="contenido" class="al-contenido" [class.con-barra]="!carrito.isEmpty()" tabindex="-1">
       <router-outlet />
     </main>
   </div>
 </div>
+
+<!-- CL-Sprint5 11/11/2026 (etapa 3): con algo en el carrito, una barra fija lo resume y lo abre -->
+@if (!carrito.isEmpty() && !carritoAbierto()) {
+  <button type="button" class="al-barra-carrito" (click)="abrirCarrito()">
+    @for (n of [carrito.totalItems()]; track n) {
+      <span class="al-barra-n cb-rebote">{{ n }}</span>
+    }
+    <span class="al-barra-texto">
+      <strong>Ver carrito</strong>
+      <small>{{ carrito.cafeteria() }}</small>
+    </span>
+    <span class="al-barra-total">{{ carrito.totalPrecio() | currency: 'MXN' : 'symbol-narrow' }}</span>
+  </button>
+}
 
 <!-- El carrito solo existe para el alumno; se abre desde la barra superior -->
 <app-carrito-drawer [(abierto)]="carritoAbierto" [botonFlotante]="false" />

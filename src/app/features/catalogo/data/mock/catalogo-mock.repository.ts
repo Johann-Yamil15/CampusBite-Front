@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { MockBackend, MockHttpError } from '@core/mock/mock-backend';
 import { CatalogoRepository } from '@features/catalogo/domain/repositories/catalogo.repository';
-import { MenuCafeteria } from '@features/catalogo/domain/models/catalogo.model';
-import { menuDemo } from './catalogo.mock-data';
+import { MenuCafeteria, Promocion } from '@features/catalogo/domain/models/catalogo.model';
+import { menuDemo, promocionesDemo } from './catalogo.mock-data';
 
 /**
  * CL-Sprint5 11/11/2026: catálogo simulado mientras el back no expone GET api/menu. Responde con la misma
@@ -23,5 +23,9 @@ export class CatalogoMockRepository extends CatalogoRepository {
       if (!menu) throw new MockHttpError(404, 'La cafetería no existe o no está activa.');
       return menu;
     });
+  }
+
+  promociones(): Observable<Promocion[]> {
+    return this.backend.responder(() => promocionesDemo());
   }
 }

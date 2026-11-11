@@ -7,7 +7,8 @@ import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
 import { AuthFacade } from '@features/auth';
 import { provideCatalogo } from '@features/catalogo';
 import { provideOrdenes } from '@features/ordenes';
-import { AlumnoLayoutComponent, nombreDesdeCorreo } from './alumno-layout.component';
+import { nombreDesdeCorreo } from '@features/alumno/presentation/nombre';
+import { AlumnoLayoutComponent } from './alumno-layout.component';
 
 /** CL-Sprint5 11/11/2026: navegación del alumno, menú de usuario, cerrar sesión y carrito. */
 describe('AlumnoLayoutComponent', () => {

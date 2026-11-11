@@ -11,9 +11,16 @@ const MENU: MenuCafeteria[] = [
     cafeteria: 'Central',
     esDelCampus: true,
     puntoEntrega: 'Barra',
+    logoUrl: null,
+    portadaUrl: null,
+    calificacion: null,
+    resenas: null,
+    abierta: true,
+    cierraA: null,
+    minutosEstimados: null,
     metodosPago: ['efectivo'],
     productos: [
-      { idProducto: 'p1', producto: 'Latte', categoria: 'Bebidas', descripcion: null, precio: 38, imagenUrl: null },
+      { idProducto: 'p1', producto: 'Latte', categoria: 'Bebidas', descripcion: null, precio: 38, imagenUrl: null, calificacion: null, minutosPreparacion: null, precioAnterior: null, popular: false },
     ],
   },
 ];

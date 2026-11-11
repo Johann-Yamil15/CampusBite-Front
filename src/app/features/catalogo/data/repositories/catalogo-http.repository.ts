@@ -2,8 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiClient } from '@core/http/api-client.service';
 import { CatalogoRepository } from '@features/catalogo/domain/repositories/catalogo.repository';
-import { MenuCafeteria } from '@features/catalogo/domain/models/catalogo.model';
-import { MenuCafeteriaDto } from '@features/catalogo/data/dtos/catalogo.dto';
+import { MenuCafeteria, Promocion } from '@features/catalogo/domain/models/catalogo.model';
+import { MenuCafeteriaDto, PromocionDto } from '@features/catalogo/data/dtos/catalogo.dto';
 import { CatalogoMapper } from '@features/catalogo/data/mappers/catalogo.mapper';
 
 /**
@@ -24,5 +24,11 @@ export class CatalogoHttpRepository extends CatalogoRepository {
     return this.api
       .get<MenuCafeteriaDto>(`menu/${idCafeteria}`)
       .pipe(map(CatalogoMapper.toDomain));
+  }
+
+  promociones(): Observable<Promocion[]> {
+    return this.api
+      .get<PromocionDto[]>('promociones/activas')
+      .pipe(map((dtos) => dtos.map(CatalogoMapper.toPromocion)));
   }
 }

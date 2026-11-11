@@ -1,5 +1,13 @@
-import { MenuCafeteria, MetodoPago } from '@features/catalogo/domain/models/catalogo.model';
-import { MenuCafeteriaDto, MetodoPagoDto } from '@features/catalogo/data/dtos/catalogo.dto';
+import {
+  MenuCafeteria,
+  MetodoPago,
+  Promocion,
+} from '@features/catalogo/domain/models/catalogo.model';
+import {
+  MenuCafeteriaDto,
+  MetodoPagoDto,
+  PromocionDto,
+} from '@features/catalogo/data/dtos/catalogo.dto';
 
 /** CL-Sprint5 11/11/2026: DTO del menú → entidad del catálogo. */
 export const CatalogoMapper = {
@@ -17,8 +25,24 @@ export const CatalogoMapper = {
         descripcion: p.descripcion,
         precio: p.precio,
         imagenUrl: p.imagenUrl,
+        calificacion: p.calificacion ?? null,
+        minutosPreparacion: p.minutosPreparacion ?? null,
+        precioAnterior: p.precioAnterior ?? null,
+        popular: p.popular ?? false,
       })),
+      logoUrl: dto.logoUrl ?? null,
+      portadaUrl: dto.portadaUrl ?? null,
+      calificacion: dto.calificacion ?? null,
+      resenas: dto.resenas ?? null,
+      // sp_menu_cafeteria solo devuelve cafeterías activas: sin el dato, se asume abierta
+      abierta: dto.abierta ?? true,
+      cierraA: dto.cierraA ?? null,
+      minutosEstimados: dto.minutosEstimados ?? null,
     };
+  },
+
+  toPromocion(dto: PromocionDto): Promocion {
+    return { ...dto };
   },
 
   toMetodo(dto: MetodoPagoDto): MetodoPago {

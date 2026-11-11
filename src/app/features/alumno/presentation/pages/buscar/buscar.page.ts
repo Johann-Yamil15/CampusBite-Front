@@ -33,6 +33,8 @@ const POR_PAGINA = 8;
 export class BuscarPage implements OnInit {
   /** Texto que llega de la topbar (/buscar?q=…). */
   readonly q = input<string>('');
+  /** CL-Sprint5 11/11/2026: categoría que llega del inicio (/buscar?categoria=Desayunos). */
+  readonly categoria = input<string>('');
 
   private readonly carritoService = inject(CarritoStore);
   private readonly toast = inject(ToastService);
@@ -49,13 +51,13 @@ export class BuscarPage implements OnInit {
   protected readonly errorCarga = this.catalogo.error;
 
   protected readonly texto = signal('');
-  protected readonly categoria = signal<string>('Todos');
+  protected readonly categoriaSel = signal<string>('Todos');
   protected readonly cafeteria = signal<string>('Todas');
   protected readonly pagina = signal(1);
 
   protected readonly resultados = computed<PlatilloCatalogo[]>(() => {
     const texto = this.texto().trim().toLowerCase();
-    const categoria = this.categoria();
+    const categoria = this.categoriaSel();
     const cafeteria = this.cafeteria();
 
     return this.catalogo.platillos().filter((p) => {
@@ -74,7 +76,7 @@ export class BuscarPage implements OnInit {
   );
 
   protected readonly hayFiltros = computed(
-    () => !!this.texto().trim() || this.categoria() !== 'Todos' || this.cafeteria() !== 'Todas',
+    () => !!this.texto().trim() || this.categoriaSel() !== 'Todos' || this.cafeteria() !== 'Todas',
   );
 
   constructor() {
@@ -82,6 +84,12 @@ export class BuscarPage implements OnInit {
     effect(() => {
       const q = this.q();
       if (q) this.texto.set(q);
+    });
+
+    // La categoría del inicio (o de una promoción) entra como filtro inicial
+    effect(() => {
+      const categoria = this.categoria();
+      if (categoria) this.categoriaSel.set(categoria);
     });
 
     // Al filtrar, la página actual puede quedar fuera de rango
@@ -122,13 +130,13 @@ export class BuscarPage implements OnInit {
   }
 
   protected verCategoria(categoria: string): void {
-    this.categoria.set(categoria);
+    this.categoriaSel.set(categoria);
     this.pagina.set(1);
   }
 
   protected limpiar(): void {
     this.texto.set('');
-    this.categoria.set('Todos');
+    this.categoriaSel.set('Todos');
     this.cafeteria.set('Todas');
     this.pagina.set(1);
   }

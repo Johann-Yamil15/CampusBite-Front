@@ -7,4 +7,5 @@ export type {
   MetodoPago,
   PlatilloCatalogo,
   ProductoMenu,
+  Promocion,
 } from './domain/models/catalogo.model';

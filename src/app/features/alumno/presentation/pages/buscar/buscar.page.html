@@ -41,8 +41,8 @@
       <button
         type="button"
         class="pill"
-        [class.active]="categoria() === c"
-        [attr.aria-pressed]="categoria() === c"
+        [class.active]="categoriaSel() === c"
+        [attr.aria-pressed]="categoriaSel() === c"
         (click)="verCategoria(c)"
       >
         {{ c }}

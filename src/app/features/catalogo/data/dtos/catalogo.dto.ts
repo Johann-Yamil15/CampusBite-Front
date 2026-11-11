@@ -14,6 +14,11 @@ export interface ProductoMenuDto {
   descripcion: string | null;
   precio: number;
   imagenUrl: string | null;
+  // CL-Sprint5 11/11/2026: campos propuestos para la etapa 3 (opcionales hasta que el back los mande)
+  calificacion?: number | null;
+  minutosPreparacion?: number | null;
+  precioAnterior?: number | null;
+  popular?: boolean;
 }
 
 export interface MenuCafeteriaDto {
@@ -23,4 +28,23 @@ export interface MenuCafeteriaDto {
   puntoEntrega: string;
   metodosPago: MetodoPagoDto[];
   productos: ProductoMenuDto[];
+  // CL-Sprint5 11/11/2026: campos propuestos para la etapa 3 (opcionales hasta que el back los mande)
+  logoUrl?: string | null;
+  portadaUrl?: string | null;
+  calificacion?: number | null;
+  resenas?: number | null;
+  abierta?: boolean;
+  cierraA?: string | null;
+  minutosEstimados?: number | null;
+}
+
+/** CL-Sprint5 11/11/2026: elemento de GET api/promociones/activas (propuesto). */
+export interface PromocionDto {
+  idPromocion: string;
+  etiqueta: string;
+  titulo: string;
+  subtitulo: string;
+  imagenUrl: string | null;
+  idCafeteria: string | null;
+  categoria: string | null;
 }

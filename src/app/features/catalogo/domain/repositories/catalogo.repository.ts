@@ -1,5 +1,5 @@
 import { Observable } from 'rxjs';
-import { MenuCafeteria } from '@features/catalogo/domain/models/catalogo.model';
+import { MenuCafeteria, Promocion } from '@features/catalogo/domain/models/catalogo.model';
 
 /**
  * CL-Sprint5 11/11/2026: contrato (puerto) del catálogo del alumno. Se enlaza en catalogo.providers.ts:
@@ -11,4 +11,6 @@ export abstract class CatalogoRepository {
   abstract listarMenu(): Observable<MenuCafeteria[]>;
   /** Menú de una cafetería activa. Falla con 404 si no existe o no está activa. */
   abstract menuCafeteria(idCafeteria: string): Observable<MenuCafeteria>;
+  /** Promociones vigentes para el carrusel del inicio. */
+  abstract promociones(): Observable<Promocion[]>;
 }

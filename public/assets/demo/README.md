@@ -36,4 +36,31 @@ repositorios mock; con el backend real cada producto trae su propia `imagenUrl`.
 - **Chilaquiles:** las fotos libres de chilaquiles *verdes* son de Unsplash+ (de pago); se usa una de
   chilaquiles con pollo, queso y cebolla.
 
-Las portadas y logos de las cafeterías de demostración siguen siendo de Picsum Photos (foto genérica).
+## Cafeterías y banners (CL-Sprint5, etapa 3)
+
+Misma licencia y mismo método (CDN de Unsplash, recorte al centro). Portadas en 800×450 y banners del
+carrusel del inicio en 1000×420, con calidad de 35 a 45 para quedar debajo de 60 KB. Los **logos** no son
+fotos nuevas: son recortes cuadrados de 160×160 de las fotos de platillos de arriba (el platillo estrella
+de cada cafetería), porque las cafeterías de demostración no tienen logotipo real.
+
+| Archivo | Uso | Foto original | Autor |
+|---|---|---|---|
+| `portada-central.webp` | Portada de Cafetería Central | [Barista behind counter with pastries and drinks](https://unsplash.com/photos/PaKa6QrFytA) | Gema Saputera ([@gemasaputera](https://unsplash.com/@gemasaputera)) |
+| `portada-express.webp` | Portada de Café Express | [Modern coffee shop interior with hanging edison bulbs](https://unsplash.com/photos/IKvl3PLi8pQ) | Tim Raderschad ([@cstrnt_](https://unsplash.com/@cstrnt_)) |
+| `portada-rincon.webp` | Portada de Rincón Verde | [Fresh fruits and vegetables arranged on a table](https://unsplash.com/photos/ewXGkFeh2FI) | Ahmet Koç ([@ahmetkoc](https://unsplash.com/@ahmetkoc)) |
+| `portada-sabor.webp` | Portada de Sabor Universitario | [Fast food counter with digital menu boards above](https://unsplash.com/photos/ZkT-MlKNoNU) | Ryan Collins ([@ironlogicfit](https://unsplash.com/@ironlogicfit)) |
+| `portada-terraza.webp` | Portada de La Terraza | [Empty outdoor cafe tables on a stone-paved patio](https://unsplash.com/photos/VVh1dzDqdiw) | Long Chung ([@chungj07](https://unsplash.com/@chungj07)) |
+| `portada-snack.webp` | Portada de Snack Point | [A table topped with lots of hot dogs and chips](https://unsplash.com/photos/X6WOfiK9QPU) | Samuel Ramos ([@idgeek](https://unsplash.com/@idgeek)) |
+| `logo-central.webp` | Logo de Cafetería Central | Recorte de `sandwich.webp` | ver arriba |
+| `logo-express.webp` | Logo de Café Express | Recorte de `latte.webp` | ver arriba |
+| `logo-rincon.webp` | Logo de Rincón Verde | Recorte de `ensalada-cesar.webp` | ver arriba |
+| `logo-sabor.webp` | Logo de Sabor Universitario | Recorte de `hamburguesa.webp` | ver arriba |
+| `logo-terraza.webp` | Logo de La Terraza | Recorte de `chilaquiles.webp` | ver arriba |
+| `logo-snack.webp` | Logo de Snack Point | Recorte de `papas.webp` | ver arriba |
+| `banner-combo.webp` | Carrusel: combo | Recorte de `panini.webp` | ver arriba |
+| `banner-desayunos.webp` | Carrusel: desayunos | Recorte de `chilaquiles.webp` | ver arriba |
+| `banner-receso.webp` | Carrusel: receso | Recorte de `latte.webp` | ver arriba |
+
+Notas: la portada de Cafetería Central muestra a una empleada detrás del mostrador (no es el sujeto
+principal); la de Sabor Universitario tiene pizarrones de menú genéricos, sin marca reconocible; la de
+Snack Point son hot dogs con papas.

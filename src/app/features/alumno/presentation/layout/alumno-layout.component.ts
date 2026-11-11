@@ -16,6 +16,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs';
@@ -25,6 +26,8 @@ import { IconComponent } from '@shared/ui/icon/icon.component';
 import { NombreIcono } from '@shared/ui/icon/icons';
 import { ModalComponent } from '@shared/ui/modal/modal.component';
 import { CarritoStore } from '@features/alumno/application/carrito.store';
+import { CarritoUiService } from '@features/alumno/presentation/carrito-ui.service';
+import { nombreDesdeCorreo } from '@features/alumno/presentation/nombre';
 import { CarritoDrawerComponent } from '@features/alumno/presentation/components/carrito-drawer/carrito-drawer.component';
 
 interface NavItem {
@@ -43,23 +46,10 @@ const NAV: NavItem[] = [
   { icono: 'perfil', etiqueta: 'Perfil', enlace: '/perfil' },
 ];
 
-/**
- * Nombre para saludar mientras el back no manda el nombre en /me (pendiente B1): se arma con la parte
- * del correo antes de la @ ("juan.perez" → "Juan Perez").
- */
-export function nombreDesdeCorreo(correo: string | null | undefined): string {
-  const local = correo?.split('@')[0]?.trim();
-  if (!local) return 'Alumno';
-  return local
-    .split(/[._-]+/)
-    .filter(Boolean)
-    .map((p) => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
-    .join(' ');
-}
-
 @Component({
   selector: 'app-alumno-layout',
   imports: [
+    CurrencyPipe,
     RouterLink,
     RouterLinkActive,
     RouterOutlet,
@@ -97,7 +87,8 @@ export class AlumnoLayoutComponent {
       .join(''),
   );
 
-  protected readonly carritoAbierto = signal(false);
+  /** Abierto/cerrado del drawer: lo comparten la barra, la barra "Ver carrito" y las pantallas. */
+  protected readonly carritoAbierto = inject(CarritoUiService).abierto;
   protected readonly menuAbierto = signal(false);
   protected readonly confirmandoSalida = signal(false);
 
