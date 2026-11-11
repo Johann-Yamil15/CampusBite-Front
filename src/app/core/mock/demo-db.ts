@@ -1,7 +1,8 @@
 // CL-Sprint5 11/11/2026: "base de datos" de demostración que comparten los repositorios mock de varias
 // features (catálogo, órdenes, favoritos). Así hablan de las mismas cafeterías y productos, como lo harían
 // con el backend. Son datos planos (sin tipos de las features): cada mock los convierte a su dominio.
-// Las fotos son de Picsum Photos: stock genérico, no son fotos reales de la UTTT ni de sus cafeterías.
+// Fotos de platillos: Unsplash (ver public/assets/demo/README.md). Portadas y logos de cafeterías: Picsum
+// Photos (stock genérico, no son fotos reales de la UTTT ni de sus cafeterías).
 
 export type DemoMetodoPago = 'efectivo' | 'tarjeta' | 'transferencia';
 
@@ -24,8 +25,8 @@ export interface DemoProducto {
   categoria: string;
   precio: number;
   descripcion: string;
-  /** Semilla de Picsum: la misma foto en todos los tamaños. */
-  semilla: string;
+  /** Archivo en public/assets/demo (sin extensión). Fuentes y licencia en el README de esa carpeta. */
+  foto: string;
 }
 
 export const DEMO_CAFETERIA = {
@@ -124,33 +125,36 @@ export const DEMO_CAFETERIAS: DemoCafeteria[] = [
 ];
 
 export const DEMO_PRODUCTOS: DemoProducto[] = [
-  { id: P.sandwich, idCafeteria: C.central, nombre: 'Sándwich Clásico de Pollo', categoria: 'Comidas', precio: 55, semilla: 'sandwich',
+  { id: P.sandwich, idCafeteria: C.central, nombre: 'Sándwich Clásico de Pollo', categoria: 'Comidas', precio: 55, foto: 'sandwich',
     descripcion: 'Pan artesanal, pollo, lechuga, jitomate y aderezo de la casa.' },
-  { id: P.panini, idCafeteria: C.central, nombre: 'Panini Caprese', categoria: 'Comidas', precio: 49, semilla: 'panini',
+  { id: P.panini, idCafeteria: C.central, nombre: 'Panini Caprese', categoria: 'Comidas', precio: 49, foto: 'panini',
     descripcion: 'Pan artesanal, mozzarella, jitomate, albahaca y pesto.' },
-  { id: P.latte, idCafeteria: C.express, nombre: 'Latte Helado', categoria: 'Bebidas', precio: 38, semilla: 'latte',
+  { id: P.latte, idCafeteria: C.express, nombre: 'Latte Helado', categoria: 'Bebidas', precio: 38, foto: 'latte',
     descripcion: 'Café espresso con leche y hielo. 355 ml.' },
-  { id: P.americano, idCafeteria: C.express, nombre: 'Café Americano', categoria: 'Bebidas', precio: 28, semilla: 'americano',
+  { id: P.americano, idCafeteria: C.express, nombre: 'Café Americano', categoria: 'Bebidas', precio: 28, foto: 'americano',
     descripcion: 'Café de grano recién molido. 355 ml.' },
-  { id: P.bowlPollo, idCafeteria: C.rincon, nombre: 'Bowl de Pollo', categoria: 'Saludable', precio: 72, semilla: 'bowlpollo',
+  { id: P.bowlPollo, idCafeteria: C.rincon, nombre: 'Bowl de Pollo', categoria: 'Saludable', precio: 72, foto: 'bowl-pollo',
     descripcion: 'Arroz integral, pollo a la plancha, aguacate, vegetales y aderezo.' },
-  { id: P.smoothie, idCafeteria: C.rincon, nombre: 'Smoothie de Frutos Rojos', categoria: 'Bebidas', precio: 45, semilla: 'smoothie',
+  { id: P.smoothie, idCafeteria: C.rincon, nombre: 'Smoothie de Frutos Rojos', categoria: 'Bebidas', precio: 45, foto: 'smoothie',
     descripcion: 'Fresa, plátano, avena y yogurt.' },
-  { id: P.ensalada, idCafeteria: C.rincon, nombre: 'Ensalada César', categoria: 'Saludable', precio: 62, semilla: 'cesar',
+  { id: P.ensalada, idCafeteria: C.rincon, nombre: 'Ensalada César', categoria: 'Saludable', precio: 62, foto: 'ensalada-cesar',
     descripcion: 'Lechuga romana, crutones, parmesano y aderezo césar.' },
-  { id: P.hamburguesa, idCafeteria: C.sabor, nombre: 'Hamburguesa Clásica', categoria: 'Comidas', precio: 79, semilla: 'hamburguesa',
+  { id: P.hamburguesa, idCafeteria: C.sabor, nombre: 'Hamburguesa Clásica', categoria: 'Comidas', precio: 79, foto: 'hamburguesa',
     descripcion: 'Carne de res, queso, lechuga, jitomate y papas.' },
-  { id: P.chilaquiles, idCafeteria: C.terraza, nombre: 'Chilaquiles Verdes', categoria: 'Desayunos', precio: 58, semilla: 'chilaquiles',
+  { id: P.chilaquiles, idCafeteria: C.terraza, nombre: 'Chilaquiles Verdes', categoria: 'Desayunos', precio: 58, foto: 'chilaquiles',
     descripcion: 'Con pollo, crema, queso y cebolla.' },
-  { id: P.molletes, idCafeteria: C.terraza, nombre: 'Molletes de Frijol', categoria: 'Desayunos', precio: 42, semilla: 'molletes',
+  { id: P.molletes, idCafeteria: C.terraza, nombre: 'Molletes de Frijol', categoria: 'Desayunos', precio: 42, foto: 'molletes',
     descripcion: 'Pan bolillo, frijoles refritos, queso gratinado y pico de gallo.' },
-  { id: P.papas, idCafeteria: C.snack, nombre: 'Papas a la Francesa', categoria: 'Snacks', precio: 32, semilla: 'papas',
+  { id: P.papas, idCafeteria: C.snack, nombre: 'Papas a la Francesa', categoria: 'Snacks', precio: 32, foto: 'papas',
     descripcion: 'Papas crujientes con aderezo de la casa.' },
-  { id: P.galletas, idCafeteria: C.snack, nombre: 'Galletas de Avena', categoria: 'Snacks', precio: 25, semilla: 'galletas',
+  { id: P.galletas, idCafeteria: C.snack, nombre: 'Galletas de Avena', categoria: 'Snacks', precio: 25, foto: 'galletas',
     descripcion: 'Paquete de 3 piezas, hechas en casa.' },
 ];
 
-/** URL de la foto de un producto en el tamaño pedido. */
-export function fotoDemo(semilla: string, ancho: number, alto: number): string {
-  return `https://picsum.photos/seed/cb-menu-${semilla}/${ancho}/${alto}`;
+/**
+ * CL-Sprint5 11/11/2026: URL de la foto de un producto demo. Son fotos reales de cada platillo (Unsplash,
+ * licencia libre) guardadas en public/assets/demo como WebP de 640×480; el navegador las escala.
+ */
+export function fotoDemo(foto: string): string {
+  return `assets/demo/${foto}.webp`;
 }

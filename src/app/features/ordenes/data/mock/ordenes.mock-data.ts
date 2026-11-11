@@ -35,7 +35,7 @@ export function lineaDemo(idProducto: string, cantidad: number): LineaOrden {
     producto: p.nombre,
     cantidad,
     precioUnitario: p.precio,
-    imagenUrl: fotoDemo(p.semilla, 120, 120),
+    imagenUrl: fotoDemo(p.foto),
   };
 }
 

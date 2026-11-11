@@ -16,7 +16,7 @@ export function menuDemo(): MenuCafeteria[] {
       categoria: p.categoria,
       descripcion: p.descripcion,
       precio: p.precio,
-      imagenUrl: fotoDemo(p.semilla, 480, 360),
+      imagenUrl: fotoDemo(p.foto),
     })),
   }));
 }
