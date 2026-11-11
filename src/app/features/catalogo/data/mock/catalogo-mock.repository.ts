@@ -1,0 +1,27 @@
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { MockBackend, MockHttpError } from '@core/mock/mock-backend';
+import { CatalogoRepository } from '@features/catalogo/domain/repositories/catalogo.repository';
+import { MenuCafeteria } from '@features/catalogo/domain/models/catalogo.model';
+import { menuDemo } from './catalogo.mock-data';
+
+/**
+ * CL-Sprint5 11/11/2026: catálogo simulado mientras el back no expone GET api/menu. Responde con la misma
+ * forma que CatalogoHttpRepository; para conectar el back se cambia `useClass` en catalogo.providers.ts.
+ */
+@Injectable()
+export class CatalogoMockRepository extends CatalogoRepository {
+  private readonly backend = inject(MockBackend);
+
+  listarMenu(): Observable<MenuCafeteria[]> {
+    return this.backend.responder(() => menuDemo());
+  }
+
+  menuCafeteria(idCafeteria: string): Observable<MenuCafeteria> {
+    return this.backend.responder(() => {
+      const menu = menuDemo().find((c) => c.idCafeteria === idCafeteria);
+      if (!menu) throw new MockHttpError(404, 'La cafetería no existe o no está activa.');
+      return menu;
+    });
+  }
+}

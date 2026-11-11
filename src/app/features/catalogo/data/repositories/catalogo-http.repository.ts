@@ -1,0 +1,28 @@
+import { Injectable, inject } from '@angular/core';
+import { Observable, map } from 'rxjs';
+import { ApiClient } from '@core/http/api-client.service';
+import { CatalogoRepository } from '@features/catalogo/domain/repositories/catalogo.repository';
+import { MenuCafeteria } from '@features/catalogo/domain/models/catalogo.model';
+import { MenuCafeteriaDto } from '@features/catalogo/data/dtos/catalogo.dto';
+import { CatalogoMapper } from '@features/catalogo/data/mappers/catalogo.mapper';
+
+/**
+ * CL-Sprint5 11/11/2026: `api/menu` (sp_menu_cafeteria). Antes era MenuService en shared/menu (FB-Sprint4).
+ * Pendiente del back: el controller aún no existe (ver BACKEND_SPECIFICATION.md).
+ */
+@Injectable()
+export class CatalogoHttpRepository extends CatalogoRepository {
+  private readonly api = inject(ApiClient);
+
+  listarMenu(): Observable<MenuCafeteria[]> {
+    return this.api
+      .get<MenuCafeteriaDto[]>('menu')
+      .pipe(map((dtos) => dtos.map(CatalogoMapper.toDomain)));
+  }
+
+  menuCafeteria(idCafeteria: string): Observable<MenuCafeteria> {
+    return this.api
+      .get<MenuCafeteriaDto>(`menu/${idCafeteria}`)
+      .pipe(map(CatalogoMapper.toDomain));
+  }
+}
