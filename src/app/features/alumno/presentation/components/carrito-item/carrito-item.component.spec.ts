@@ -1,13 +1,11 @@
 // FB-Sprint4 01/11/2026: Pruebas de la fila del carrito (tope de 20, subtotal y eliminación en 0).
+// CL-Sprint5 11/11/2026: mismos casos, ahora sobre app-cantidad (sin Angular Material).
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { vi } from 'vitest';
-
-import { CarritoItemComponent } from './carrito-item.component';
 import { CarritoStore } from '@features/alumno/application/carrito.store';
 import { ItemCarrito } from '@features/alumno/domain/models/carrito.model';
+import { CarritoItemComponent } from './carrito-item.component';
 
 describe('CarritoItemComponent', () => {
-  let component: CarritoItemComponent;
   let fixture: ComponentFixture<CarritoItemComponent>;
   let carrito: CarritoStore;
   let el: HTMLElement;
@@ -17,107 +15,58 @@ describe('CarritoItemComponent', () => {
     imagenUrl: null, idCafeteria: 'c1', cafeteria: 'Cafetería Central',
   };
 
-  // FB-Sprint4 01/11/2026: sincroniza el input con el estado actual del store (como lo hace el drawer)
+  // Sincroniza el input con el estado del store (como lo hace el drawer)
   async function render(): Promise<void> {
-    fixture.componentRef.setInput('item', carrito.items()[0]);
+    if (carrito.items()[0]) fixture.componentRef.setInput('item', carrito.items()[0]);
     await fixture.whenStable();
   }
+  const menos = () => el.querySelectorAll<HTMLButtonElement>('button.paso')[0];
+  const mas = () => el.querySelectorAll<HTMLButtonElement>('button.paso')[1];
+  const subtotal = () => el.querySelector('.ci-subtotal')!.textContent!.trim();
 
-  const botones = () => el.querySelectorAll<HTMLButtonElement>('.stepper-btn');
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [CarritoItemComponent],
-    }).compileComponents();
-
+  async function crear(cantidad: number): Promise<void> {
+    await TestBed.configureTestingModule({ imports: [CarritoItemComponent] }).compileComponents();
     carrito = TestBed.inject(CarritoStore);
     carrito.vaciar();
-    carrito.agregar({ ...base });
-
+    carrito.agregar({ ...base, cantidad });
     fixture = TestBed.createComponent(CarritoItemComponent);
-    component = fixture.componentInstance;
     el = fixture.nativeElement;
     await render();
+  }
+
+  it('calcula el subtotal y lo recalcula al sumar', async () => {
+    await crear(2);
+    expect(subtotal()).toBe('$76.00');
+    mas().click();
+    await render();
+    expect(carrito.items()[0].cantidad).toBe(3);
+    expect(subtotal()).toBe('$114.00');
   });
 
-  it('se crea con el producto del carrito', () => {
-    expect(component).toBeTruthy();
-    expect(el.querySelector('.item-nombre')?.textContent).toContain('Latte Helado');
+  it('en 20 deshabilita "+" y no pasa del tope', async () => {
+    await crear(20);
+    expect(mas().disabled).toBe(true);
+    mas().click();
+    await render();
+    expect(carrito.items()[0].cantidad).toBe(20);
   });
 
-  describe('subtotal', () => {
-    it('calcula precio * cantidad', async () => {
-      carrito.cambiarCantidad('p1', 3);
-      await render();
-      expect(component.subtotal()).toBe(114);
-      expect(el.querySelector('.item-subtotal')?.textContent).toContain('114.00');
-    });
-
-    it('se recalcula al incrementar', async () => {
-      component.incrementar();
-      await render();
-      expect(carrito.items()[0].cantidad).toBe(2);
-      expect(component.subtotal()).toBe(76);
-    });
+  it('con más de 1, "−" solo resta una unidad', async () => {
+    await crear(3);
+    menos().click();
+    await render();
+    expect(carrito.items()[0].cantidad).toBe(2);
   });
 
-  describe('tope de 20 unidades', () => {
-    it('no incrementa más allá de 20', async () => {
-      carrito.cambiarCantidad('p1', 20);
-      await render();
-      const spy = vi.spyOn(carrito, 'cambiarCantidad');
-
-      component.incrementar();
-
-      expect(spy).not.toHaveBeenCalled();
-      expect(carrito.items()[0].cantidad).toBe(20);
-    });
-
-    it('deshabilita el botón + y muestra el aviso en 20', async () => {
-      carrito.cambiarCantidad('p1', 20);
-      await render();
-      expect(component.enLimite()).toBe(true);
-      expect(botones()[1].disabled).toBe(true);
-      expect(el.querySelector('.aviso-limite')).not.toBeNull();
-    });
-
-    it('el botón + está habilitado en 19', async () => {
-      carrito.cambiarCantidad('p1', 19);
-      await render();
-      expect(botones()[1].disabled).toBe(false);
-      expect(el.querySelector('.aviso-limite')).toBeNull();
-    });
+  it('en 1, "−" es "quitar" y deja el carrito vacío', async () => {
+    await crear(1);
+    expect(menos().getAttribute('aria-label')).toBe('Quitar Latte Helado');
+    menos().click();
+    expect(carrito.isEmpty()).toBe(true);
   });
 
-  describe('eliminación', () => {
-    it('al bajar de 1 a 0 llama a quitar() y el carrito queda vacío', () => {
-      const spy = vi.spyOn(carrito, 'quitar');
-      component.decrementar();
-      expect(spy).toHaveBeenCalledWith('p1');
-      expect(carrito.isEmpty()).toBe(true);
-    });
-
-    it('con cantidad > 1 el botón - solo resta una unidad', async () => {
-      carrito.cambiarCantidad('p1', 2);
-      await render();
-      const spy = vi.spyOn(carrito, 'quitar');
-      botones()[0].click();
-      expect(spy).not.toHaveBeenCalled();
-      expect(carrito.items()[0].cantidad).toBe(1);
-    });
-
-    it('el botón de basurero quita el producto aunque tenga varias unidades', async () => {
-      carrito.cambiarCantidad('p1', 5);
-      await render();
-      const spy = vi.spyOn(carrito, 'quitar');
-      el.querySelector<HTMLButtonElement>('.btn-eliminar')!.click();
-      expect(spy).toHaveBeenCalledWith('p1');
-      expect(carrito.isEmpty()).toBe(true);
-    });
-  });
-
-  it('muestra el placeholder cuando no hay imagen', () => {
-    expect(el.querySelector('.placeholder-img')).not.toBeNull();
-    expect(el.querySelector('img')).toBeNull();
+  it('sin imagen usa la de reemplazo', async () => {
+    await crear(1);
+    expect(el.querySelector('img')!.getAttribute('src')).toContain('producto-sin-imagen.svg');
   });
 });

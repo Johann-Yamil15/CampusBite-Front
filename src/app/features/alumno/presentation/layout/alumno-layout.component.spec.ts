@@ -73,6 +73,6 @@ describe('AlumnoLayoutComponent', () => {
   it('el botón de la barra abre el carrito', async () => {
     el.querySelector<HTMLButtonElement>('.al-carrito')!.click();
     await fixture.whenStable();
-    expect(el.querySelector('.drawer')!.classList).toContain('abierto');
+    expect(el.querySelector('app-carrito-drawer .cd')).not.toBeNull();
   });
 });

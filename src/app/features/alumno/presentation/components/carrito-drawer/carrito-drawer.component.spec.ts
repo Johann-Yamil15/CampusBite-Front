@@ -1,80 +1,87 @@
-// FB-Sprint4 01/11/2026: Pruebas del panel del carrito (apertura del modal y vaciado).
+// FB-Sprint4 01/11/2026: Pruebas del panel del carrito.
+// CL-Sprint5 11/11/2026: reescritas para el carrito sin Angular Material (etapa 5).
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatDialog } from '@angular/material/dialog';
-import { of } from 'rxjs';
-import { vi } from 'vitest';
-
-import { provideCatalogo } from '@features/catalogo';
-import { CarritoDrawerComponent } from './carrito-drawer.component';
+import { provideRouter } from '@angular/router';
 import { CarritoStore } from '@features/alumno/application/carrito.store';
+import { CarritoUiService } from '@features/alumno/presentation/carrito-ui.service';
+import { CarritoDrawerComponent } from './carrito-drawer.component';
 
 describe('CarritoDrawerComponent', () => {
-  let component: CarritoDrawerComponent;
   let fixture: ComponentFixture<CarritoDrawerComponent>;
+  let el: HTMLElement;
   let carrito: CarritoStore;
-  const dialog = { open: vi.fn(), openDialogs: [] as unknown[] };
+  let ui: CarritoUiService;
 
   beforeEach(async () => {
-    vi.clearAllMocks();
     await TestBed.configureTestingModule({
       imports: [CarritoDrawerComponent],
-      // CL-Sprint5 11/11/2026: el drawer lee los métodos de pago de la CatalogoFacade
-      providers: [provideCatalogo(), { provide: MatDialog, useValue: dialog }],
+      providers: [provideRouter([])],
     }).compileComponents();
-
     carrito = TestBed.inject(CarritoStore);
+    ui = TestBed.inject(CarritoUiService);
+    carrito.vaciar();
     fixture = TestBed.createComponent(CarritoDrawerComponent);
-    component = fixture.componentInstance;
-    fixture.componentRef.setInput('abierto', true);
+    el = fixture.nativeElement;
     await fixture.whenStable();
   });
 
-  it('renderiza un item por producto del carrito', async () => {
+  const agregarLatte = () =>
     carrito.agregar({
-      idProducto: 'p1', producto: 'Latte Helado', precio: 38, cantidad: 1,
+      idProducto: 'p1', producto: 'Latte Helado', precio: 38, cantidad: 2,
       imagenUrl: null, idCafeteria: 'c1', cafeteria: 'Cafetería Central',
     });
+
+  it('cerrado no dibuja nada; abierto muestra el panel', async () => {
+    expect(el.querySelector('.cd')).toBeNull();
+    ui.abrir();
     await fixture.whenStable();
-    expect(fixture.nativeElement.querySelectorAll('app-carrito-item').length).toBe(1);
+    expect(el.querySelector('.cd')).not.toBeNull();
   });
 
-  it('no abre el modal con el carrito vacío', () => {
-    component.confirmar();
-    expect(dialog.open).not.toHaveBeenCalled();
+  it('vacío ofrece explorar cafeterías', async () => {
+    ui.abrir();
+    await fixture.whenStable();
+    expect(el.querySelector('.cd-vacio')!.textContent).toContain('Tu carrito está vacío');
+    expect(el.querySelector('.cd-pie')).toBeNull();
   });
 
-  it('cuando el modal devuelve true vacía el carrito y cierra el panel', () => {
-    carrito.agregar({
-      idProducto: 'p1', producto: 'Latte Helado', precio: 38, cantidad: 1,
-      imagenUrl: null, idCafeteria: 'c1', cafeteria: 'Cafetería Central',
-    });
-    dialog.open.mockReturnValue({ afterClosed: () => of(true) });
-    component.confirmar();
+  it('muestra una fila por producto, la cafetería y el total', async () => {
+    agregarLatte();
+    ui.abrir();
+    await fixture.whenStable();
+    expect(el.querySelectorAll('app-carrito-item').length).toBe(1);
+    expect(el.querySelector('.cd-cafeteria')!.textContent).toContain('Cafetería Central');
+    expect(el.querySelector('.cd-total')!.textContent).toContain('$76.00');
+  });
+
+  it('vaciar pide confirmación', async () => {
+    agregarLatte();
+    ui.abrir();
+    await fixture.whenStable();
+
+    el.querySelector<HTMLButtonElement>('.cd-vaciar')!.click();
+    await fixture.whenStable();
+    expect(carrito.isEmpty()).toBe(false);
+
+    el.querySelector<HTMLButtonElement>('.cd-confirmar .cb-btn--danger')!.click();
+    await fixture.whenStable();
     expect(carrito.isEmpty()).toBe(true);
-    expect(component.abierto()).toBe(false);
   });
 
-  it('cuando el modal se cancela conserva el carrito y el panel abierto', () => {
-    carrito.agregar({
-      idProducto: 'p1', producto: 'Latte Helado', precio: 38, cantidad: 1,
-      imagenUrl: null, idCafeteria: 'c1', cafeteria: 'Cafetería Central',
-    });
-    dialog.open.mockReturnValue({ afterClosed: () => of(false) });
-    component.confirmar();
-    expect(carrito.totalItems()).toBe(1);
-    expect(component.abierto()).toBe(true);
-  });
-
-  it('el FAB muestra el badge con el total de productos y abre el panel', async () => {
-    fixture.componentRef.setInput('abierto', false);
-    carrito.agregar({
-      idProducto: 'p1', producto: 'Latte Helado', precio: 38, cantidad: 3,
-      imagenUrl: null, idCafeteria: 'c1', cafeteria: 'Cafetería Central',
-    });
+  it('"Continuar" cierra el carrito y abre el checkout', async () => {
+    agregarLatte();
+    ui.abrir();
     await fixture.whenStable();
-    const fab: HTMLButtonElement = fixture.nativeElement.querySelector('.carrito-fab');
-    expect(fab.textContent).toContain('3');
-    fab.click();
-    expect(component.abierto()).toBe(true);
+
+    el.querySelector<HTMLButtonElement>('.cd-pie .cb-btn--primary')!.click();
+    expect(ui.abierto()).toBe(false);
+    expect(ui.checkoutAbierto()).toBe(true);
+  });
+
+  it('Escape lo cierra', async () => {
+    ui.abrir();
+    await fixture.whenStable();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(ui.abierto()).toBe(false);
   });
 });

@@ -1,79 +1,64 @@
-// FB-Sprint4 01/11/2026: Panel lateral global del carrito con FAB, resumen, vaciar y confirmar pedido.
-import { Component, HostListener, computed, inject, input, model } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { CarritoStore } from '@features/alumno/application/carrito.store';
-import { CatalogoFacade } from '@features/catalogo';
-import { CarritoItemComponent } from '@features/alumno/presentation/components/carrito-item/carrito-item.component';
+// FB-Sprint4 01/11/2026: Panel lateral global del carrito con resumen, vaciar y confirmar pedido.
+// CL-Sprint5 11/11/2026 (etapa 5): reescrito sin Angular Material (era la única parte de la app que lo
+// usaba). Panel a la derecha en tableta y escritorio; hoja que sube desde abajo en teléfono. Vaciar pide
+// confirmación en el mismo panel. "Continuar" abre el checkout (app-checkout), que reemplaza al diálogo de
+// Material confirmar-orden. El abierto/cerrado vive en CarritoUiService.
 import {
-  ConfirmarOrdenComponent,
-  ConfirmarOrdenData,
-} from '@features/alumno/presentation/components/confirmar-orden/confirmar-orden.component';
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { CurrencyPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { IconComponent } from '@shared/ui/icon/icon.component';
+import { ToastService } from '@shared/ui/toast/toast.service';
+import { CarritoStore } from '@features/alumno/application/carrito.store';
+import { CarritoItemComponent } from '@features/alumno/presentation/components/carrito-item/carrito-item.component';
+import { CarritoUiService } from '@features/alumno/presentation/carrito-ui.service';
 
 @Component({
   selector: 'app-carrito-drawer',
-  standalone: true,
-  imports: [CurrencyPipe, MatBadgeModule, MatButtonModule, MatIconModule, CarritoItemComponent],
+  imports: [CurrencyPipe, RouterLink, IconComponent, CarritoItemComponent],
   templateUrl: './carrito-drawer.component.html',
   styleUrl: './carrito-drawer.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '(document:keydown.escape)': 'alEscape()' },
 })
 export class CarritoDrawerComponent {
-  readonly abierto = model(false);
-  /** CL-Sprint5 11/11/2026: el layout del alumno abre el carrito desde su barra; ahí no hace falta el FAB. */
-  readonly botonFlotante = input(true);
+  protected readonly carrito = inject(CarritoStore);
+  protected readonly ui = inject(CarritoUiService);
+  private readonly toast = inject(ToastService);
 
-  readonly carrito        = inject(CarritoStore);
-  private readonly catalogo = inject(CatalogoFacade);
-  private readonly dialog = inject(MatDialog);
-  private readonly snack  = inject(MatSnackBar);
+  protected readonly confirmandoVaciar = signal(false);
+  private readonly panel = viewChild<ElementRef<HTMLElement>>('panel');
 
-  // FB-Sprint4 01/11/2026: métodos que acepta la cafetería del carrito (del último menú cargado)
-  readonly metodosPago = computed(() =>
-    this.catalogo.cafeteria(this.carrito.idCafeteria())?.metodosPago ?? []
-  );
-
-  alternar(): void {
-    this.abierto.update(v => !v);
+  constructor() {
+    // Al abrir, el foco entra al panel (teclado y lector de pantalla) y se olvida un "vaciar" a medias
+    effect(() => {
+      const panel = this.panel()?.nativeElement;
+      if (this.ui.abierto() && panel) {
+        this.confirmandoVaciar.set(false);
+        queueMicrotask(() => panel.focus());
+      }
+    });
   }
 
-  // FB-Sprint4 01/11/2026: cierra el panel con la tecla Escape
-  @HostListener('document:keydown.escape')
-  alPresionarEscape(): void {
-    // Con el modal abierto, Escape solo debe cerrar el modal
-    if (this.dialog.openDialogs.length === 0) this.cerrar();
+  protected alEscape(): void {
+    if (this.ui.abierto()) this.ui.cerrar();
   }
 
-  cerrar(): void {
-    this.abierto.set(false);
-  }
-
-  // FB-Sprint4 01/11/2026: vacía el carrito permitiendo deshacer desde el snackbar
-  vaciar(): void {
-    const respaldo = this.carrito.items();
+  protected vaciar(): void {
+    const cafeteria = this.carrito.cafeteria();
     this.carrito.vaciar();
-    this.snack.open('Carrito vaciado', 'Deshacer', { duration: 4000 })
-      .onAction().subscribe(() => respaldo.forEach(i => this.carrito.agregar(i)));
+    this.confirmandoVaciar.set(false);
+    this.toast.info(`Vaciaste tu carrito de ${cafeteria}.`);
   }
 
-  // FB-Sprint4 01/11/2026: abre el modal; si la orden se creó vacía el carrito y cierra el panel
-  confirmar(): void {
-    if (this.carrito.isEmpty()) return;
-    this.dialog
-      .open<ConfirmarOrdenComponent, ConfirmarOrdenData, boolean>(ConfirmarOrdenComponent, {
-        data: { metodosPago: this.metodosPago() },
-        width: '480px',
-        maxWidth: '95vw',
-        autoFocus: 'first-tabbable',
-      })
-      .afterClosed()
-      .subscribe(exito => {
-        if (!exito) return;
-        this.carrito.vaciar();
-        this.cerrar();
-      });
+  protected continuar(): void {
+    if (!this.carrito.isEmpty()) this.ui.abrirCheckout();
   }
 }
