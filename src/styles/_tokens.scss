@@ -74,6 +74,10 @@
   --cb-danger-action: #ba1a1a;
   --cb-on-danger-action: #ffffff; // 6.5:1
   --cb-danger-action-hover: #9f1616;
+  // CL-Sprint5 11/11/2026: botón deshabilitado. Gris neutro (sin tinte naranja, para que no parezca activo)
+  // con texto legible aunque no sea obligatorio por WCAG: 5.66:1 en claro, 5.32:1 en oscuro.
+  --cb-disabled: #e6e1df;
+  --cb-on-disabled: #5e5450;
 
   // Secundario — Amarillo Mango (promos, destacados; nunca para texto de cuerpo)
   --cb-secondary: #7f5700;
@@ -178,6 +182,8 @@
     --cb-action-shadow: rgba(255, 107, 53, 0.22);
     --cb-danger-action: #d32f2f; // texto blanco 5:1; el rojo de claro se pierde sobre el fondo oscuro
     --cb-danger-action-hover: #e04848;
+    --cb-disabled: #2c2927;
+    --cb-on-disabled: #a59b96;
 
     --cb-secondary: #ffba3b;
     --cb-on-secondary: #281900;

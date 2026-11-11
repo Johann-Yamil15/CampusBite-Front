@@ -169,8 +169,16 @@ body {
     transform: scale(0.97);
   }
 
+  // CL-Sprint5 11/11/2026: deshabilitado = gris neutro, sin sombra ni respuesta al toque, en TODAS las
+  // variantes. Antes era la misma variante al 55%: en oscuro el primario quedaba café/naranja y parecía
+  // activo. (0,2,0) le gana a .cb-btn--primary, --elevado, --block… sin !important.
   &:disabled {
-    opacity: 0.55;
+    opacity: 1;
+    border-color: transparent;
+    background: var(--cb-disabled);
+    color: var(--cb-on-disabled);
+    box-shadow: none;
+    transform: none;
     cursor: not-allowed;
   }
 }

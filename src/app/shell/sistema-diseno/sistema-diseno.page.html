@@ -18,21 +18,49 @@
       <ul class="swatches">
         @for (m of g.muestras; track m.token) {
           <li>
-            <span
-              class="swatch"
-              [style.background]="'var(' + m.token + ')'"
-              [style.color]="m.sobre ? 'var(' + m.sobre + ')' : null"
-            >
-              @if (m.sobre) {
-                Aa
+            @switch (m.tipo) {
+              @case ('texto') {
+                <!-- Color de texto: "Aa" de ese color sobre la superficie -->
+                <span class="swatch" [style.color]="'var(' + m.token + ')'">Aa</span>
               }
-            </span>
+              @case ('linea') {
+                <!-- Color de borde: decorativo, no lleva texto -->
+                <span class="swatch swatch-linea" [style.border-color]="'var(' + m.token + ')'"></span>
+              }
+              @default {
+                <span
+                  class="swatch"
+                  [style.background]="'var(' + m.token + ')'"
+                  [style.color]="m.sobre ? 'var(' + m.sobre + ')' : null"
+                >
+                  @if (m.sobre) {
+                    Aa
+                  }
+                </span>
+              }
+            }
             <strong>{{ m.nombre }}</strong>
-            <code>{{ m.token }}</code>
+            <code>{{ m.token }}{{ m.sobre ? ' + ' + m.sobre : '' }}</code>
           </li>
         }
       </ul>
     }
+
+    <!-- Contraste medido en vivo con el tema activo (cambia el tema del sistema y se vuelve a medir) -->
+    <h3>Contraste de --cb-primary (texto de marca) sobre sus fondos · mínimo AA 4.5:1</h3>
+    <ul class="contrastes">
+      @for (c of contrastes(); track c.fondo) {
+        <li [style.background]="'var(' + c.fondo + ')'">
+          <span class="contraste-muestra">Ver menú completo</span>
+          <span class="contraste-dato">
+            {{ c.nombre }} · <strong>{{ c.ratio }}:1</strong>
+            <span class="cb-badge" [class.cb-badge--ok]="c.ratio >= 4.5" [class.cb-badge--alerta]="c.ratio < 4.5">
+              {{ c.ratio >= 4.5 ? 'AA' : 'No pasa' }}
+            </span>
+          </span>
+        </li>
+      }
+    </ul>
   </section>
 
   <!-- Tipografía -->

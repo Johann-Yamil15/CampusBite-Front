@@ -106,8 +106,46 @@ code {
   height: 4.5rem;
   border: 1px solid var(--cb-line-soft);
   border-radius: var(--cb-radius);
+  // Las muestras de texto y de línea se ven sobre la superficie
+  background: var(--cb-surface);
   font-size: var(--cb-text-xl);
   font-weight: 800;
+}
+
+.swatch-linea {
+  border-width: 4px;
+}
+
+.contrastes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: var(--cb-space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--cb-line-soft);
+    border-radius: var(--cb-radius);
+  }
+}
+
+.contraste-muestra {
+  font-weight: 700;
+  color: var(--cb-primary);
+}
+
+.contraste-dato {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: var(--cb-text-sm);
+  color: var(--cb-ink);
 }
 
 // ---------- Tipografía ----------
