@@ -1,97 +1,142 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, WritableSignal, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, defer, finalize, forkJoin, map, of, tap } from 'rxjs';
 import { ApiError } from '@core/http/api-error';
 import { FavoritosRepository } from '@features/alumno/domain/repositories/favoritos.repository';
-import { CafeteriaFavorita } from '@features/alumno/domain/models/favorito.model';
+import {
+  CafeteriaFavorita,
+  PlatilloFavorito,
+  TipoFavorito,
+} from '@features/alumno/domain/models/favorito.model';
 
 /**
  * CL-Sprint5 11/11/2026: cafeterías favoritas del alumno. Se provee en alumno.routes.ts (solo la usa el
  * alumno). Los métodos devuelven un Observable frío: hay que suscribirse.
+ *
+ * CL-Sprint5 11/11/2026 (etapa 7): platillos y cafeterías en un solo estado, compartido por todas las
+ * pantallas del alumno (una instancia en el layout), así el corazón se ve igual en el inicio, el buscador,
+ * la tienda y Favoritos.
+ *   - `alternar` cambia el corazón en el acto (los ids) y, si el back falla, lo regresa como estaba.
+ *   - Al quitar se recuerda la posición: si se vuelve a agregar (el "Deshacer" del aviso), regresa a su
+ *     lugar en la lista en vez de irse al principio.
+ *   - `cargar` trae los dos tipos una vez; con `forzar` vuelve a pedirlos (Reintentar, entrar a Favoritos).
  */
 @Injectable()
 export class FavoritosFacade {
   private readonly repo = inject(FavoritosRepository);
 
   private readonly _cafeterias = signal<CafeteriaFavorita[]>([]);
-  /** Las que se quitaron en esta visita, para poder deshacer con `restaurar()`. */
-  private readonly quitadas = signal<CafeteriaFavorita[]>([]);
+  private readonly _platillos = signal<PlatilloFavorito[]>([]);
+  /** Ids con el cambio optimista ya aplicado (lo que pinta el corazón). */
+  private readonly _idsCafeterias = signal<ReadonlySet<string>>(new Set());
+  private readonly _idsPlatillos = signal<ReadonlySet<string>>(new Set());
+  /** Dónde estaba cada favorito que se quitó, para devolverlo a su lugar. */
+  private readonly posiciones = new Map<string, number>();
+  private cargado = false;
 
   readonly cafeterias = this._cafeterias.asReadonly();
-  /** Hay algo que deshacer con `restaurar()`. */
-  readonly puedeRestaurar = computed(() => this.quitadas().length > 0);
+  readonly platillos = this._platillos.asReadonly();
   readonly cargando = signal(false);
   readonly error = signal<string | null>(null);
 
-  cargar(): Observable<CafeteriaFavorita[]> {
+  /** Ids de las cafeterías favoritas. */
+  readonly ids = this._idsCafeterias.asReadonly();
+  readonly idsPlatillos = this._idsPlatillos.asReadonly();
+  readonly total = computed(() => this._idsCafeterias().size + this._idsPlatillos().size);
+
+  /** Trae platillos y cafeterías. Si ya se cargaron no vuelve a pedirlos, salvo con `forzar`. */
+  cargar(forzar = false): Observable<void> {
+    if (this.cargado && !forzar) return of(undefined);
     return defer(() => {
       this.cargando.set(true);
       this.error.set(null);
-      return this.repo.listarCafeterias().pipe(
+      return forkJoin([this.repo.listarCafeterias(), this.repo.listarPlatillos()]).pipe(
         tap({
-          next: (lista) => this._cafeterias.set(lista),
-          error: (e: ApiError) =>
-            this.error.set(e?.message ?? 'No se pudieron cargar tus favoritos.'),
+          next: ([cafeterias, platillos]) => {
+            this._cafeterias.set(cafeterias);
+            this._platillos.set(platillos);
+            this._idsCafeterias.set(new Set(cafeterias.map((c) => c.idCafeteria)));
+            this._idsPlatillos.set(new Set(platillos.map((p) => p.idProducto)));
+            this.cargado = true;
+          },
+          error: (e: ApiError) => this.error.set(e?.message ?? 'No se pudieron cargar tus favoritos.'),
         }),
+        map(() => undefined),
         finalize(() => this.cargando.set(false)),
       );
     });
   }
 
-  quitar(cafeteria: CafeteriaFavorita): Observable<void> {
-    return this.repo.quitarCafeteria(cafeteria.idCafeteria).pipe(
-      tap(() => {
-        this._cafeterias.update((l) => l.filter((c) => c.idCafeteria !== cafeteria.idCafeteria));
-        this.quitadas.update((l) => [...l, cafeteria]);
-      }),
-    );
-  }
-
-  /** Ids de las favoritas, para pintar el corazón de las tarjetas. */
-  readonly ids = computed(() => new Set(this._cafeterias().map((c) => c.idCafeteria)));
-
-  esFavorita(idCafeteria: string): boolean {
-    return this.ids().has(idCafeteria);
+  esFavorito(tipo: TipoFavorito, id: string): boolean {
+    return (tipo === 'cafeteria' ? this._idsCafeterias() : this._idsPlatillos()).has(id);
   }
 
   /**
-   * CL-Sprint5 11/11/2026 (etapa 3): corazón de las tarjetas del inicio y la tienda. Cambia en el acto
-   * (respuesta inmediata al toque) y, si el back falla, lo regresa como estaba y propaga el error.
-   * @returns `true` si quedó como favorita.
+   * Agrega o quita. El corazón cambia en el acto; si el back falla, todo regresa como estaba y el error
+   * le llega a quien se suscribe.
+   * @returns `true` si quedó como favorito.
    */
-  alternar(idCafeteria: string): Observable<boolean> {
+  alternar(tipo: TipoFavorito, id: string): Observable<boolean> {
+    return tipo === 'cafeteria'
+      ? this.alternarEn(id, this._cafeterias, this._idsCafeterias, (c) => c.idCafeteria, {
+          agregar: (x) => this.repo.agregarCafeteria(x),
+          quitar: (x) => this.repo.quitarCafeteria(x),
+        })
+      : this.alternarEn(id, this._platillos, this._idsPlatillos, (p) => p.idProducto, {
+          agregar: (x) => this.repo.agregarPlatillo(x),
+          quitar: (x) => this.repo.quitarPlatillo(x),
+        });
+  }
+
+  private alternarEn<T>(
+    id: string,
+    lista: WritableSignal<T[]>,
+    ids: WritableSignal<ReadonlySet<string>>,
+    idDe: (x: T) => string,
+    api: { agregar: (id: string) => Observable<T>; quitar: (id: string) => Observable<void> },
+  ): Observable<boolean> {
     return defer(() => {
-      const antes = this._cafeterias();
-      const actual = antes.find((c) => c.idCafeteria === idCafeteria);
-      const revertir = (e: unknown) => {
-        this._cafeterias.set(antes);
+      const antesLista = lista();
+      const antesIds = ids();
+      const revertir = (e: unknown): never => {
+        lista.set(antesLista);
+        ids.set(antesIds);
         throw e;
       };
 
-      if (actual) {
-        this._cafeterias.set(antes.filter((c) => c.idCafeteria !== idCafeteria));
-        return this.repo.quitarCafeteria(idCafeteria).pipe(
+      if (antesIds.has(id)) {
+        const posicion = antesLista.findIndex((x) => idDe(x) === id);
+        if (posicion >= 0) this.posiciones.set(id, posicion);
+        ids.set(sin(antesIds, id));
+        lista.set(antesLista.filter((x) => idDe(x) !== id));
+        return api.quitar(id).pipe(
           map(() => false),
           catchError(revertir),
         );
       }
-      return this.repo.agregarCafeteria(idCafeteria).pipe(
-        tap((favorita) => this._cafeterias.update((l) => [...l, favorita])),
+
+      ids.set(con(antesIds, id));
+      return api.agregar(id).pipe(
+        tap((nuevo) =>
+          lista.update((l) => {
+            const resto = l.filter((x) => idDe(x) !== id);
+            const posicion = Math.min(this.posiciones.get(id) ?? 0, resto.length);
+            this.posiciones.delete(id);
+            return [...resto.slice(0, posicion), nuevo, ...resto.slice(posicion)];
+          }),
+        ),
         map(() => true),
         catchError(revertir),
       );
     });
   }
+}
 
-  /** Vuelve a guardar las que se quitaron en esta visita. */
-  restaurar(): Observable<void> {
-    const pendientes = this.quitadas();
-    if (!pendientes.length) return of(undefined);
-    return forkJoin(pendientes.map((c) => this.repo.agregarCafeteria(c.idCafeteria))).pipe(
-      tap((agregadas) => {
-        this._cafeterias.update((l) => [...l, ...agregadas]);
-        this.quitadas.set([]);
-      }),
-      map(() => undefined),
-    );
-  }
+function con(ids: ReadonlySet<string>, id: string): ReadonlySet<string> {
+  return new Set([...ids, id]);
+}
+
+function sin(ids: ReadonlySet<string>, id: string): ReadonlySet<string> {
+  const copia = new Set(ids);
+  copia.delete(id);
+  return copia;
 }

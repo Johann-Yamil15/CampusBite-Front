@@ -87,12 +87,12 @@ export class InicioPage implements OnInit {
   }
 
   protected esFavorita(idCafeteria: string): boolean {
-    return this.favoritos.esFavorita(idCafeteria);
+    return this.favoritos.esFavorito('cafeteria', idCafeteria);
   }
 
   protected alternarFavorito(idCafeteria: string): void {
     const nombre = this.catalogo.cafeteria(idCafeteria)?.cafeteria ?? 'La cafetería';
-    this.favoritos.alternar(idCafeteria).subscribe({
+    this.favoritos.alternar('cafeteria', idCafeteria).subscribe({
       next: (guardada) =>
         this.toast.ok(guardada ? `${nombre} se guardó en tus favoritos.` : `${nombre} salió de tus favoritos.`),
       error: (e: ApiError) => this.toast.error(e?.message ?? 'No se pudo actualizar tus favoritos.'),

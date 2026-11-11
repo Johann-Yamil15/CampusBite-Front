@@ -22,7 +22,7 @@ export class FavoritosPage implements OnInit {
   protected readonly favoritas = this.favoritos.cafeterias;
   protected readonly cargando = this.favoritos.cargando;
   protected readonly error = this.favoritos.error;
-  protected readonly puedeRestaurar = this.favoritos.puedeRestaurar;
+  protected readonly puedeRestaurar = () => false;
 
   ngOnInit(): void {
     this.cargar();
@@ -33,16 +33,13 @@ export class FavoritosPage implements OnInit {
   }
 
   protected quitar(cafeteria: CafeteriaFavorita): void {
-    this.favoritos.quitar(cafeteria).subscribe({
+    this.favoritos.alternar('cafeteria', cafeteria.idCafeteria).subscribe({
       next: () => this.toast.ok(`${cafeteria.nombre} salió de tus favoritos.`),
       error: (e: ApiError) => this.toast.error(e?.message ?? 'No se pudo quitar de favoritos.'),
     });
   }
 
   protected restaurar(): void {
-    this.favoritos.restaurar().subscribe({
-      next: () => this.toast.info('Volvimos a poner tus favoritos.'),
-      error: (e: ApiError) => this.toast.error(e?.message ?? 'No se pudieron restaurar.'),
-    });
+    // Se reemplaza en la etapa 7 (parte 2) por el "Deshacer" del aviso
   }
 }

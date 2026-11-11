@@ -121,7 +121,7 @@ export class TiendaPage {
   protected alternarFavorito(): void {
     const c = this.cafeteria();
     if (!c) return;
-    this.favoritos.alternar(c.idCafeteria).subscribe({
+    this.favoritos.alternar('cafeteria', c.idCafeteria).subscribe({
       next: (guardada) =>
         this.toast.ok(
           guardada ? `${c.cafeteria} se guardó en tus favoritos.` : `${c.cafeteria} salió de tus favoritos.`,
