@@ -106,7 +106,7 @@ export class PedidoDetallePage {
     try {
       this.agregarAlCarrito(pedido);
       this.toast.ok('Tu carrito ya tiene este pedido. Revísalo y confírmalo.');
-      void this.router.navigate(['/inicio']);
+      void this.router.navigate(['/']);
     } catch (e) {
       // El carrito no deja mezclar cafeterías: hay que vaciar primero
       this.toast.error(e instanceof Error ? e.message : 'No se pudo llenar el carrito.');

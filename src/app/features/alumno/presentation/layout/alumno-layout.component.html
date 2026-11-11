@@ -1,91 +1,140 @@
-<!-- JY-Sprint4 05/11/2026: el buscador de la topbar lleva a /buscar con el texto; el carrito tiene su
-     propio botón flotante (app-carrito-drawer), por eso aquí no se repite. -->
-<div class="al-shell">
-  <aside class="al-sidebar">
-    <a routerLink="/inicio" class="al-brand" aria-label="CampusBite, ir al inicio">
-      <img src="assets/images/logo-campusbite.png" alt="" width="36" height="36" />
-      <span>CampusBite</span>
+<!-- CL-Sprint5 11/11/2026: layout del alumno (etapa 2). El mismo <nav> se dibuja como sidebar (escritorio),
+     riel (tableta) o barra inferior (teléfono) solo con CSS: una sola lista de enlaces, un solo orden de foco. -->
+<a class="al-saltar" href="#contenido">Saltar al contenido</a>
+
+<div class="al">
+  <aside class="al-side">
+    <a routerLink="/" class="al-marca" aria-label="CampusBite, ir al inicio">
+      <img src="assets/images/logo-campusbite.png" alt="" width="40" height="40" />
+      <span class="al-marca-texto">Campus<strong>Bite</strong></span>
     </a>
 
-    <nav class="al-nav" aria-label="Navegación principal">
+    <nav class="al-nav" aria-label="Secciones">
       @for (item of nav; track item.enlace) {
         <a
+          class="al-nav-item"
           [routerLink]="item.enlace"
-          routerLinkActive="active"
+          routerLinkActive="activo"
           [routerLinkActiveOptions]="{ exact: !!item.exacto }"
+          #rla="routerLinkActive"
+          [attr.aria-current]="rla.isActive ? 'page' : null"
         >
-          <svg class="icon" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9">
-            @switch (item.icono) {
-              @case ('inicio') {
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75" />
-              }
-              @case ('explorar') {
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-              }
-              @case ('pedidos') {
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 2.25H7.5A2.25 2.25 0 005.25 4.5v15A2.25 2.25 0 007.5 21.75h9a2.25 2.25 0 002.25-2.25V4.5A2.25 2.25 0 0016.5 2.25H15m-6 0a1.5 1.5 0 001.5 1.5h3a1.5 1.5 0 001.5-1.5m-6 0a1.5 1.5 0 011.5-1.5h3a1.5 1.5 0 011.5 1.5m-6 8.25h6m-6 3h6" />
-              }
-              @case ('favoritos') {
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-              }
-              @case ('perfil') {
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
-              }
+          <span class="al-nav-icono">
+            <app-icon [nombre]="rla.isActive && item.icono === 'corazon' ? 'corazon-lleno' : item.icono" />
+          </span>
+          <span class="al-nav-texto">
+            {{ item.etiqueta }}
+            @if (item.enlace === '/pedidos' && enCurso()) {
+              <span class="sr-only">({{ enCurso() }} en curso)</span>
             }
-          </svg>
-          <span class="label">{{ item.etiqueta }}</span>
-          @if (item.icono === 'pedidos' && enCurso().length) {
-            <span class="badge">{{ enCurso().length }}</span>
+          </span>
+          <!-- Sobre el ícono en teléfono y tableta; píldora al final de la fila en escritorio -->
+          @if (item.enlace === '/pedidos' && enCurso()) {
+            <span class="al-insignia al-nav-insignia" aria-hidden="true">{{ enCurso() }}</span>
           }
         </a>
       }
     </nav>
 
-    <div class="al-side-photo">
-      <img src="assets/images/login-bg.jpg" alt="" loading="lazy" />
-      <p>Buena comida,<br />mejores días.</p>
+    <!-- Solo escritorio: quién tiene la sesión y salida directa -->
+    <div class="al-side-usuario">
+      <span class="al-avatar" aria-hidden="true">{{ iniciales() }}</span>
+      <span class="al-side-usuario-texto">
+        <strong>{{ nombre() }}</strong>
+        <small>{{ correo() }}</small>
+      </span>
+      <button type="button" class="cb-btn cb-btn--icon" aria-label="Cerrar sesión" (click)="pedirSalida()">
+        <app-icon nombre="salir" />
+      </button>
     </div>
   </aside>
 
-  <div class="al-body">
-    <header class="al-topbar">
-      <form class="al-search" role="search" (submit)="buscar($event)">
-        <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-        </svg>
-        <input
-          name="q"
-          type="search"
-          placeholder="¿Qué se te antoja hoy?"
-          aria-label="Buscar platillos"
-        />
-        <button type="submit" class="al-search-go">
-          <span class="sr-only">Buscar</span>
-          <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-          </svg>
-        </button>
+  <div class="al-cuerpo">
+    <header class="al-top">
+      <!-- Teléfono: logo y saludo; el buscador vive en la pestaña Buscar -->
+      <a routerLink="/" class="al-top-marca" aria-label="CampusBite, ir al inicio">
+        <img src="assets/images/logo-campusbite.png" alt="" width="36" height="36" />
+        <span class="al-saludo">
+          <small>¡Hola!</small>
+          <strong>{{ primerNombre() }}</strong>
+        </span>
+      </a>
+
+      <form class="al-buscador" role="search" (submit)="buscar($event)">
+        <app-icon nombre="buscar" />
+        <input name="q" type="search" placeholder="Busca chilaquiles, café, bowls…" aria-label="Buscar platillos o cafeterías" />
+        <button type="submit" class="sr-only">Buscar</button>
       </form>
 
-      <div class="al-actions">
-        <a routerLink="/pedidos" class="al-icon-btn" aria-label="Mis pedidos">
-          <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 2.25H7.5A2.25 2.25 0 005.25 4.5v15A2.25 2.25 0 007.5 21.75h9a2.25 2.25 0 002.25-2.25V4.5A2.25 2.25 0 0016.5 2.25H15m-6 8.25h6m-6 3h6" />
-          </svg>
-        </a>
+      <div class="al-acciones">
+        <button
+          type="button"
+          class="cb-btn cb-btn--icon al-carrito"
+          [attr.aria-label]="'Abrir carrito, ' + carrito.totalItems() + (carrito.totalItems() === 1 ? ' producto' : ' productos')"
+          (click)="abrirCarrito()"
+        >
+          <app-icon nombre="bolsa" />
+          @if (!carrito.isEmpty()) {
+            <!-- @for con track del total: el contador rebota cada vez que cambia -->
+            @for (n of [carrito.totalItems()]; track n) {
+              <span class="al-insignia cb-rebote" aria-hidden="true">{{ n }}</span>
+            }
+          }
+        </button>
 
-        <a routerLink="/perfil" class="al-user">
-          <img [src]="usuario.foto" alt="" width="40" height="40" />
-          <span class="al-user-text">
-            <small>¡Hola!</small>
-            <strong>{{ usuario.nombre }}</strong>
-          </span>
-        </a>
+        <div class="al-menu" #menuUsuario>
+          <button
+            type="button"
+            class="al-usuario"
+            aria-haspopup="menu"
+            [attr.aria-expanded]="menuAbierto()"
+            aria-controls="al-menu-usuario"
+            (click)="alternarMenu($event)"
+          >
+            <span class="al-avatar" aria-hidden="true">{{ iniciales() }}</span>
+            <span class="al-usuario-nombre">{{ nombre() }}</span>
+            <app-icon nombre="flecha-abajo" class="al-usuario-flecha" />
+            <span class="sr-only">Menú de {{ nombre() }}</span>
+          </button>
+
+          @if (menuAbierto()) {
+            <div id="al-menu-usuario" class="al-menu-lista" role="menu" aria-label="Mi cuenta">
+              <p class="al-menu-cabeza">
+                <strong>{{ nombre() }}</strong>
+                <small>{{ correo() }}</small>
+              </p>
+              <a role="menuitem" routerLink="/perfil"><app-icon nombre="perfil" />Mi perfil</a>
+              <a role="menuitem" routerLink="/pedidos"><app-icon nombre="pedidos" />Mis pedidos</a>
+              <a role="menuitem" routerLink="/favoritos"><app-icon nombre="corazon" />Favoritos</a>
+              <button type="button" role="menuitem" class="al-menu-salir" (click)="pedirSalida()">
+                <app-icon nombre="salir" />Cerrar sesión
+              </button>
+            </div>
+          }
+        </div>
       </div>
     </header>
 
-    <main class="al-main">
+    <main id="contenido" class="al-contenido" tabindex="-1">
       <router-outlet />
     </main>
   </div>
 </div>
+
+<!-- El carrito solo existe para el alumno; se abre desde la barra superior -->
+<app-carrito-drawer [(abierto)]="carritoAbierto" [botonFlotante]="false" />
+
+@if (confirmandoSalida()) {
+  <app-modal title="¿Cerrar sesión?" size="sm" (closed)="confirmandoSalida.set(false)">
+    <p class="al-modal-texto">
+      Tendrás que volver a entrar con tu correo para hacer pedidos.
+      @if (!carrito.isEmpty()) {
+        <strong>Tu carrito se vaciará.</strong>
+      }
+    </p>
+    <div modalActions>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="confirmandoSalida.set(false)">Cancelar</button>
+      <button type="button" class="cb-btn cb-btn--primary" data-modal-focus (click)="salir()">Cerrar sesión</button>
+    </div>
+  </app-modal>
+}

@@ -8,17 +8,13 @@ import { FavoritosMockRepository } from '@features/alumno/data/mock/favoritos-mo
  * que el sidebar y la topbar no se vuelvan a dibujar al cambiar de sección.
  * El guard de sesión lo pone app.routes.ts al montar la feature.
  *
- * CL-Sprint5 11/11/2026: /inicio (antes features/inicio-alumno) se monta aquí, todavía fuera del layout
- * para no cambiar su diseño en esta etapa. Los favoritos se proveen aquí con su repositorio mock; para
+ * CL-Sprint5 11/11/2026: el inicio del alumno es "/" y ya vive dentro del layout; /inicio queda como
+ * redirección para los enlaces viejos. Los favoritos se proveen aquí con su repositorio mock; para
  * conectar el back se cambia `useClass` por FavoritosHttpRepository. El detalle va por id: /pedidos/:id.
+ * app.routes.ts monta esta feature con authGuard y negocioHomeGuard (el encargado va a /mi-negocio).
  */
 export default [
-  {
-    path: 'inicio',
-    title: 'Inicio · CampusBite',
-    loadComponent: () =>
-      import('./presentation/pages/inicio/inicio.page').then((m) => m.InicioPage),
-  },
+  { path: 'inicio', pathMatch: 'full', redirectTo: '' },
   {
     path: '',
     providers: [
@@ -28,6 +24,13 @@ export default [
     loadComponent: () =>
       import('./presentation/layout/alumno-layout.component').then((m) => m.AlumnoLayoutComponent),
     children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        title: 'Inicio · CampusBite',
+        loadComponent: () =>
+          import('./presentation/pages/inicio/inicio.page').then((m) => m.InicioPage),
+      },
       {
         path: 'buscar',
         title: 'Buscar · CampusBite',

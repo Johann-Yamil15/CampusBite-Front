@@ -1,5 +1,5 @@
 // FB-Sprint4 01/11/2026: Panel lateral global del carrito con FAB, resumen, vaciar y confirmar pedido.
-import { Component, DestroyRef, HostListener, computed, inject, model } from '@angular/core';
+import { Component, HostListener, computed, inject, input, model } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,6 +23,8 @@ import {
 })
 export class CarritoDrawerComponent {
   readonly abierto = model(false);
+  /** CL-Sprint5 11/11/2026: el layout del alumno abre el carrito desde su barra; ahí no hace falta el FAB. */
+  readonly botonFlotante = input(true);
 
   readonly carrito        = inject(CarritoStore);
   private readonly catalogo = inject(CatalogoFacade);
@@ -33,13 +35,6 @@ export class CarritoDrawerComponent {
   readonly metodosPago = computed(() =>
     this.catalogo.cafeteria(this.carrito.idCafeteria())?.metodosPago ?? []
   );
-
-  constructor() {
-    // FB-Sprint4 01/11/2026: al cerrar sesión se vacía el carrito para que no pase al siguiente usuario
-    // CL-Sprint5 11/11/2026: antes lo hacía app.ts; el drawer solo existe con sesión, así que su
-    // destrucción es el cierre de sesión
-    inject(DestroyRef).onDestroy(() => this.carrito.vaciar());
-  }
 
   alternar(): void {
     this.abierto.update(v => !v);

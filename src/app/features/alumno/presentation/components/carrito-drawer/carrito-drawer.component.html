@@ -1,4 +1,5 @@
 <!-- FB-Sprint4 01/11/2026: Panel lateral derecho con los productos del carrito y el total -->
+@if (botonFlotante()) {
 <button
   type="button"
   class="carrito-fab"
@@ -10,6 +11,7 @@
 >
   <mat-icon>shopping_cart</mat-icon>
 </button>
+}
 
 @if (abierto()) {
   <div class="backdrop" (click)="cerrar()" aria-hidden="true"></div>
