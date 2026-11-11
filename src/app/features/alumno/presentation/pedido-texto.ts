@@ -20,7 +20,7 @@ export function detalleEtapa(orden: Pick<Orden, 'estado' | 'puntoEntrega'>): str
     case 'en_preparacion':
       return 'Lo están preparando ahora mismo.';
     case 'lista':
-      return `Pasa por él a ${orden.puntoEntrega} con tu código.`;
+      return `Recógelo en ${orden.puntoEntrega} con tu código.`;
     case 'entregada':
       return '¡Buen provecho!';
     case 'cancelada':

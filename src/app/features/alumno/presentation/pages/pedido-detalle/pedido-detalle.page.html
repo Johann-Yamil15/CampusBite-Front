@@ -9,7 +9,7 @@
       <img class="pd-logo" [src]="p.logoCafeteria ?? sinImagen" alt="" width="56" height="56" />
       <div class="pd-head-txt">
         <h1 id="pd-titulo">{{ p.cafeteria }}</h1>
-        <p>Pedido {{ p.folio }} · {{ p.creadoEn | date: "d MMM, HH:mm" }}</p>
+        <p><span class="pd-nowrap">Pedido {{ p.folio }}</span> · <span class="pd-nowrap">{{ p.creadoEn | date: "d MMM, HH:mm" }}</span></p>
       </div>
       <span class="chip" [class]="'estado-' + etapa(p.estado)">{{ etiqueta[etapa(p.estado)] }}</span>
     </header>
