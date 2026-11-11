@@ -3,9 +3,17 @@
 // CL-Sprint5 11/11/2026: lee y cancela con MisPedidosFacade (feature ordenes, hoy con repositorio mock). La
 // URL lleva el id de la orden (/pedidos/:id) en vez del folio, porque la BD no tiene folio; el folio que se
 // muestra se deriva del id. Cancelar respeta la regla de sp_cancelar_orden (solo pendiente o confirmada).
+// CL-Sprint5 11/11/2026 (etapa 6): rediseño con el sistema de diseño.
+//   - Línea de tiempo de 4 pasos que avanza en vivo: cada 5 s se vuelve a pedir la orden sin parpadeo (los
+//     datos simulados son los mismos que mueve el tablero del negocio). Al quedar lista avisa con un toast.
+//   - "Listo para recoger": el código de 6 dígitos en grande, con copiar. Antes, en chico, para tenerlo a mano.
+//   - Cancelar solo en los estados que permite la BD, con confirmación; si ya no se puede, dice por qué.
+//   - Volver a pedir (app-volver-a-pedir) y Reportar un problema (app-reportar-problema).
+//   - Carga con esqueleto, "no encontrado" (404/403) y error con "Reintentar".
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   effect,
   inject,
@@ -14,25 +22,45 @@ import {
   untracked,
 } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { ApiError } from '@core/http/api-error';
+import { IconComponent } from '@shared/ui/icon/icon.component';
 import { ModalComponent } from '@shared/ui/modal/modal.component';
 import { ToastService } from '@shared/ui/toast/toast.service';
 import {
-  ETAPAS_ALUMNO,
   ETIQUETA_ETAPA,
+  EstadoOrden,
   MisPedidosFacade,
-  Orden,
   cancelablePorAlumno,
   enCurso,
   etapa,
-  pasoAlumno,
+  motivoNoCancelable,
+  piezas,
 } from '@features/ordenes';
-import { CarritoStore } from '@features/alumno/application/carrito.store';
+import { CodigoRecogidaComponent } from '@features/alumno/presentation/components/codigo-recogida/codigo-recogida.component';
+import { INFO_METODO } from '@features/alumno/presentation/components/checkout/checkout.component';
+import { LineaTiempoComponent } from '@features/alumno/presentation/components/linea-tiempo/linea-tiempo.component';
+import { ReportarProblemaComponent } from '@features/alumno/presentation/components/reportar-problema/reportar-problema.component';
+import { VolverAPedirComponent } from '@features/alumno/presentation/components/volver-a-pedir/volver-a-pedir.component';
+import { CUENTA_DEMO } from '@features/alumno/presentation/pages/pedido-confirmado/pedido-confirmado.page';
+import { textoPago } from '@features/alumno/presentation/pedido-texto';
+
+/** Cada cuánto se revisa el estado del pedido mientras sigue en curso. */
+export const REFRESCO_DETALLE_MS = 5_000;
 
 @Component({
   selector: 'app-pedido-detalle-page',
-  imports: [CurrencyPipe, DatePipe, RouterLink, ModalComponent],
+  imports: [
+    CurrencyPipe,
+    DatePipe,
+    RouterLink,
+    IconComponent,
+    ModalComponent,
+    CodigoRecogidaComponent,
+    LineaTiempoComponent,
+    ReportarProblemaComponent,
+    VolverAPedirComponent,
+  ],
   templateUrl: './pedido-detalle.page.html',
   styleUrl: './pedido-detalle.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,97 +70,103 @@ export class PedidoDetallePage {
   readonly id = input<string>('');
 
   private readonly pedidos = inject(MisPedidosFacade);
-  private readonly carrito = inject(CarritoStore);
   private readonly toast = inject(ToastService);
-  private readonly router = inject(Router);
 
   protected readonly etiqueta = ETIQUETA_ETAPA;
   protected readonly etapa = etapa;
-  protected readonly pasos = ETAPAS_ALUMNO;
+  protected readonly infoMetodo = INFO_METODO;
+  protected readonly cuenta = CUENTA_DEMO;
+  protected readonly piezas = piezas;
+  protected readonly textoPago = textoPago;
   protected readonly sinImagen = 'assets/images/producto-sin-imagen.svg';
-  protected readonly cargando = this.pedidos.cargando;
 
   protected readonly pedido = computed(() => this.pedidos.porId(this.id()));
-
-  /** Posición en la línea de tiempo; -1 si está cancelado (la línea se reemplaza por un aviso). */
-  protected readonly pasoActual = computed(() => {
-    const pedido = this.pedido();
-    return pedido ? pasoAlumno(pedido.estado) : -1;
+  /** Error al traer la orden (si no estaba ya en la lista). */
+  protected readonly fallo = signal<ApiError | null>(null);
+  protected readonly noExiste = computed(() => {
+    const s = this.fallo()?.status;
+    return s === 404 || s === 403;
   });
 
-  // Ya en preparación, listo o entregado no se cancela desde la app: eso se arregla en el mostrador
+  protected readonly activo = computed(() => {
+    const p = this.pedido();
+    return !!p && enCurso(p);
+  });
   protected readonly cancelable = computed(() => {
-    const pedido = this.pedido();
-    return !!pedido && cancelablePorAlumno(pedido);
+    const p = this.pedido();
+    return !!p && cancelablePorAlumno(p);
   });
-
-  protected readonly terminado = computed(() => {
-    const pedido = this.pedido();
-    return !!pedido && !enCurso(pedido);
+  protected readonly motivoNoCancelar = computed(() => {
+    const p = this.pedido();
+    return p ? motivoNoCancelable(p) : null;
   });
 
   protected readonly confirmandoCancelar = signal(false);
+  protected readonly cancelando = signal(false);
+  protected readonly errorCancelar = signal<string | null>(null);
   protected readonly reportando = signal(false);
-  protected readonly reporte = signal('');
 
   constructor() {
     // Trae el pedido (con sus artículos) cada vez que cambia el id de la URL
     effect(() => {
       const id = this.id();
-      if (id) untracked(() => this.pedidos.obtener(id).subscribe({ error: () => undefined }));
+      untracked(() => this.traer(id));
+    });
+
+    // En vivo mientras siga en curso y la pestaña del navegador esté a la vista
+    const reloj = setInterval(() => {
+      const p = untracked(this.pedido);
+      if (p && enCurso(p) && document.visibilityState === 'visible') {
+        this.pedidos.refrescarPedido(p.idOrden).subscribe({ error: () => undefined });
+      }
+    }, REFRESCO_DETALLE_MS);
+    inject(DestroyRef).onDestroy(() => clearInterval(reloj));
+
+    // Aviso cuando la cafetería lo deja listo (solo si cambió mientras el alumno miraba)
+    let anterior: { id: string; estado: EstadoOrden } | null = null;
+    effect(() => {
+      const p = this.pedido();
+      if (!p) return;
+      if (anterior?.id === p.idOrden && anterior.estado !== p.estado && p.estado === 'lista') {
+        this.toast.ok('¡Tu pedido está listo! Muestra tu código en el mostrador.');
+      }
+      anterior = { id: p.idOrden, estado: p.estado };
     });
   }
 
-  protected onReporte(event: Event): void {
-    this.reporte.set((event.target as HTMLTextAreaElement).value);
+  protected traer(id = this.id()): void {
+    if (!id) return;
+    this.fallo.set(null);
+    this.pedidos.obtener(id).subscribe({ error: (e: ApiError) => this.fallo.set(e ?? { status: 0, message: '' }) });
+  }
+
+  protected abrirCancelar(): void {
+    this.errorCancelar.set(null);
+    this.confirmandoCancelar.set(true);
+  }
+
+  protected cerrarCancelar(): void {
+    if (!this.cancelando()) this.confirmandoCancelar.set(false);
   }
 
   protected cancelar(): void {
-    const pedido = this.pedido();
-    if (!pedido) return;
+    const p = this.pedido();
+    if (!p || this.cancelando()) return;
 
-    this.confirmandoCancelar.set(false);
-    this.pedidos.cancelar(pedido.idOrden).subscribe({
-      next: () => this.toast.ok(`${pedido.folio} se canceló. La cafetería ya no lo preparará.`),
-      error: (e: ApiError) => this.toast.error(e?.message ?? 'No se pudo cancelar el pedido.'),
+    this.cancelando.set(true);
+    this.errorCancelar.set(null);
+    this.pedidos.cancelar(p.idOrden).subscribe({
+      next: () => {
+        this.cancelando.set(false);
+        this.confirmandoCancelar.set(false);
+        this.toast.ok(`Cancelamos tu pedido ${p.folio}. La cafetería ya no lo preparará.`);
+      },
+      error: (e: ApiError) => {
+        // Lo más común: la cafetería lo pasó a preparación mientras el alumno decidía
+        this.cancelando.set(false);
+        this.errorCancelar.set(e?.message ?? 'No se pudo cancelar el pedido.');
+        this.pedidos.refrescarPedido(p.idOrden).subscribe({ error: () => undefined });
+      },
     });
-  }
-
-  /** Vuelve a pedir lo mismo: llena el carrito y lleva al menú para confirmar. */
-  protected volverAPedir(): void {
-    const pedido = this.pedido();
-    if (!pedido) return;
-
-    try {
-      this.agregarAlCarrito(pedido);
-      this.toast.ok('Tu carrito ya tiene este pedido. Revísalo y confírmalo.');
-      void this.router.navigate(['/']);
-    } catch (e) {
-      // El carrito no deja mezclar cafeterías: hay que vaciar primero
-      this.toast.error(e instanceof Error ? e.message : 'No se pudo llenar el carrito.');
-    }
-  }
-
-  private agregarAlCarrito(pedido: Orden): void {
-    for (const linea of pedido.lineas) {
-      this.carrito.agregar({
-        idProducto: linea.idProducto,
-        producto: linea.producto,
-        precio: linea.precioUnitario,
-        cantidad: linea.cantidad,
-        imagenUrl: linea.imagenUrl,
-        idCafeteria: pedido.idCafeteria,
-        cafeteria: pedido.cafeteria,
-      });
-    }
-  }
-
-  protected enviarReporte(): void {
-    const pedido = this.pedido();
-    if (!pedido || !this.reporte().trim()) return;
-
-    this.reportando.set(false);
-    this.reporte.set('');
-    this.toast.ok('Recibimos tu reporte. El equipo lo revisará con la cafetería.');
   }
 }

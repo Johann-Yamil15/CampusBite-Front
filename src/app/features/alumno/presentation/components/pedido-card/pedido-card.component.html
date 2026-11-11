@@ -1,0 +1,49 @@
+<!-- CL-Sprint5 11/11/2026 (etapa 6): tarjeta de pedido -->
+@let o = orden();
+<article class="pc cb-card" [class.listo]="etapa() === 'listo'">
+  <div class="pc-top">
+    <img class="pc-logo" [src]="o.logoCafeteria ?? sinImagen" alt="" width="52" height="52" loading="lazy" />
+    <div class="pc-info">
+      <h2 class="pc-titulo">
+        <a class="pc-enlace" [routerLink]="['/pedidos', o.idOrden]">{{ o.cafeteria }}</a>
+      </h2>
+      <p class="pc-meta">{{ o.folio }} · {{ resumen() }}</p>
+    </div>
+    <span class="chip" [class]="'estado-' + etapa()">{{ etiqueta() }}</span>
+  </div>
+
+  @if (activo()) {
+    <div class="pc-avance">
+      <div class="pc-tramos" aria-hidden="true">
+        @for (t of tramos; track t; let i = $index) {
+          <span class="pc-tramo" [class.lleno]="i <= paso()"></span>
+        }
+      </div>
+      <p class="pc-detalle">{{ detalle() }}</p>
+    </div>
+  }
+
+  @if (etapa() === 'listo') {
+    <p class="pc-codigo">
+      <app-icon nombre="campana" />
+      <span>Tu código: <strong [attr.aria-label]="o.codigoRecogida.split('').join(' ')">{{ codigo() }}</strong></span>
+    </p>
+  }
+
+  <div class="pc-pie">
+    <p class="pc-datos">
+      <span><app-icon nombre="reloj" />{{ activo() ? 'Recoger' : 'Para' }} {{ o.recogidaEn | date: 'd MMM, HH:mm' }}</span>
+      <strong class="pc-total">{{ o.total | currency: 'MXN' : 'symbol-narrow' }}</strong>
+    </p>
+    <div class="pc-acciones">
+      @if (activo()) {
+        <a class="cb-btn cb-btn--small cb-btn--primary" [routerLink]="['/pedidos', o.idOrden]">
+          Seguir pedido <app-icon nombre="flecha-der" />
+        </a>
+      } @else {
+        <app-volver-a-pedir [orden]="o" variante="secundario" [compacto]="true" />
+        <a class="cb-btn cb-btn--small cb-btn--ghost" [routerLink]="['/pedidos', o.idOrden]">Ver detalle</a>
+      }
+    </div>
+  </div>
+</article>

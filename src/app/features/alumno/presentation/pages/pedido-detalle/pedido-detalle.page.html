@@ -1,122 +1,136 @@
-<!-- JY-Sprint4 05/11/2026: cascarón visual. Cancelar, volver a pedir y reportar hacen su efecto en
-     memoria y avisan con un toast; lo que falta es la llamada al back. -->
+<!-- CL-Sprint5 11/11/2026 (etapa 6): detalle del pedido con seguimiento en vivo -->
 @if (pedido(); as p) {
-  <section class="pg" aria-labelledby="detalle-title">
-    <nav class="volver" aria-label="Migas de pan">
-      <a routerLink="/pedidos">
-        <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-        </svg>
-        Mis pedidos
-      </a>
+  <section class="pd" aria-labelledby="pd-titulo">
+    <nav aria-label="Migas de pan">
+      <a class="pd-volver" routerLink="/pedidos"><app-icon nombre="flecha-izq" />Mis pedidos</a>
     </nav>
 
-    <header class="pg-head">
-      <div>
-        <h1 id="detalle-title">{{ p.cafeteria }}</h1>
-        <p class="pg-sub">Pedido {{ p.folio }} · {{ p.creadoEn | date: 'd MMM, HH:mm' }}</p>
+    <header class="pd-head">
+      <img class="pd-logo" [src]="p.logoCafeteria ?? sinImagen" alt="" width="56" height="56" />
+      <div class="pd-head-txt">
+        <h1 id="pd-titulo">{{ p.cafeteria }}</h1>
+        <p>Pedido {{ p.folio }} · {{ p.creadoEn | date: "d MMM, HH:mm" }}</p>
       </div>
       <span class="chip" [class]="'estado-' + etapa(p.estado)">{{ etiqueta[etapa(p.estado)] }}</span>
     </header>
 
-    <div class="cols">
-      <div class="col-main">
-        <article class="cb-card">
-          <h2 class="cb-card-title">Avance del pedido</h2>
+    @if (p.estado === 'lista') {
+      <!-- Listo: el código manda -->
+      <article class="pd-listo cb-card" aria-labelledby="pd-listo-titulo">
+        <p class="pd-listo-titulo" id="pd-listo-titulo">
+          <app-icon nombre="campana" />¡Tu pedido está listo!
+        </p>
+        <p class="pd-listo-donde">Recógelo en <strong>{{ p.puntoEntrega }}</strong> y muestra este código.</p>
+        <app-codigo-recogida [codigo]="p.codigoRecogida" />
+      </article>
+    }
+
+    <div class="pd-cols">
+      <div class="pd-main">
+        <article class="cb-card pd-card">
+          <div class="pd-card-head">
+            <h2>Seguimiento</h2>
+            @if (activo()) {
+              <span class="pd-vivo"><span class="pd-vivo-punto" aria-hidden="true"></span>En vivo</span>
+            }
+          </div>
 
           @if (p.estado === 'cancelada') {
-            <p class="aviso-cancelado">
-              Este pedido se canceló. Si ya habías pagado, el reembolso se arregla en la cafetería.
+            <p class="pd-cancelado" role="status">
+              <app-icon nombre="cerrar" />
+              <span>
+                Este pedido se canceló y no se preparará.
+                @if (p.metodo !== 'efectivo') {
+                  Si ya habías pagado, el reembolso se gestiona con la cafetería.
+                }
+              </span>
             </p>
           } @else {
-            <ol class="linea">
-              @for (paso of pasos; track paso; let i = $index) {
-                <li
-                  class="paso"
-                  [class.hecho]="i < pasoActual()"
-                  [class.actual]="i === pasoActual()"
-                  [attr.aria-current]="i === pasoActual() ? 'step' : null"
-                >
-                  <span class="punto" aria-hidden="true">
-                    @if (i < pasoActual()) {
-                      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                      </svg>
-                    }
-                  </span>
-                  <span class="paso-texto">
-                    <strong>{{ etiqueta[paso] }}</strong>
-                    @if (i === pasoActual()) {
-                      <small>En este momento</small>
-                    }
-                  </span>
-                </li>
-              }
-            </ol>
+            <app-linea-tiempo [orden]="p" />
 
-            <p class="recogida">
-              <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+            <p class="pd-recogida">
+              <app-icon nombre="reloj" />
               <span>
-                Pásalo a recoger a las <strong>{{ p.recogidaEn | date: 'HH:mm' }}</strong> en
-                {{ p.puntoEntrega }}
+                @if (activo()) {
+                  Recoger a las <strong>{{ p.recogidaEn | date: 'HH:mm' }}</strong> en {{ p.puntoEntrega }}
+                } @else {
+                  Lo recogiste en {{ p.puntoEntrega }} ({{ p.recogidaEn | date: "d MMM, HH:mm" }})
+                }
               </span>
             </p>
           }
+
+          @if (p.estado === 'pendiente' && p.metodo === 'transferencia') {
+            <div class="pd-pago-pendiente">
+              <app-icon nombre="transferencia" />
+              <p>
+                <strong>Falta tu transferencia de {{ p.total | currency: 'MXN' : 'symbol-narrow' }}.</strong>
+                {{ cuenta.banco }} · CLABE <span class="pd-clabe">{{ cuenta.clabe }}</span> · Referencia {{ p.folio }}.
+                En cuanto la cafetería la confirme, tu pedido pasa a preparación.
+              </p>
+            </div>
+          }
         </article>
 
-        <article class="cb-card">
-          <h2 class="cb-card-title">Artículos</h2>
-          <ul class="items">
+        @if (activo() && p.estado !== 'lista') {
+          <div class="pd-codigo-chico">
+            <app-codigo-recogida [codigo]="p.codigoRecogida" [compacto]="true" />
+          </div>
+        }
+
+        <article class="cb-card pd-card">
+          <h2>Tu pedido <small>{{ piezas(p) }} {{ piezas(p) === 1 ? 'artículo' : 'artículos' }}</small></h2>
+          <ul class="pd-items">
             @for (item of p.lineas; track item.idProducto) {
-              <li class="item">
+              <li>
                 <img [src]="item.imagenUrl ?? sinImagen" alt="" width="52" height="52" loading="lazy" />
-                <span class="item-nombre">{{ item.producto }}</span>
-                <span class="item-cant">×{{ item.cantidad }}</span>
-                <span class="item-precio">{{ item.precioUnitario * item.cantidad | currency: 'MXN' }}</span>
+                <span class="pd-item-nombre"><span class="pd-cant">{{ item.cantidad }}×</span> {{ item.producto }}</span>
+                <span class="pd-item-precio">{{ item.precioUnitario * item.cantidad | currency: 'MXN' : 'symbol-narrow' }}</span>
               </li>
             }
           </ul>
-
           @if (p.notas) {
-            <p class="notas"><strong>Notas:</strong> {{ p.notas }}</p>
+            <p class="pd-notas"><app-icon nombre="info" /><span><strong>Notas:</strong> {{ p.notas }}</span></p>
           }
         </article>
       </div>
 
-      <aside class="col-lado">
-        <article class="cb-card">
-          <h2 class="cb-card-title">Pago</h2>
-          <dl class="resumen">
+      <aside class="pd-lado">
+        <article class="cb-card pd-card">
+          <h2>Pago</h2>
+          <dl class="pd-resumen">
             <dt>Método</dt>
-            <dd class="capitalizar">{{ p.metodo }}</dd>
-            <dt>Artículos</dt>
-            <dd>{{ p.lineas.length }}</dd>
-            <dt class="fuerte">Total</dt>
-            <dd class="fuerte">{{ p.total | currency: 'MXN' }}</dd>
+            <dd><app-icon [nombre]="infoMetodo[p.metodo].icono" />{{ infoMetodo[p.metodo].etiqueta }}</dd>
+            <dt>Estado</dt>
+            <dd>{{ textoPago(p) }}</dd>
+            <dt class="pd-total">Total</dt>
+            <dd class="pd-total">{{ p.total | currency: 'MXN' : 'symbol-narrow' }}</dd>
           </dl>
-
-          <div class="acciones">
-            @if (cancelable()) {
-              <button type="button" class="cb-btn cb-btn--danger" (click)="confirmandoCancelar.set(true)">
-                Cancelar pedido
-              </button>
-            }
-            @if (terminado()) {
-              <button type="button" class="cb-btn cb-btn--primary" (click)="volverAPedir()">
-                Volver a pedir
-              </button>
-            }
-            <a class="cb-btn cb-btn--secondary" routerLink="/pedidos">Volver a mis pedidos</a>
-          </div>
         </article>
 
-        <article class="cb-card ayuda">
-          <h2 class="cb-card-title">¿Algo salió mal?</h2>
-          <p>Habla con la cafetería en el mostrador o repórtalo aquí para que lo revisemos.</p>
-          <button type="button" class="cb-btn cb-btn--small" (click)="reportando.set(true)">
-            Reportar un problema
+        <article class="cb-card pd-card pd-acciones">
+          @if (activo()) {
+            @if (cancelable()) {
+              <button type="button" class="cb-btn cb-btn--danger" (click)="abrirCancelar()">
+                <app-icon nombre="cerrar" />Cancelar pedido
+              </button>
+              <p class="pd-nota">Puedes cancelarlo mientras la cafetería no empiece a prepararlo.</p>
+            } @else if (motivoNoCancelar(); as motivo) {
+              <p class="pd-nota pd-no-cancelar"><app-icon nombre="info" /><span>{{ motivo }}</span></p>
+            }
+          } @else {
+            <app-volver-a-pedir [orden]="p" />
+          }
+          <a class="cb-btn cb-btn--secondary" [routerLink]="['/cafeterias', p.idCafeteria]">
+            <app-icon nombre="tienda" />Ver menú de la cafetería
+          </a>
+        </article>
+
+        <article class="cb-card pd-card pd-ayuda">
+          <h2>¿Algo salió mal?</h2>
+          <p>Si faltó algo o hubo un problema con el cobro, cuéntanos y lo revisamos con la cafetería.</p>
+          <button type="button" class="cb-btn cb-btn--ghost cb-btn--small" (click)="reportando.set(true)">
+            <app-icon nombre="alerta" />Reportar un problema
           </button>
         </article>
       </aside>
@@ -124,72 +138,72 @@
   </section>
 
   @if (confirmandoCancelar()) {
-    <app-modal
-      title="¿Cancelar este pedido?"
-      [subtitle]="p.folio + ' · ' + p.cafeteria"
-      size="sm"
-      (closed)="confirmandoCancelar.set(false)"
-    >
-      <p class="modal-texto">
-        La cafetería ya vio tu pedido. Si lo cancelas ahora no se preparará, y si ya pagaste tendrás que
-        pedir el reembolso en el mostrador.
-      </p>
+    <app-modal title="¿Cancelar este pedido?" [subtitle]="p.folio + ' · ' + p.cafeteria" size="sm" (closed)="cerrarCancelar()">
+      @if (cancelable()) {
+        <p class="pd-modal-texto">
+          La cafetería no lo preparará.
+          @if (p.estadoPago === 'pagado') {
+            Como ya pagaste, el reembolso se gestiona con la cafetería.
+          }
+        </p>
+      } @else {
+        <p class="pd-modal-texto">{{ motivoNoCancelar() }}</p>
+      }
+      @if (errorCancelar(); as e) {
+        <p class="cb-alert-error pd-modal-error" role="alert">{{ e }}</p>
+      }
 
       <div modalActions>
-        <button type="button" class="cb-btn cb-btn--secondary" (click)="confirmandoCancelar.set(false)">
-          Mejor no
-        </button>
-        <button type="button" class="cb-btn cb-btn--danger" data-modal-focus (click)="cancelar()">
-          Sí, cancelar
-        </button>
+        @if (cancelable()) {
+          <button type="button" class="cb-btn cb-btn--secondary" (click)="cerrarCancelar()">Mejor no</button>
+          <button
+            type="button"
+            class="cb-btn cb-btn--danger"
+            data-modal-focus
+            [disabled]="cancelando()"
+            [attr.aria-busy]="cancelando()"
+            (click)="cancelar()"
+          >
+            {{ cancelando() ? 'Cancelando…' : 'Sí, cancelar' }}
+          </button>
+        } @else {
+          <button type="button" class="cb-btn cb-btn--primary" data-modal-focus (click)="cerrarCancelar()">Entendido</button>
+        }
       </div>
     </app-modal>
   }
 
   @if (reportando()) {
-    <app-modal
-      title="Reportar un problema"
-      [subtitle]="p.folio + ' · ' + p.cafeteria"
-      size="sm"
-      (closed)="reportando.set(false)"
-    >
-      <label class="cb-field">
-        <span>¿Qué pasó? <small>(lo lee el equipo de CampusBite)</small></span>
-        <textarea
-          rows="4"
-          maxlength="300"
-          placeholder="Me dieron un platillo distinto, faltó un artículo…"
-          data-modal-focus
-          [value]="reporte()"
-          (input)="onReporte($event)"
-        ></textarea>
-        <small>{{ reporte().length }}/300</small>
-      </label>
-
-      <div modalActions>
-        <button type="button" class="cb-btn cb-btn--secondary" (click)="reportando.set(false)">
-          Cancelar
-        </button>
-        <button
-          type="button"
-          class="cb-btn cb-btn--primary"
-          [disabled]="!reporte().trim()"
-          (click)="enviarReporte()"
-        >
-          Enviar reporte
-        </button>
-      </div>
-    </app-modal>
+    <app-reportar-problema [orden]="p" (cerrado)="reportando.set(false)" />
   }
-} @else if (cargando()) {
-  <p class="pg-sub" role="status">Cargando el pedido…</p>
-} @else {
+} @else if (noExiste()) {
   <div class="vacio">
-    <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-    </svg>
+    <app-icon nombre="alerta" />
     <h2>No encontramos ese pedido</h2>
-    <p>Puede que el enlace esté mal o que el pedido ya no exista.</p>
+    <p>Puede que el enlace esté mal o que el pedido no sea de tu cuenta.</p>
     <a class="cb-btn cb-btn--primary" routerLink="/pedidos">Ver mis pedidos</a>
+  </div>
+} @else if (fallo(); as f) {
+  <div class="vacio" role="alert">
+    <app-icon nombre="alerta" />
+    <h2>No pudimos cargar tu pedido</h2>
+    <p>{{ f.message || 'Revisa tu conexión e intenta de nuevo.' }}</p>
+    <button type="button" class="cb-btn cb-btn--primary" (click)="traer()"><app-icon nombre="recargar" />Reintentar</button>
+  </div>
+} @else {
+  <div class="pd pd-cargando" role="status" aria-label="Cargando el pedido">
+    <div class="pd-head" aria-hidden="true">
+      <div class="cb-skeleton" style="width: 56px; height: 56px"></div>
+      <div class="pd-head-txt">
+        <div class="cb-skeleton" style="height: 1.5rem; width: 50%"></div>
+        <div class="cb-skeleton" style="height: 0.9rem; width: 35%; margin-top: 0.5rem"></div>
+      </div>
+    </div>
+    <div class="cb-card pd-card" aria-hidden="true">
+      <div class="cb-skeleton" style="height: 6rem"></div>
+    </div>
+    <div class="cb-card pd-card" aria-hidden="true">
+      <div class="cb-skeleton" style="height: 8rem"></div>
+    </div>
   </div>
 }
