@@ -62,8 +62,11 @@ export class OrdenesMockRepository extends OrdenesRepository {
       }
 
       const lineas = nueva.items.map((i) => lineaDemo(i.idProducto, i.cantidad));
-      // Efectivo nace confirmada; tarjeta y transferencia, pendiente (hasta confirmar el pago)
-      const estado: EstadoOrden = nueva.metodo === 'efectivo' ? 'confirmada' : 'pendiente';
+      // Efectivo nace confirmada; tarjeta y transferencia, pendiente (hasta confirmar el pago).
+      // CL-Sprint5 11/11/2026 (etapa 5): la tarjeta simula una pasarela que cobra en el acto (el back
+      // llamaría a sp_confirmar_pago): queda confirmada y pagada. La transferencia sigue pendiente hasta
+      // que la cafetería la confirme.
+      const estado: EstadoOrden = nueva.metodo === 'transferencia' ? 'pendiente' : 'confirmada';
       const idOrden = crypto.randomUUID();
       const orden: Orden = {
         idOrden,

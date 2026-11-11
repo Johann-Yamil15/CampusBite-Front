@@ -137,6 +137,9 @@
 
 <!-- El carrito solo existe para el alumno; se abre desde la barra superior -->
 <app-carrito-drawer />
+@if (checkoutAbierto()) {
+  <app-checkout />
+}
 
 @if (confirmandoSalida()) {
   <app-modal title="¿Cerrar sesión?" size="sm" (closed)="confirmandoSalida.set(false)">

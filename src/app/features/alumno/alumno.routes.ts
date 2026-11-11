@@ -46,6 +46,15 @@ export default [
           import('./presentation/pages/pedidos/pedidos.page').then((m) => m.PedidosPage),
       },
       {
+        // CL-Sprint5 11/11/2026 (etapa 5): a donde lleva el checkout; muestra el código de recogida
+        path: 'pedidos/:id/confirmado',
+        title: '¡Pedido enviado! · CampusBite',
+        loadComponent: () =>
+          import('./presentation/pages/pedido-confirmado/pedido-confirmado.page').then(
+            (m) => m.PedidoConfirmadoPage,
+          ),
+      },
+      {
         // El id llega al componente como input `id` (withComponentInputBinding)
         path: 'pedidos/:id',
         title: 'Detalle del pedido · CampusBite',

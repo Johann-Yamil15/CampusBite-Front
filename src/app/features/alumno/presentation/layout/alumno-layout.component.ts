@@ -29,6 +29,7 @@ import { CarritoStore } from '@features/alumno/application/carrito.store';
 import { CarritoUiService } from '@features/alumno/presentation/carrito-ui.service';
 import { nombreDesdeCorreo } from '@features/alumno/presentation/nombre';
 import { CarritoDrawerComponent } from '@features/alumno/presentation/components/carrito-drawer/carrito-drawer.component';
+import { CheckoutComponent } from '@features/alumno/presentation/components/checkout/checkout.component';
 
 interface NavItem {
   icono: NombreIcono;
@@ -56,6 +57,7 @@ const NAV: NavItem[] = [
     IconComponent,
     ModalComponent,
     CarritoDrawerComponent,
+    CheckoutComponent,
   ],
   templateUrl: './alumno-layout.component.html',
   styleUrl: './alumno-layout.component.scss',
@@ -88,7 +90,10 @@ export class AlumnoLayoutComponent {
   );
 
   /** Abierto/cerrado del drawer: lo comparten la barra, la barra "Ver carrito" y las pantallas. */
-  protected readonly carritoAbierto = inject(CarritoUiService).abierto;
+  private readonly carritoUi = inject(CarritoUiService);
+  protected readonly carritoAbierto = this.carritoUi.abierto;
+  /** Etapa 5: el checkout (modal) también vive en el layout. */
+  protected readonly checkoutAbierto = this.carritoUi.checkoutAbierto;
   protected readonly menuAbierto = signal(false);
   protected readonly confirmandoSalida = signal(false);
 

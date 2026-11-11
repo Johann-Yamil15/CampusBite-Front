@@ -1,0 +1,101 @@
+<!-- CL-Sprint5 11/11/2026: checkout (etapa 5). En teléfono es una hoja que sube desde abajo. -->
+<app-modal title="Confirmar pedido" [subtitle]="carrito.cafeteria()" size="md" (closed)="cerrar()">
+  <div class="co">
+    <!-- Hora de recogida -->
+    <section class="co-sec" aria-labelledby="co-hora">
+      <h3 id="co-hora"><app-icon nombre="reloj" />¿Cuándo pasas por él?</h3>
+      @if (opciones().length) {
+        <div class="co-horas" role="radiogroup" aria-labelledby="co-hora">
+          @for (o of opciones(); track o.fecha.getTime(); let i = $index) {
+            <button
+              type="button"
+              role="radio"
+              class="co-hora"
+              [attr.aria-checked]="recogida() === i"
+              (click)="recogida.set(i)"
+            >
+              <span class="co-hora-etiqueta">{{ o.etiqueta }}</span>
+              <span class="co-hora-dato">{{ o.fecha | date: 'HH:mm' }}</span>
+            </button>
+          }
+        </div>
+        @if (cafeteria(); as c) {
+          <p class="co-nota">
+            <app-icon nombre="ubicacion" />Recoges en {{ c.puntoEntrega }}{{ c.cierraA ? ' · cierra a las ' + c.cierraA : '' }}
+          </p>
+        }
+      } @else if (cafeteria()) {
+        <p class="co-aviso" role="status">
+          <app-icon nombre="info" />
+          {{ carrito.cafeteria() }} ya no recibe pedidos por hoy. Prueba con otra cafetería o vuelve mañana.
+        </p>
+      } @else {
+        <div class="cb-skeleton" style="height: 3.5rem" aria-label="Cargando horarios"></div>
+      }
+    </section>
+
+    <!-- Método de pago -->
+    <section class="co-sec" aria-labelledby="co-pago">
+      <h3 id="co-pago"><app-icon nombre="tarjeta" />¿Cómo pagas?</h3>
+      <div class="co-metodos" role="radiogroup" aria-labelledby="co-pago">
+        @for (m of metodos(); track m) {
+          <button type="button" role="radio" class="co-metodo" [attr.aria-checked]="metodo() === m" (click)="metodo.set(m)">
+            <span class="co-metodo-icono"><app-icon [nombre]="infoMetodo[m].icono" /></span>
+            <span class="co-metodo-texto">
+              <strong>{{ infoMetodo[m].etiqueta }}</strong>
+              <small>{{ infoMetodo[m].detalle }}</small>
+            </span>
+            <span class="co-metodo-check" aria-hidden="true">
+              @if (metodo() === m) {
+                <app-icon nombre="palomita" [grosor]="2.5" />
+              }
+            </span>
+          </button>
+        }
+      </div>
+    </section>
+
+    <!-- Notas -->
+    <label class="cb-field co-sec">
+      <span>Notas para la cafetería <small>(opcional)</small></span>
+      <textarea
+        rows="2"
+        [attr.maxlength]="maxNotas"
+        placeholder="Sin cebolla, para llevar…"
+        [value]="notas()"
+        (input)="onNotas($event)"
+      ></textarea>
+      <small>{{ notas().length }}/{{ maxNotas }}</small>
+    </label>
+
+    <!-- Resumen -->
+    <section class="co-sec co-resumen" aria-labelledby="co-resumen">
+      <h3 id="co-resumen"><app-icon nombre="bolsa" />Tu pedido</h3>
+      <ul>
+        @for (i of carrito.items(); track i.idProducto) {
+          <li>
+            <span class="co-cant">{{ i.cantidad }}×</span>
+            <span class="co-prod">{{ i.producto }}</span>
+            <span class="co-precio">{{ i.precio * i.cantidad | currency: 'MXN' : 'symbol-narrow' }}</span>
+          </li>
+        }
+      </ul>
+      <p class="co-total"><span>Total</span><strong>{{ carrito.totalPrecio() | currency: 'MXN' : 'symbol-narrow' }}</strong></p>
+    </section>
+
+    @if (error(); as e) {
+      <p class="cb-alert-error" role="alert">{{ e }}</p>
+    }
+  </div>
+
+  <div modalActions class="co-acciones">
+    <button type="button" class="cb-btn cb-btn--secondary" [disabled]="enviando()" (click)="volverAlCarrito()">Volver al carrito</button>
+    <button type="button" class="cb-btn cb-btn--primary cb-btn--elevado" data-modal-focus [disabled]="!listo() || enviando()" (click)="confirmar()">
+      @if (enviando()) {
+        Enviando…
+      } @else {
+        Pedir · {{ carrito.totalPrecio() | currency: 'MXN' : 'symbol-narrow' }}
+      }
+    </button>
+  </div>
+</app-modal>

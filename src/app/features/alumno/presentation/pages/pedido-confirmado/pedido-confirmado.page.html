@@ -1,0 +1,74 @@
+<!-- CL-Sprint5 11/11/2026: confirmación del pedido con el código de recogida (etapa 5) -->
+@if (pedido(); as p) {
+  <section class="pc" aria-labelledby="pc-titulo">
+    <header class="pc-head">
+      <span class="pc-ok" aria-hidden="true"><app-icon nombre="palomita" [grosor]="2.5" /></span>
+      <h1 id="pc-titulo">¡Pedido enviado!</h1>
+      <p>
+        {{ p.cafeteria }} ya lo recibió.
+        <span class="chip" [class]="'estado-' + etapa(p.estado)">{{ etiquetaEtapa[etapa(p.estado)] }}</span>
+      </p>
+    </header>
+
+    <app-codigo-recogida [codigo]="p.codigoRecogida" />
+
+    <dl class="pc-datos cb-card">
+      <div>
+        <dt><app-icon nombre="reloj" />Recoge a las</dt>
+        <dd>{{ p.recogidaEn | date: 'HH:mm' }}</dd>
+      </div>
+      <div>
+        <dt><app-icon nombre="ubicacion" />En</dt>
+        <dd>{{ p.puntoEntrega }}</dd>
+      </div>
+      <div>
+        <dt><app-icon nombre="bolsa" />Pedido {{ p.folio }}</dt>
+        <dd>{{ piezas(p) }} {{ piezas(p) === 1 ? 'artículo' : 'artículos' }} · {{ p.total | currency: 'MXN' : 'symbol-narrow' }}</dd>
+      </div>
+      <div>
+        <dt><app-icon [nombre]="infoMetodo[p.metodo].icono" />Pago</dt>
+        <dd>{{ infoMetodo[p.metodo].etiqueta }}</dd>
+      </div>
+    </dl>
+
+    <!-- Qué sigue, según cómo paga -->
+    <div class="pc-sigue" [class.pendiente]="p.estado === 'pendiente'">
+      <app-icon nombre="info" />
+      <div>
+        @switch (p.metodo) {
+          @case ('efectivo') {
+            <strong>Paga {{ p.total | currency: 'MXN' : 'symbol-narrow' }} en efectivo al recoger.</strong>
+            <p>Te avisamos cuando esté listo. Llega con tu código.</p>
+          }
+          @case ('tarjeta') {
+            <strong>Pagado con tarjeta.</strong>
+            <p>Solo pasa por él con tu código; ya no tienes que pagar nada.</p>
+          }
+          @case ('transferencia') {
+            <strong>Transfiere {{ p.total | currency: 'MXN' : 'symbol-narrow' }} para que empiecen a prepararlo.</strong>
+            <p>
+              {{ cuenta.banco }} · CLABE <span class="pc-clabe">{{ cuenta.clabe }}</span> · Referencia {{ p.folio }}.
+              La cafetería confirma el pago y tu pedido pasa a preparación.
+            </p>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="pc-acciones">
+      <a class="cb-btn cb-btn--primary cb-btn--lg" [routerLink]="['/pedidos', p.idOrden]">
+        Seguir mi pedido <app-icon nombre="flecha-der" />
+      </a>
+      <a class="cb-btn cb-btn--secondary cb-btn--lg" routerLink="/">Volver al inicio</a>
+    </div>
+  </section>
+} @else if (cargando()) {
+  <p class="pg-sub" role="status">Cargando tu pedido…</p>
+} @else {
+  <div class="vacio">
+    <app-icon nombre="alerta" />
+    <h2>No encontramos ese pedido</h2>
+    <p>Puede que el enlace esté mal. Tus pedidos están en "Mis pedidos".</p>
+    <a class="cb-btn cb-btn--primary" routerLink="/pedidos">Ver mis pedidos</a>
+  </div>
+}

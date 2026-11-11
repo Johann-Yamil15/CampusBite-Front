@@ -47,16 +47,18 @@ describe('OrdenesMockRepository', () => {
     expect((await valor(repo.misOrdenes()))[0].idOrden).toBe(orden.idOrden);
   });
 
-  it('crear con tarjeta nace pendiente', async () => {
-    const orden = await valor(
-      repo.crear({
-        idCafeteria: DEMO_CAFETERIA.central,
-        recogidaEn: dentroDe(30),
-        metodo: 'tarjeta',
-        items: [{ idProducto: DEMO_PRODUCTO.panini, cantidad: 1 }],
-      }),
-    );
-    expect(orden.estado).toBe('pendiente');
+  it('tarjeta simula el cobro en línea (confirmada y pagada); transferencia queda pendiente', async () => {
+    const pedir = (metodo: 'tarjeta' | 'transferencia') =>
+      valor(
+        repo.crear({
+          idCafeteria: DEMO_CAFETERIA.central,
+          recogidaEn: dentroDe(30),
+          metodo,
+          items: [{ idProducto: DEMO_PRODUCTO.panini, cantidad: 1 }],
+        }),
+      );
+    expect(await pedir('tarjeta')).toMatchObject({ estado: 'confirmada', estadoPago: 'pagado' });
+    expect(await pedir('transferencia')).toMatchObject({ estado: 'pendiente', estadoPago: 'pendiente' });
   });
 
   it('crear rechaza recogida en menos de 5 minutos y productos de otra cafetería', async () => {
