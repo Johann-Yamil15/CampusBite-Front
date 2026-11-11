@@ -63,7 +63,12 @@ export class TiendaPage {
   private readonly platillos = computed<PlatilloCatalogo[]>(() => {
     const c = this.cafeteria();
     return c
-      ? c.productos.map((p) => ({ ...p, idCafeteria: c.idCafeteria, cafeteria: c.cafeteria }))
+      ? c.productos.map((p) => ({
+          ...p,
+          idCafeteria: c.idCafeteria,
+          cafeteria: c.cafeteria,
+          cafeteriaAbierta: c.abierta,
+        }))
       : [];
   });
 

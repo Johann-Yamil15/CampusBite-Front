@@ -19,7 +19,11 @@ export interface ProductoMenuDto {
   minutosPreparacion?: number | null;
   precioAnterior?: number | null;
   popular?: boolean;
+  /** CL-Sprint5 11/11/2026 (etapa 4): enum Dieta del back (propuesto). */
+  dietas?: DietaDto[];
 }
+
+export type DietaDto = 'Vegetariano' | 'SinGluten';
 
 export interface MenuCafeteriaDto {
   idCafeteria: string;

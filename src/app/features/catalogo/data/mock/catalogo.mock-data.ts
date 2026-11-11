@@ -21,6 +21,7 @@ export function menuDemo(): MenuCafeteria[] {
       minutosPreparacion: p.minutosPreparacion,
       precioAnterior: p.precioAnterior,
       popular: p.popular,
+      dietas: [...p.dietas],
     })),
     logoUrl: c.logo,
     portadaUrl: c.portada,

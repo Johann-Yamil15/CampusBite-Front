@@ -39,6 +39,8 @@ export interface DemoProducto {
   precioAnterior: number | null;
   /** Lo más pedido: sale en "Populares" del inicio. */
   popular: boolean;
+  /** CL-Sprint5 11/11/2026 (etapa 4): para los filtros de dieta del buscador. */
+  dietas: ('vegetariano' | 'sin_gluten')[];
 }
 
 /** Promoción destacada del carrusel del inicio. */
@@ -167,29 +169,29 @@ export const DEMO_CAFETERIAS: DemoCafeteria[] = [
 ];
 
 export const DEMO_PRODUCTOS: DemoProducto[] = [
-  { id: P.sandwich, idCafeteria: C.central, nombre: 'Sándwich Clásico de Pollo', categoria: 'Comidas', precio: 55, foto: 'sandwich', calificacion: 4.8, minutosPreparacion: 8, precioAnterior: null, popular: true,
+  { id: P.sandwich, idCafeteria: C.central, nombre: 'Sándwich Clásico de Pollo', categoria: 'Comidas', precio: 55, foto: 'sandwich', calificacion: 4.8, minutosPreparacion: 8, precioAnterior: null, popular: true, dietas: [],
     descripcion: 'Pan artesanal, pollo, lechuga, jitomate y aderezo de la casa.' },
-  { id: P.panini, idCafeteria: C.central, nombre: 'Panini Caprese', categoria: 'Comidas', precio: 49, foto: 'panini', calificacion: 4.7, minutosPreparacion: 8, precioAnterior: 59, popular: true,
+  { id: P.panini, idCafeteria: C.central, nombre: 'Panini Caprese', categoria: 'Comidas', precio: 49, foto: 'panini', calificacion: 4.7, minutosPreparacion: 8, precioAnterior: 59, popular: true, dietas: ['vegetariano'],
     descripcion: 'Pan artesanal, mozzarella, jitomate, albahaca y pesto.' },
-  { id: P.latte, idCafeteria: C.express, nombre: 'Latte Helado', categoria: 'Bebidas', precio: 38, foto: 'latte', calificacion: 4.7, minutosPreparacion: 4, precioAnterior: null, popular: true,
+  { id: P.latte, idCafeteria: C.express, nombre: 'Latte Helado', categoria: 'Bebidas', precio: 38, foto: 'latte', calificacion: 4.7, minutosPreparacion: 4, precioAnterior: null, popular: true, dietas: ['vegetariano', 'sin_gluten'],
     descripcion: 'Café espresso con leche y hielo. 355 ml.' },
-  { id: P.americano, idCafeteria: C.express, nombre: 'Café Americano', categoria: 'Bebidas', precio: 28, foto: 'americano', calificacion: 4.6, minutosPreparacion: 3, precioAnterior: null, popular: false,
+  { id: P.americano, idCafeteria: C.express, nombre: 'Café Americano', categoria: 'Bebidas', precio: 28, foto: 'americano', calificacion: 4.6, minutosPreparacion: 3, precioAnterior: null, popular: false, dietas: ['vegetariano', 'sin_gluten'],
     descripcion: 'Café de grano recién molido. 355 ml.' },
-  { id: P.bowlPollo, idCafeteria: C.rincon, nombre: 'Bowl de Pollo', categoria: 'Saludable', precio: 72, foto: 'bowl-pollo', calificacion: 4.9, minutosPreparacion: 12, precioAnterior: null, popular: true,
+  { id: P.bowlPollo, idCafeteria: C.rincon, nombre: 'Bowl de Pollo', categoria: 'Saludable', precio: 72, foto: 'bowl-pollo', calificacion: 4.9, minutosPreparacion: 12, precioAnterior: null, popular: true, dietas: ['sin_gluten'],
     descripcion: 'Arroz integral, pollo a la plancha, aguacate, vegetales y aderezo.' },
-  { id: P.smoothie, idCafeteria: C.rincon, nombre: 'Smoothie de Frutos Rojos', categoria: 'Bebidas', precio: 45, foto: 'smoothie', calificacion: 4.8, minutosPreparacion: 5, precioAnterior: null, popular: false,
+  { id: P.smoothie, idCafeteria: C.rincon, nombre: 'Smoothie de Frutos Rojos', categoria: 'Bebidas', precio: 45, foto: 'smoothie', calificacion: 4.8, minutosPreparacion: 5, precioAnterior: null, popular: false, dietas: ['vegetariano', 'sin_gluten'],
     descripcion: 'Fresa, plátano, avena y yogurt.' },
-  { id: P.ensalada, idCafeteria: C.rincon, nombre: 'Ensalada César', categoria: 'Saludable', precio: 62, foto: 'ensalada-cesar', calificacion: 4.5, minutosPreparacion: 7, precioAnterior: null, popular: false,
+  { id: P.ensalada, idCafeteria: C.rincon, nombre: 'Ensalada César', categoria: 'Saludable', precio: 62, foto: 'ensalada-cesar', calificacion: 4.5, minutosPreparacion: 7, precioAnterior: null, popular: false, dietas: [],
     descripcion: 'Lechuga romana, crutones, parmesano y aderezo césar.' },
-  { id: P.hamburguesa, idCafeteria: C.sabor, nombre: 'Hamburguesa Clásica', categoria: 'Comidas', precio: 79, foto: 'hamburguesa', calificacion: 4.6, minutosPreparacion: 15, precioAnterior: 89, popular: true,
+  { id: P.hamburguesa, idCafeteria: C.sabor, nombre: 'Hamburguesa Clásica', categoria: 'Comidas', precio: 79, foto: 'hamburguesa', calificacion: 4.6, minutosPreparacion: 15, precioAnterior: 89, popular: true, dietas: [],
     descripcion: 'Carne de res, queso, lechuga, jitomate y papas.' },
-  { id: P.chilaquiles, idCafeteria: C.terraza, nombre: 'Chilaquiles Verdes', categoria: 'Desayunos', precio: 58, foto: 'chilaquiles', calificacion: 4.6, minutosPreparacion: 10, precioAnterior: null, popular: true,
+  { id: P.chilaquiles, idCafeteria: C.terraza, nombre: 'Chilaquiles Verdes', categoria: 'Desayunos', precio: 58, foto: 'chilaquiles', calificacion: 4.6, minutosPreparacion: 10, precioAnterior: null, popular: true, dietas: ['sin_gluten'],
     descripcion: 'Con pollo, crema, queso y cebolla.' },
-  { id: P.molletes, idCafeteria: C.terraza, nombre: 'Molletes de Frijol', categoria: 'Desayunos', precio: 42, foto: 'molletes', calificacion: 4.4, minutosPreparacion: 8, precioAnterior: null, popular: false,
+  { id: P.molletes, idCafeteria: C.terraza, nombre: 'Molletes de Frijol', categoria: 'Desayunos', precio: 42, foto: 'molletes', calificacion: 4.4, minutosPreparacion: 8, precioAnterior: null, popular: false, dietas: ['vegetariano'],
     descripcion: 'Pan bolillo, frijoles refritos, queso gratinado y pico de gallo.' },
-  { id: P.papas, idCafeteria: C.snack, nombre: 'Papas a la Francesa', categoria: 'Snacks', precio: 32, foto: 'papas', calificacion: 4.5, minutosPreparacion: 6, precioAnterior: null, popular: true,
+  { id: P.papas, idCafeteria: C.snack, nombre: 'Papas a la Francesa', categoria: 'Snacks', precio: 32, foto: 'papas', calificacion: 4.5, minutosPreparacion: 6, precioAnterior: null, popular: true, dietas: ['vegetariano', 'sin_gluten'],
     descripcion: 'Papas crujientes con aderezo de la casa.' },
-  { id: P.galletas, idCafeteria: C.snack, nombre: 'Galletas de Avena', categoria: 'Snacks', precio: 25, foto: 'galletas', calificacion: 4.3, minutosPreparacion: 1, precioAnterior: null, popular: false,
+  { id: P.galletas, idCafeteria: C.snack, nombre: 'Galletas de Avena', categoria: 'Snacks', precio: 25, foto: 'galletas', calificacion: 4.3, minutosPreparacion: 1, precioAnterior: null, popular: false, dietas: ['vegetariano'],
     descripcion: 'Paquete de 3 piezas, hechas en casa.' },
 ];
 

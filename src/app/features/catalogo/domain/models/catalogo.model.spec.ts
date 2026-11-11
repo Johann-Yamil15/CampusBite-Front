@@ -21,8 +21,8 @@ const MENU: MenuCafeteria[] = [
     minutosEstimados: null,
     metodosPago: ['efectivo'],
     productos: [
-      { idProducto: 'p1', producto: 'Latte', categoria: 'Bebidas', descripcion: null, precio: 38, imagenUrl: null, calificacion: null, minutosPreparacion: null, precioAnterior: null, popular: false },
-      { idProducto: 'p2', producto: 'Galleta', categoria: null, descripcion: null, precio: 20, imagenUrl: null, calificacion: null, minutosPreparacion: null, precioAnterior: null, popular: false },
+      { idProducto: 'p1', producto: 'Latte', categoria: 'Bebidas', descripcion: null, precio: 38, imagenUrl: null, calificacion: null, minutosPreparacion: null, precioAnterior: null, popular: false, dietas: [] },
+      { idProducto: 'p2', producto: 'Galleta', categoria: null, descripcion: null, precio: 20, imagenUrl: null, calificacion: null, minutosPreparacion: null, precioAnterior: null, popular: false, dietas: [] },
     ],
   },
   {
@@ -39,8 +39,8 @@ const MENU: MenuCafeteria[] = [
     minutosEstimados: null,
     metodosPago: ['tarjeta'],
     productos: [
-      { idProducto: 'p3', producto: 'Chilaquiles', categoria: 'Desayunos', descripcion: null, precio: 58, imagenUrl: null, calificacion: null, minutosPreparacion: null, precioAnterior: null, popular: false },
-      { idProducto: 'p4', producto: 'Té', categoria: 'Bebidas', descripcion: null, precio: 25, imagenUrl: null, calificacion: null, minutosPreparacion: null, precioAnterior: null, popular: false },
+      { idProducto: 'p3', producto: 'Chilaquiles', categoria: 'Desayunos', descripcion: null, precio: 58, imagenUrl: null, calificacion: null, minutosPreparacion: null, precioAnterior: null, popular: false, dietas: [] },
+      { idProducto: 'p4', producto: 'Té', categoria: 'Bebidas', descripcion: null, precio: 25, imagenUrl: null, calificacion: null, minutosPreparacion: null, precioAnterior: null, popular: false, dietas: [] },
     ],
   },
 ];

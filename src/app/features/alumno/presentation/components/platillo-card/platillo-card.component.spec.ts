@@ -14,8 +14,10 @@ const LATTE: PlatilloCatalogo = {
   minutosPreparacion: 4,
   precioAnterior: 45,
   popular: true,
+  dietas: ['vegetariano'],
   idCafeteria: 'c1',
   cafeteria: 'Café Express',
+  cafeteriaAbierta: true,
 };
 
 /**

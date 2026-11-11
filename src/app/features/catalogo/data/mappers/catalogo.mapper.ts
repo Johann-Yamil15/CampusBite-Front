@@ -1,13 +1,17 @@
 import {
+  Dieta,
   MenuCafeteria,
   MetodoPago,
   Promocion,
 } from '@features/catalogo/domain/models/catalogo.model';
 import {
+  DietaDto,
   MenuCafeteriaDto,
   MetodoPagoDto,
   PromocionDto,
 } from '@features/catalogo/data/dtos/catalogo.dto';
+
+const DIETA: Record<DietaDto, Dieta> = { Vegetariano: 'vegetariano', SinGluten: 'sin_gluten' };
 
 /** CL-Sprint5 11/11/2026: DTO del menú → entidad del catálogo. */
 export const CatalogoMapper = {
@@ -29,6 +33,7 @@ export const CatalogoMapper = {
         minutosPreparacion: p.minutosPreparacion ?? null,
         precioAnterior: p.precioAnterior ?? null,
         popular: p.popular ?? false,
+        dietas: (p.dietas ?? []).map((d) => DIETA[d]).filter(Boolean),
       })),
       logoUrl: dto.logoUrl ?? null,
       portadaUrl: dto.portadaUrl ?? null,

@@ -20,7 +20,7 @@ const MENU: MenuCafeteria[] = [
     minutosEstimados: null,
     metodosPago: ['efectivo'],
     productos: [
-      { idProducto: 'p1', producto: 'Latte', categoria: 'Bebidas', descripcion: null, precio: 38, imagenUrl: null, calificacion: null, minutosPreparacion: null, precioAnterior: null, popular: false },
+      { idProducto: 'p1', producto: 'Latte', categoria: 'Bebidas', descripcion: null, precio: 38, imagenUrl: null, calificacion: null, minutosPreparacion: null, precioAnterior: null, popular: false, dietas: [] },
     ],
   },
 ];
