@@ -1,7 +1,5 @@
 import { Routes } from '@angular/router';
-import { FavoritosFacade } from '@features/alumno/application/favoritos.facade';
-import { FavoritosRepository } from '@features/alumno/domain/repositories/favoritos.repository';
-import { FavoritosMockRepository } from '@features/alumno/data/mock/favoritos-mock.repository';
+import { provideFavoritos } from '@features/alumno/alumno.providers';
 
 /**
  * JY-Sprint4 05/11/2026: rutas del alumno (cascarón visual). Todas cuelgan de AlumnoLayoutComponent para
@@ -10,17 +8,14 @@ import { FavoritosMockRepository } from '@features/alumno/data/mock/favoritos-mo
  *
  * CL-Sprint5 11/11/2026: el inicio del alumno es "/" y ya vive dentro del layout; /inicio queda como
  * redirección para los enlaces viejos. Los favoritos se proveen aquí con su repositorio mock; para
- * conectar el back se cambia `useClass` por FavoritosHttpRepository. El detalle va por id: /pedidos/:id.
+ * conectar el back se cambia `useClass` en alumno.providers.ts. El detalle va por id: /pedidos/:id.
  * app.routes.ts monta esta feature con authGuard y negocioHomeGuard (el encargado va a /mi-negocio).
  */
 export default [
   { path: 'inicio', pathMatch: 'full', redirectTo: '' },
   {
     path: '',
-    providers: [
-      FavoritosFacade,
-      { provide: FavoritosRepository, useClass: FavoritosMockRepository },
-    ],
+    providers: [provideFavoritos()],
     loadComponent: () =>
       import('./presentation/layout/alumno-layout.component').then((m) => m.AlumnoLayoutComponent),
     children: [
@@ -30,6 +25,13 @@ export default [
         title: 'Inicio · CampusBite',
         loadComponent: () =>
           import('./presentation/pages/inicio/inicio.page').then((m) => m.InicioPage),
+      },
+      {
+        // CL-Sprint5 11/11/2026 (etapa 3): tienda de una cafetería; el id llega como input `id`
+        path: 'cafeterias/:id',
+        title: 'Cafetería · CampusBite',
+        loadComponent: () =>
+          import('./presentation/pages/tienda/tienda.page').then((m) => m.TiendaPage),
       },
       {
         path: 'buscar',
