@@ -60,14 +60,9 @@ export const routes: Routes = [
       },
     ],
   },
-  // FB-Sprint4 29/10/2026: Ruta para la pantalla de inicio del alumno (Catálogo de cafeterías)
-  {
-    path: 'inicio',
-    canActivate: [authGuard],
-    loadComponent: () => import('@features/inicio-alumno/inicio-alumno').then(m => m.InicioAlumnoComponent)
-  },
   // JY-Sprint4 05/11/2026: resto de las pantallas del alumno (cascarón visual): /buscar, /pedidos,
-  // /pedidos/:folio, /favoritos y /perfil. Traen su propio sidebar, por eso van fuera del MainLayout.
+  // /pedidos/:id, /favoritos y /perfil. Traen su propio sidebar, por eso van fuera del MainLayout.
+  // CL-Sprint5 11/11/2026: /inicio (FB-Sprint4, antes features/inicio-alumno) ahora también vive en esta feature.
   {
     path: '',
     canActivate: [authGuard],

@@ -1,10 +1,12 @@
 // JY-Sprint4 05/11/2026: HU-06 (cascarón visual). Buscar platillos: texto, categoría y cafetería filtran
-// sobre un catálogo fijo (ver catalogo.mock.ts) porque el back todavía no tiene búsqueda.
-// Lo que SÍ es real: el modal de producto agrega al carrito con CarritoService (estado local, sin back),
-// incluido el aviso cuando ya hay productos de otra cafetería.
+// sobre el catálogo. El modal de producto agrega al carrito (estado local), incluido el aviso cuando ya hay
+// productos de otra cafetería.
+// CL-Sprint5 11/11/2026: el catálogo sale de CatalogoFacade (feature catalogo, hoy con repositorio mock);
+// las categorías y cafeterías de los filtros se derivan del menú en vez de listas fijas.
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
   computed,
   effect,
   inject,
@@ -16,13 +18,8 @@ import { RouterLink } from '@angular/router';
 import { ModalComponent } from '@shared/ui/modal/modal.component';
 import { PaginadorComponent, pagina } from '@shared/ui/paginador/paginador.component';
 import { ToastService } from '@shared/ui/toast/toast.service';
-import { CarritoService } from '@shared/carrito/carrito';
-import {
-  CAFETERIAS,
-  CATALOGO,
-  CATEGORIAS,
-  PlatilloCatalogo,
-} from '@features/alumno/presentation/catalogo.mock';
+import { CatalogoFacade, PlatilloCatalogo } from '@features/catalogo';
+import { CarritoStore } from '@features/alumno/application/carrito.store';
 
 const POR_PAGINA = 8;
 
@@ -33,16 +30,23 @@ const POR_PAGINA = 8;
   styleUrl: './buscar.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BuscarPage {
+export class BuscarPage implements OnInit {
   /** Texto que llega de la topbar (/buscar?q=…). */
   readonly q = input<string>('');
 
-  private readonly carritoService = inject(CarritoService);
+  private readonly carritoService = inject(CarritoStore);
   private readonly toast = inject(ToastService);
+  private readonly catalogo = inject(CatalogoFacade);
 
-  protected readonly categorias = CATEGORIAS;
-  protected readonly cafeterias = CAFETERIAS;
+  protected readonly categorias = computed(() => ['Todos', ...this.catalogo.categorias()]);
+  protected readonly cafeterias = computed(() => [
+    'Todas',
+    ...this.catalogo.menu().map((c) => c.cafeteria),
+  ]);
   protected readonly porPagina = POR_PAGINA;
+  protected readonly sinImagen = 'assets/images/producto-sin-imagen.svg';
+  protected readonly cargando = this.catalogo.cargando;
+  protected readonly errorCarga = this.catalogo.error;
 
   protected readonly texto = signal('');
   protected readonly categoria = signal<string>('Todos');
@@ -54,11 +58,11 @@ export class BuscarPage {
     const categoria = this.categoria();
     const cafeteria = this.cafeteria();
 
-    return CATALOGO.filter((p) => {
+    return this.catalogo.platillos().filter((p) => {
       const coincideTexto =
         !texto ||
         p.producto.toLowerCase().includes(texto) ||
-        p.descripcion.toLowerCase().includes(texto);
+        !!p.descripcion?.toLowerCase().includes(texto);
       const coincideCategoria = categoria === 'Todos' || p.categoria === categoria;
       const coincideCafeteria = cafeteria === 'Todas' || p.cafeteria === cafeteria;
       return coincideTexto && coincideCategoria && coincideCafeteria;
@@ -85,6 +89,14 @@ export class BuscarPage {
       const paginas = Math.max(Math.ceil(this.resultados().length / POR_PAGINA), 1);
       if (this.pagina() > paginas) this.pagina.set(paginas);
     });
+  }
+
+  ngOnInit(): void {
+    this.cargarCatalogo();
+  }
+
+  protected cargarCatalogo(forzar = false): void {
+    this.catalogo.cargar(forzar).subscribe({ error: () => undefined });
   }
 
   // ---------- Modal de producto ----------
@@ -147,7 +159,7 @@ export class BuscarPage {
         producto: platillo.producto,
         precio: platillo.precio,
         cantidad: this.cantidad(),
-        imagenUrl: platillo.foto,
+        imagenUrl: platillo.imagenUrl,
         idCafeteria: platillo.idCafeteria,
         cafeteria: platillo.cafeteria,
       });

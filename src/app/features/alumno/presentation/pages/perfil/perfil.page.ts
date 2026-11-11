@@ -7,7 +7,7 @@ import { RouterLink } from '@angular/router';
 import { AuthFacade } from '@features/auth';
 import { ModalComponent } from '@shared/ui/modal/modal.component';
 import { ToastService } from '@shared/ui/toast/toast.service';
-import { PedidosAlumnoStore } from '@features/alumno/presentation/pedidos.store';
+import { MisPedidosFacade } from '@features/ordenes';
 
 type Dialogo = 'editar' | 'password' | 'salir' | null;
 
@@ -24,7 +24,7 @@ const PASSWORD_OK = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 export class PerfilPage {
   private readonly auth = inject(AuthFacade);
   private readonly toast = inject(ToastService);
-  private readonly pedidos = inject(PedidosAlumnoStore);
+  private readonly pedidos = inject(MisPedidosFacade);
 
   protected readonly dialogo = signal<Dialogo>(null);
 
@@ -42,7 +42,7 @@ export class PerfilPage {
   protected readonly foto = 'https://picsum.photos/seed/cb-user-juan/160/160';
   protected readonly matricula = '23300022';
 
-  protected readonly pedidosTotales = computed(() => this.pedidos.pedidos().length);
+  protected readonly pedidosTotales = computed(() => this.pedidos.ordenes().length);
   protected readonly pedidosEnCurso = computed(() => this.pedidos.enCurso().length);
 
   // Preferencias locales del cascarón (no se persisten todavía)

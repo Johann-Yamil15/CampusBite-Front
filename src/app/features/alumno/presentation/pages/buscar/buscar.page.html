@@ -25,7 +25,7 @@
     <label class="cb-field campo-select">
       <span class="sr-only">Filtrar por cafetería</span>
       <select [value]="cafeteria()" (change)="onCafeteria($event)">
-        @for (c of cafeterias; track c) {
+        @for (c of cafeterias(); track c) {
           <option [value]="c">{{ c === 'Todas' ? 'Todas las cafeterías' : c }}</option>
         }
       </select>
@@ -37,7 +37,7 @@
   </div>
 
   <nav class="pills" aria-label="Categorías">
-    @for (c of categorias; track c) {
+    @for (c of categorias(); track c) {
       <button
         type="button"
         class="pill"
@@ -50,15 +50,27 @@
     }
   </nav>
 
+  <!-- CL-Sprint5 11/11/2026: el catálogo ya se carga (CatalogoFacade), por eso hay estado de carga y de error -->
+  @if (errorCarga(); as e) {
+    <div class="cb-alert-error" role="alert">
+      <span>{{ e }}</span>
+      <button type="button" class="cb-btn cb-btn--small" (click)="cargarCatalogo(true)">Reintentar</button>
+    </div>
+  }
+
   <p class="conteo" role="status" aria-live="polite">
-    {{ resultados().length }} {{ resultados().length === 1 ? 'resultado' : 'resultados' }}
+    @if (cargando()) {
+      Buscando platillos…
+    } @else {
+      {{ resultados().length }} {{ resultados().length === 1 ? 'resultado' : 'resultados' }}
+    }
   </p>
 
   <div class="grid">
     @for (p of visibles(); track p.idProducto) {
       <article class="platillo">
         <button type="button" class="platillo-foto" (click)="abrir(p)">
-          <img [src]="p.foto" [alt]="p.producto" loading="lazy" />
+          <img [src]="p.imagenUrl ?? sinImagen" [alt]="p.producto" loading="lazy" />
           <span class="platillo-cat">{{ p.categoria }}</span>
         </button>
 
@@ -81,6 +93,7 @@
         </div>
       </article>
     } @empty {
+      @if (!cargando()) {
       <div class="vacio grid-full">
         <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
@@ -89,6 +102,7 @@
         <p>Prueba con otra palabra, cambia de categoría o quita los filtros.</p>
         <button type="button" class="cb-btn cb-btn--primary" (click)="limpiar()">Quitar filtros</button>
       </div>
+      }
     }
   </div>
 
@@ -107,7 +121,7 @@
 
 @if (elegido(); as p) {
   <app-modal [title]="p.producto" [subtitle]="p.cafeteria" size="md" (closed)="cerrar()">
-    <img class="modal-foto" [src]="p.foto" [alt]="p.producto" />
+    <img class="modal-foto" [src]="p.imagenUrl ?? sinImagen" [alt]="p.producto" />
     <p class="modal-desc">{{ p.descripcion }}</p>
 
     <div class="modal-cantidad">

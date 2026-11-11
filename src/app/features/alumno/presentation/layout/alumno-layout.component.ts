@@ -5,7 +5,7 @@
 // cuando /inicio y / se fusionen en una sola pantalla real con datos del back.
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { PedidosAlumnoStore } from '@features/alumno/presentation/pedidos.store';
+import { MisPedidosFacade } from '@features/ordenes';
 
 type NavIcono = 'inicio' | 'explorar' | 'pedidos' | 'favoritos' | 'perfil';
 
@@ -33,12 +33,17 @@ const NAV: NavItem[] = [
 })
 export class AlumnoLayoutComponent {
   private readonly router = inject(Router);
-  private readonly pedidos = inject(PedidosAlumnoStore);
+  private readonly pedidos = inject(MisPedidosFacade);
 
   protected readonly nav = NAV;
 
   /** Insignia de "Pedidos": cuántos siguen en curso. */
   protected readonly enCurso = this.pedidos.enCurso;
+
+  constructor() {
+    // CL-Sprint5 11/11/2026: la insignia y el perfil necesitan los pedidos aunque no se abra /pedidos
+    this.pedidos.cargar().subscribe({ error: () => undefined });
+  }
 
   // Cascarón: el nombre real sale del token cuando se conecte el perfil (HU futura)
   protected readonly usuario = {

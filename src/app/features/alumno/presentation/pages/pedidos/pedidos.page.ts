@@ -1,11 +1,20 @@
 // JY-Sprint4 05/11/2026: HU-08 (cascarón visual). Mis pedidos: pestañas En curso / Historial, paginado y
-// tarjeta por pedido con su estado. Los datos salen de PedidosAlumnoStore (en memoria, ver pedidos.mock.ts).
-import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+// tarjeta por pedido con su estado.
+// CL-Sprint5 11/11/2026: los pedidos salen de MisPedidosFacade (feature ordenes) con los estados reales de
+// la BD; al alumno se le muestran como etapas (pendiente y confirmada = "Recibido").
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { PaginadorComponent, pagina } from '@shared/ui/paginador/paginador.component';
-import { ETIQUETA_ESTADO, Pedido, total } from '@features/alumno/presentation/pedidos.mock';
-import { PedidosAlumnoStore } from '@features/alumno/presentation/pedidos.store';
+import { ETIQUETA_ETAPA, MisPedidosFacade, Orden, etapa } from '@features/ordenes';
 
 type Pestana = 'curso' | 'historial';
 
@@ -18,20 +27,23 @@ const POR_PAGINA = 5;
   styleUrl: './pedidos.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PedidosPage {
-  private readonly store = inject(PedidosAlumnoStore);
+export class PedidosPage implements OnInit {
+  private readonly pedidos = inject(MisPedidosFacade);
 
-  protected readonly etiqueta = ETIQUETA_ESTADO;
-  protected readonly total = total;
+  protected readonly etiqueta = ETIQUETA_ETAPA;
+  protected readonly etapa = etapa;
   protected readonly porPagina = POR_PAGINA;
+  protected readonly sinImagen = 'assets/images/producto-sin-imagen.svg';
 
   protected readonly pestana = signal<Pestana>('curso');
   protected readonly pagina = signal(1);
 
-  protected readonly enCurso = this.store.enCurso;
-  protected readonly historial = this.store.historial;
+  protected readonly enCurso = this.pedidos.enCurso;
+  protected readonly historial = this.pedidos.historial;
+  protected readonly cargando = this.pedidos.cargando;
+  protected readonly error = this.pedidos.error;
 
-  protected readonly todos = computed<Pedido[]>(() =>
+  protected readonly todos = computed<Orden[]>(() =>
     this.pestana() === 'curso' ? this.enCurso() : this.historial(),
   );
 
@@ -45,14 +57,23 @@ export class PedidosPage {
     });
   }
 
+  ngOnInit(): void {
+    // Siempre fresco al entrar: el estado de un pedido cambia mientras el alumno espera
+    this.cargar();
+  }
+
+  protected cargar(): void {
+    this.pedidos.cargar(true).subscribe({ error: () => undefined });
+  }
+
   protected verPestana(pestana: Pestana): void {
     this.pestana.set(pestana);
     this.pagina.set(1);
   }
 
-  protected resumen(pedido: Pedido): string {
-    const piezas = pedido.items.reduce((suma, item) => suma + item.cantidad, 0);
-    const extra = pedido.items.length > 1 ? ' y más' : '';
-    return `${piezas} ${piezas === 1 ? 'artículo' : 'artículos'} · ${pedido.items[0].producto}${extra}`;
+  protected resumen(pedido: Orden): string {
+    const piezas = pedido.lineas.reduce((suma, linea) => suma + linea.cantidad, 0);
+    const extra = pedido.lineas.length > 1 ? ' y más' : '';
+    return `${piezas} ${piezas === 1 ? 'artículo' : 'artículos'} · ${pedido.lineas[0]?.producto ?? ''}${extra}`;
   }
 }

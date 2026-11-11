@@ -32,15 +32,24 @@
     </button>
   </div>
 
+  <!-- CL-Sprint5 11/11/2026: estados de carga y error ahora que los pedidos llegan de MisPedidosFacade -->
+  @if (cargando() && !todos().length) {
+    <p class="pg-sub" role="status">Cargando tus pedidos…</p>
+  } @else if (error(); as e) {
+    <div class="cb-alert-error" role="alert">
+      <span>{{ e }}</span>
+      <button type="button" class="cb-btn cb-btn--small" (click)="cargar()">Reintentar</button>
+    </div>
+  } @else {
   <div class="lista">
-    @for (pedido of visibles(); track pedido.folio) {
+    @for (pedido of visibles(); track pedido.idOrden) {
       <article class="pedido">
-        <img class="pedido-logo" [src]="pedido.logo" alt="" width="48" height="48" loading="lazy" />
+        <img class="pedido-logo" [src]="pedido.logoCafeteria ?? sinImagen" alt="" width="48" height="48" loading="lazy" />
 
         <div class="pedido-info">
           <div class="pedido-top">
             <h2>{{ pedido.cafeteria }}</h2>
-            <span class="chip" [class]="'estado-' + pedido.estado">{{ etiqueta[pedido.estado] }}</span>
+            <span class="chip" [class]="'estado-' + etapa(pedido.estado)">{{ etiqueta[etapa(pedido.estado)] }}</span>
           </div>
           <p class="pedido-resumen">{{ resumen(pedido) }}</p>
           <p class="pedido-meta">
@@ -51,8 +60,8 @@
         </div>
 
         <div class="pedido-fin">
-          <strong class="pedido-total">{{ total(pedido) | currency: 'MXN' }}</strong>
-          <a class="cb-btn cb-btn--small" [routerLink]="['/pedidos', pedido.folio]">Ver detalle</a>
+          <strong class="pedido-total">{{ pedido.total | currency: 'MXN' }}</strong>
+          <a class="cb-btn cb-btn--small" [routerLink]="['/pedidos', pedido.idOrden]">Ver detalle</a>
         </div>
       </article>
     } @empty {
@@ -66,6 +75,7 @@
       </div>
     }
   </div>
+  }
 
   <app-paginador
     [total]="todos().length"

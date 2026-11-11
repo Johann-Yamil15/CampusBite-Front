@@ -1,5 +1,5 @@
-<!-- JY-Sprint4 05/11/2026: cascarón visual. Avanzar, entregar y rechazar mueven la tarjeta en pantalla pero
-     todavía no llaman al back. -->
+<!-- JY-Sprint4 05/11/2026: cascarón visual. Avanzar, entregar y rechazar mueven la tarjeta en pantalla.
+     CL-Sprint5 11/11/2026: pasan por PedidosCafeteriaFacade (repositorio mock hasta que exista OrdenesController). -->
 <section class="pg" aria-labelledby="pedidos-neg-title">
   <header class="pg-head">
     <div>
@@ -43,6 +43,13 @@
     </button>
   </div>
 
+  @if (error(); as e) {
+    <div class="cb-alert-error" role="alert">
+      <span>{{ e }}</span>
+      <button type="button" class="cb-btn cb-btn--small" (click)="cargar()">Reintentar</button>
+    </div>
+  }
+
   @if (vista() === 'tablero') {
     <div class="tablero">
       @for (columna of columnas; track columna) {
@@ -53,17 +60,17 @@
           </header>
 
           <div class="columna-cuerpo">
-            @for (orden of enColumna(columna); track orden.folio) {
-              <article class="orden" [class]="'borde-' + orden.estado">
+            @for (orden of enColumna(columna); track orden.idOrden) {
+              <article class="orden" [class]="'borde-' + etapa(orden.estado)">
                 <header class="orden-head">
                   <strong class="orden-folio">{{ orden.folio }}</strong>
                   <span class="orden-hora">{{ orden.recogidaEn | date: 'HH:mm' }}</span>
                 </header>
 
-                <p class="orden-alumno">{{ orden.alumno }} · {{ orden.matricula }}</p>
+                <p class="orden-alumno">{{ orden.alumno?.nombre }} · {{ orden.alumno?.matricula }}</p>
 
                 <ul class="orden-lineas">
-                  @for (linea of orden.lineas; track linea.producto) {
+                  @for (linea of orden.lineas; track linea.idProducto) {
                     <li>
                       <span class="linea-cant">{{ linea.cantidad }}×</span>
                       {{ linea.producto }}
@@ -76,12 +83,12 @@
                 }
 
                 <footer class="orden-foot">
-                  <span class="orden-total">{{ total(orden) | currency: 'MXN' }}</span>
+                  <span class="orden-total">{{ orden.total | currency: 'MXN' }}</span>
                   <span class="orden-metodo">{{ orden.metodo }}</span>
                 </footer>
 
                 <div class="orden-acciones">
-                  <button type="button" class="cb-btn cb-btn--primary cb-btn--chico" (click)="avanzar(orden)">
+                  <button type="button" class="cb-btn cb-btn--primary cb-btn--chico" [disabled]="procesando()" (click)="avanzar(orden)">
                     {{ accion[columna] }}
                   </button>
                   <button type="button" class="cb-btn cb-btn--secondary cb-btn--chico" (click)="abrir(orden)">
@@ -90,7 +97,7 @@
                 </div>
               </article>
             } @empty {
-              <p class="columna-vacia">Nada por aquí.</p>
+              <p class="columna-vacia">{{ cargando() ? 'Cargando…' : 'Nada por aquí.' }}</p>
             }
           </div>
         </section>
@@ -98,14 +105,14 @@
     </div>
   } @else {
     <div class="cerrados">
-      @for (orden of cerradosPagina(); track orden.folio) {
+      @for (orden of cerradosPagina(); track orden.idOrden) {
         <article class="cerrado">
-          <span class="chip" [class]="'estado-' + orden.estado">{{ etiquetaEstado[orden.estado] }}</span>
+          <span class="chip" [class]="'estado-' + etapa(orden.estado)">{{ etiquetaEstado[etapa(orden.estado)] }}</span>
           <div class="cerrado-info">
             <strong>{{ orden.folio }}</strong>
-            <span>{{ orden.alumno }} · {{ piezas(orden) }} art. · {{ orden.creadoEn | date: 'HH:mm' }}</span>
+            <span>{{ orden.alumno?.nombre }} · {{ piezas(orden) }} art. · {{ orden.creadoEn | date: 'HH:mm' }}</span>
           </div>
-          <span class="cerrado-total">{{ total(orden) | currency: 'MXN' }}</span>
+          <span class="cerrado-total">{{ orden.total | currency: 'MXN' }}</span>
           <button type="button" class="cb-btn cb-btn--small" (click)="abrir(orden)">Ver</button>
         </article>
       } @empty {
@@ -132,21 +139,21 @@
 @if (abierta(); as o) {
   <app-modal
     [title]="'Pedido ' + o.folio"
-    [subtitle]="o.alumno + ' · ' + o.matricula"
+    [subtitle]="o.alumno?.nombre + ' · ' + o.alumno?.matricula"
     size="md"
     (closed)="cerrar()"
   >
     <div class="det-cabeza">
-      <span class="chip" [class]="'estado-' + o.estado">{{ etiquetaEstado[o.estado] }}</span>
+      <span class="chip" [class]="'estado-' + etapa(o.estado)">{{ etiquetaEstado[etapa(o.estado)] }}</span>
       <span class="det-hora">Recoge a las {{ o.recogidaEn | date: 'HH:mm' }}</span>
     </div>
 
     <ul class="det-lineas">
-      @for (linea of o.lineas; track linea.producto) {
+      @for (linea of o.lineas; track linea.idProducto) {
         <li>
           <span class="det-cant">{{ linea.cantidad }}×</span>
           <span class="det-prod">{{ linea.producto }}</span>
-          <span class="det-precio">{{ linea.precio * linea.cantidad | currency: 'MXN' }}</span>
+          <span class="det-precio">{{ linea.precioUnitario * linea.cantidad | currency: 'MXN' }}</span>
         </li>
       }
     </ul>
@@ -157,7 +164,7 @@
       <dt>Artículos</dt>
       <dd>{{ piezas(o) }}</dd>
       <dt class="fuerte">Total</dt>
-      <dd class="fuerte">{{ total(o) | currency: 'MXN' }}</dd>
+      <dd class="fuerte">{{ o.total | currency: 'MXN' }}</dd>
     </dl>
 
     @if (o.notas) {
@@ -165,12 +172,12 @@
     }
 
     <div modalActions>
-      @if (o.estado !== 'entregado' && o.estado !== 'cancelado') {
+      @if (enCurso(o)) {
         <button type="button" class="cb-btn cb-btn--danger" (click)="pedirMotivo(o)">
           Rechazar
         </button>
         <button type="button" class="cb-btn cb-btn--primary" data-modal-focus (click)="avanzar(o)">
-          {{ accion[o.estado] }}
+          {{ accion[columnaDe(o)] }}
         </button>
       } @else {
         <button type="button" class="cb-btn cb-btn--secondary" data-modal-focus (click)="cerrar()">
@@ -185,7 +192,7 @@
 @if (rechazando(); as o) {
   <app-modal
     title="¿Rechazar este pedido?"
-    [subtitle]="o.folio + ' · ' + o.alumno"
+    [subtitle]="o.folio + ' · ' + o.alumno?.nombre"
     size="sm"
     (closed)="rechazando.set(null)"
   >

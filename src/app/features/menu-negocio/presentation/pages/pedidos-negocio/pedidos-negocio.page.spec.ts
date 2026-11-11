@@ -1,9 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
+import { provideOrdenes } from '@features/ordenes';
 import { PedidosNegocioPage } from './pedidos-negocio.page';
 
 /**
  * JY-Sprint4 05/11/2026: cubre lo único que tiene lógica en el cascarón: cómo avanza un pedido de columna
- * y que rechazar exija motivo. Las cifras vienen de pedidos.mock.ts.
+ * y que rechazar exija motivo.
+ * CL-Sprint5 11/11/2026: las cifras vienen ahora del mock de la feature ordenes (ordenes.mock-data.ts),
+ * sin latencia para que respondan en el acto.
  */
 describe('PedidosNegocioPage', () => {
   let fixture: ComponentFixture<PedidosNegocioPage>;
@@ -16,7 +21,10 @@ describe('PedidosNegocioPage', () => {
     el.querySelectorAll<HTMLElement>('.columna')[indice];
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [PedidosNegocioPage] }).compileComponents();
+    await TestBed.configureTestingModule({
+      imports: [PedidosNegocioPage],
+      providers: [provideRouter([]), provideOrdenes(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
+    }).compileComponents();
     fixture = TestBed.createComponent(PedidosNegocioPage);
     el = fixture.nativeElement;
     await fixture.whenStable();
