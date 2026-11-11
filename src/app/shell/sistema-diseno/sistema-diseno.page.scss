@@ -1,0 +1,294 @@
+// CL-Sprint5 11/11/2026: maquetación del catálogo. Las piezas en sí vienen de _componentes.scss y shared/ui;
+// aquí solo se acomodan. Las tarjetas de ejemplo adelantan el estilo de las etapas 3 y 4.
+@use 'breakpoints' as *;
+
+:host {
+  display: block;
+  min-height: 100dvh;
+  background: var(--cb-bg);
+  color: var(--cb-text);
+}
+
+.ds {
+  padding-block: var(--cb-space-xl) var(--cb-space-2xl);
+}
+
+.ds-head {
+  margin-bottom: var(--cb-space-xl);
+
+  h1 {
+    margin: 0.2rem 0 0.4rem;
+    font-size: var(--cb-text-3xl);
+    font-weight: 800;
+    letter-spacing: var(--cb-tracking-tight);
+    line-height: var(--cb-leading-tight);
+    color: var(--cb-ink);
+  }
+}
+
+.ds-kicker {
+  margin: 0;
+  font-size: var(--cb-text-xs);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cb-primary);
+}
+
+.ds-sub {
+  margin: 0;
+  max-width: 44rem;
+  color: var(--cb-text-muted);
+}
+
+code {
+  font-size: 0.85em;
+  color: var(--cb-text-muted);
+}
+
+.ds-sec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cb-space-md);
+  padding-block: var(--cb-space-xl);
+  border-top: 1px solid var(--cb-line-soft);
+
+  > h2 {
+    margin: 0;
+    font-size: var(--cb-text-xl);
+    font-weight: 800;
+    color: var(--cb-ink);
+  }
+
+  h3 {
+    margin: var(--cb-space-sm) 0 0;
+    font-size: var(--cb-text-sm);
+    font-weight: 700;
+    color: var(--cb-text-muted);
+  }
+}
+
+.fila {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--cb-space-sm);
+}
+
+.angosta {
+  max-width: 28rem;
+}
+
+// ---------- Colores ----------
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: var(--cb-space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    font-size: var(--cb-text-sm);
+  }
+
+  strong {
+    color: var(--cb-ink);
+  }
+}
+
+.swatch {
+  display: grid;
+  place-items: center;
+  height: 4.5rem;
+  border: 1px solid var(--cb-line-soft);
+  border-radius: var(--cb-radius);
+  font-size: var(--cb-text-xl);
+  font-weight: 800;
+}
+
+// ---------- Tipografía ----------
+.tipos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cb-space-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+}
+
+.tipo-muestra {
+  font-weight: 800;
+  letter-spacing: var(--cb-tracking-tight);
+  line-height: var(--cb-leading-tight);
+  color: var(--cb-ink);
+}
+
+.tipo-dato {
+  font-size: var(--cb-text-sm);
+  color: var(--cb-text-muted);
+}
+
+// ---------- Tarjetas de ejemplo ----------
+.tarjetas {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--cb-space-md);
+
+  @media (min-width: $cb-bp-tablet) {
+    grid-template-columns: repeat(2, minmax(0, 20rem));
+  }
+}
+
+.platillo,
+.cafeteria {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.platillo-cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: var(--cb-space-md);
+
+  h3 {
+    margin: 0;
+    font-size: var(--cb-text-lg);
+    font-weight: 800;
+    color: var(--cb-ink);
+  }
+}
+
+.platillo-pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cb-space-sm);
+  margin-top: 0.25rem;
+
+  > span:first-child {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-size: var(--cb-text-lg);
+  }
+}
+
+.esq-foto {
+  aspect-ratio: 4 / 3;
+  border-radius: 0;
+}
+
+.en-foto {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+}
+
+// Corazón sobre la foto: fondo propio para leerse sobre cualquier imagen; rebota al guardarse
+.fav {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-surface);
+  color: var(--cb-ink-soft);
+  box-shadow: var(--cb-shadow-sm);
+  cursor: pointer;
+  --icon-size: 1.25rem;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--cb-focus-ring);
+  }
+
+  &.activo {
+    color: var(--cb-danger-action);
+
+    app-icon {
+      animation: cb-rebote var(--cb-dur-enter) var(--cb-ease-spring);
+    }
+  }
+}
+
+.agregar {
+  --icon-size: 1.25rem;
+  border-color: transparent;
+  background: var(--cb-action);
+  color: var(--cb-on-action);
+  box-shadow: 0 8px 18px -8px var(--cb-action-shadow);
+
+  &:hover:not(:disabled) {
+    background: var(--cb-action-hover);
+    color: var(--cb-on-action);
+  }
+}
+
+.cafeteria-sobre {
+  position: absolute;
+  inset: auto var(--cb-space-md) var(--cb-space-md);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+
+  h3 {
+    margin: 0;
+    font-size: var(--cb-text-lg);
+    font-weight: 800;
+    color: var(--cb-on-image);
+  }
+
+  .cb-avatar {
+    border: 2px solid var(--cb-on-image);
+  }
+}
+
+// ---------- Íconos ----------
+.iconos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+  gap: var(--cb-space-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    border: 1px solid var(--cb-line-soft);
+    border-radius: var(--cb-radius);
+    background: var(--cb-surface);
+    color: var(--cb-ink);
+  }
+}
+
+.modal-texto {
+  margin: 0;
+  color: var(--cb-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fav.activo app-icon {
+    animation: none;
+  }
+}

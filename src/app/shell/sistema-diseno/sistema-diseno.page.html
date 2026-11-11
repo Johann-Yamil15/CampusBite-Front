@@ -1,0 +1,273 @@
+<!-- CL-Sprint5 11/11/2026: catálogo vivo del sistema de diseño. Cada botón hace algo (avisa con un toast o
+     cambia de estado) para poder revisar también la respuesta al toque. -->
+<main class="ds cb-contenedor">
+  <header class="ds-head">
+    <p class="ds-kicker">CampusBite · solo en desarrollo</p>
+    <h1>Sistema de diseño</h1>
+    <p class="ds-sub">
+      Tokens en <code>src/styles/_tokens.scss</code>, piezas base en <code>_componentes.scss</code> y
+      componentes en <code>shared/ui</code>. Cambia el tema del sistema para ver el modo oscuro.
+    </p>
+  </header>
+
+  <!-- Colores -->
+  <section class="ds-sec" aria-labelledby="ds-colores">
+    <h2 id="ds-colores">Color</h2>
+    @for (g of colores; track g.grupo) {
+      <h3>{{ g.grupo }}</h3>
+      <ul class="swatches">
+        @for (m of g.muestras; track m.token) {
+          <li>
+            <span
+              class="swatch"
+              [style.background]="'var(' + m.token + ')'"
+              [style.color]="m.sobre ? 'var(' + m.sobre + ')' : null"
+            >
+              @if (m.sobre) {
+                Aa
+              }
+            </span>
+            <strong>{{ m.nombre }}</strong>
+            <code>{{ m.token }}</code>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <!-- Tipografía -->
+  <section class="ds-sec" aria-labelledby="ds-tipo">
+    <h2 id="ds-tipo">Tipografía · Plus Jakarta Sans</h2>
+    <ul class="tipos">
+      @for (t of tipos; track t.token) {
+        <li>
+          <span class="tipo-muestra" [style.font-size]="'var(' + t.token + ')'">Pide antes de tu receso</span>
+          <span class="tipo-dato"><code>{{ t.token }}</code> · {{ t.uso }}</span>
+        </li>
+      }
+    </ul>
+  </section>
+
+  <!-- Botones -->
+  <section class="ds-sec" aria-labelledby="ds-botones">
+    <h2 id="ds-botones">Botones</h2>
+    <div class="fila">
+      <button type="button" class="cb-btn cb-btn--primary" (click)="boton('Confirmar pedido')">Confirmar pedido</button>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="boton('Ver menú')">Ver menú</button>
+      <button type="button" class="cb-btn cb-btn--ghost" (click)="boton('Ver todo')">Ver todo</button>
+      <button type="button" class="cb-btn cb-btn--danger" (click)="boton('Cancelar pedido')">Cancelar pedido</button>
+      <button type="button" class="cb-btn cb-btn--small" (click)="boton('Detalle')">Detalle</button>
+      <button type="button" class="cb-btn cb-btn--primary" disabled>Deshabilitado</button>
+      <button type="button" class="cb-btn cb-btn--icon" aria-label="Notificaciones" (click)="boton('Notificaciones')">
+        <app-icon nombre="campana" />
+      </button>
+      <button type="button" class="cb-btn cb-btn--icon" aria-label="Filtros" (click)="boton('Filtros')">
+        <app-icon nombre="filtros" />
+      </button>
+    </div>
+    <div class="fila angosta">
+      <button type="button" class="cb-btn cb-btn--primary cb-btn--lg cb-btn--full cb-btn--elevado" (click)="boton('Pagar')">
+        <app-icon nombre="bolsa" />
+        Pagar {{ 131 | currency: 'MXN' }}
+      </button>
+    </div>
+  </section>
+
+  <!-- Insignias, chips y estados -->
+  <section class="ds-sec" aria-labelledby="ds-insignias">
+    <h2 id="ds-insignias">Insignias, chips y estados</h2>
+    <div class="fila">
+      <span class="cb-badge cb-badge--promo"><app-icon nombre="etiqueta" />-20%</span>
+      <span class="cb-badge cb-badge--marca"><app-icon nombre="rayo" />Express</span>
+      <span class="cb-badge cb-badge--ok">Abierto</span>
+      <span class="cb-badge cb-badge--alerta">Agotado</span>
+      <span class="cb-badge">Nuevo</span>
+    </div>
+
+    <div class="cb-chips" role="group" aria-label="Categorías">
+      @for (c of categorias; track c) {
+        <button type="button" class="cb-chip" [attr.aria-pressed]="categoria() === c" (click)="categoria.set(c)">
+          {{ c }}
+        </button>
+      }
+    </div>
+
+    <div class="fila">
+      <span class="chip estado-recibido">Recibido</span>
+      <span class="chip estado-en_preparacion">En preparación</span>
+      <span class="chip estado-listo">Listo para recoger</span>
+      <span class="chip estado-entregado">Entregado</span>
+      <span class="chip estado-cancelado">Cancelado</span>
+      <span class="cb-estado-local">Abierto</span>
+      <span class="cb-estado-local cerrado">Cerrado</span>
+    </div>
+  </section>
+
+  <!-- Tarjetas -->
+  <section class="ds-sec" aria-labelledby="ds-tarjetas">
+    <header class="cb-seccion-head">
+      <h2 id="ds-tarjetas">Tarjetas</h2>
+      <button type="button" class="cb-link" (click)="simularCarga()">
+        Simular carga <app-icon nombre="recargar" />
+      </button>
+    </header>
+
+    <div class="tarjetas" [attr.aria-busy]="cargando()">
+      @if (cargando()) {
+        @for (i of [1, 2]; track i) {
+          <div class="platillo cb-card">
+            <div class="cb-skeleton esq-foto"></div>
+            <div class="platillo-cuerpo">
+              <div class="cb-skeleton" style="height: 1.1rem; width: 70%"></div>
+              <div class="cb-skeleton" style="height: 0.85rem; width: 45%"></div>
+              <div class="cb-skeleton" style="height: 1.4rem; width: 30%"></div>
+            </div>
+          </div>
+        }
+      } @else {
+        <!-- Platillo: foto dominante, oferta, favorito y "+" que se convierte en contador -->
+        <article class="platillo cb-card cb-card--interactiva">
+          <div class="cb-media">
+            <img src="https://picsum.photos/seed/cb-menu-chilaquiles/480/360" alt="Chilaquiles Verdes" loading="lazy" />
+            <span class="cb-badge cb-badge--promo en-foto">-15%</span>
+            <button
+              type="button"
+              class="fav"
+              [class.activo]="favorito()"
+              [attr.aria-pressed]="favorito()"
+              aria-label="Guardar Chilaquiles Verdes en favoritos"
+              (click)="alternarFavorito()"
+            >
+              <app-icon [nombre]="favorito() ? 'corazon-lleno' : 'corazon'" />
+            </button>
+          </div>
+          <div class="platillo-cuerpo">
+            <h3>Chilaquiles Verdes</h3>
+            <p class="cb-meta">
+              <app-calificacion [valor]="4.6" [resenas]="128" />
+              <span><app-icon nombre="reloj" />10 min</span>
+              <span>La Terraza</span>
+            </p>
+            <div class="platillo-pie">
+              <span>
+                <span class="cb-precio">{{ 49 | currency: 'MXN' }}</span>
+                <span class="cb-precio-antes">{{ 58 | currency: 'MXN' }}</span>
+              </span>
+              @if (enCarrito() === 0) {
+                <button type="button" class="cb-btn cb-btn--primary cb-btn--icon agregar" aria-label="Agregar Chilaquiles Verdes" (click)="agregar()">
+                  <app-icon nombre="mas" [grosor]="2.25" />
+                </button>
+              } @else {
+                <app-cantidad
+                  [(valor)]="enCarrito"
+                  [min]="1"
+                  [quitable]="true"
+                  [compacta]="true"
+                  etiqueta="Chilaquiles Verdes"
+                  (quitar)="quitarDelCarrito()"
+                />
+              }
+            </div>
+          </div>
+        </article>
+
+        <!-- Cafetería: portada con velo, nombre sobre la foto, estado y datos -->
+        <article class="cafeteria cb-card cb-card--interactiva">
+          <div class="cb-media cb-media--16x9 cb-media--velo">
+            <img src="https://picsum.photos/seed/cb-dest-central/640/360" alt="" loading="lazy" />
+            <div class="cafeteria-sobre">
+              <img class="cb-avatar" src="https://picsum.photos/seed/cb-logo-central/80/80" alt="" />
+              <h3>Cafetería Central</h3>
+            </div>
+          </div>
+          <div class="platillo-cuerpo">
+            <p class="cb-meta">
+              <app-calificacion [valor]="4.8" />
+              <span><app-icon nombre="reloj" />8–12 min</span>
+              <span><app-icon nombre="ubicacion" />Edificio A</span>
+            </p>
+            <div class="platillo-pie">
+              <span class="cb-estado-local">Abierto hasta 17:00</span>
+              <button type="button" class="cb-link" (click)="boton('Ver menú de Cafetería Central')">
+                Ver menú <app-icon nombre="flecha-der" />
+              </button>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- Formulario -->
+  <section class="ds-sec" aria-labelledby="ds-form">
+    <h2 id="ds-form">Formulario</h2>
+    <div class="cb-card angosta">
+      <form class="cb-form" (submit)="$event.preventDefault(); boton('Guardar')">
+        <label class="cb-field">
+          <span>Nombre</span>
+          <input type="text" value="Juan Pérez" autocomplete="name" />
+        </label>
+        <label class="cb-field invalido">
+          <span>Teléfono <small>(opcional)</small></span>
+          <input type="tel" value="77312" aria-invalid="true" />
+          <small>Escribe de 10 a 15 dígitos.</small>
+        </label>
+        <label class="cb-field">
+          <span>Punto de recogida</span>
+          <select>
+            <option>Barra principal, Edificio A</option>
+            <option>Mostrador, Patio central</option>
+          </select>
+        </label>
+        <div class="cb-switch-row">
+          <label for="ds-avisos">
+            <strong>Avisos de mis pedidos</strong>
+            <small>Te avisamos cuando tu pedido esté listo.</small>
+          </label>
+          <input id="ds-avisos" type="checkbox" class="cb-switch" [checked]="avisos()" (change)="avisos.set(!avisos())" />
+        </div>
+        <button type="submit" class="cb-btn cb-btn--primary">Guardar</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Retroalimentación -->
+  <section class="ds-sec" aria-labelledby="ds-feedback">
+    <h2 id="ds-feedback">Retroalimentación</h2>
+    <div class="fila">
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="toast.ok('Tu pedido se envió a la cafetería.')">Aviso de éxito</button>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="toast.error('La cafetería ya cerró por hoy.')">Aviso de error</button>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="toast.info('Tu pedido estará listo en 10 minutos.')">Aviso informativo</button>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="modal.set(true)">Abrir modal / hoja</button>
+    </div>
+
+    <div class="vacio">
+      <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" />
+      </svg>
+      <h2>Tu carrito está vacío</h2>
+      <p>Agrega algo rico de una cafetería y lo verás aquí.</p>
+      <button type="button" class="cb-btn cb-btn--primary" (click)="boton('Explorar cafeterías')">Explorar cafeterías</button>
+    </div>
+  </section>
+
+  <!-- Íconos -->
+  <section class="ds-sec" aria-labelledby="ds-iconos">
+    <h2 id="ds-iconos">Íconos · {{ iconos.length }}</h2>
+    <ul class="iconos">
+      @for (n of iconos; track n) {
+        <li><app-icon [nombre]="n" /><code>{{ n }}</code></li>
+      }
+    </ul>
+  </section>
+</main>
+
+@if (modal()) {
+  <app-modal title="Chilaquiles Verdes" subtitle="La Terraza · 10 min" size="sm" (closed)="modal.set(false)">
+    <p class="modal-texto">En teléfono esto es una hoja que sube desde abajo; en tableta y escritorio, un diálogo centrado.</p>
+    <div modalActions>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="modal.set(false)">Cerrar</button>
+      <button type="button" class="cb-btn cb-btn--primary" data-modal-focus (click)="modal.set(false); agregar()">Agregar {{ 49 | currency: 'MXN' }}</button>
+    </div>
+  </app-modal>
+}

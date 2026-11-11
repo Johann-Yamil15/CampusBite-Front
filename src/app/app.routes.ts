@@ -1,3 +1,4 @@
+import { isDevMode } from '@angular/core';
 import { Routes } from '@angular/router';
 import {
   authGuard,
@@ -67,6 +68,14 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     loadChildren: () => import('@features/alumno/alumno.routes'),
+  },
+  // CL-Sprint5 11/11/2026: catálogo vivo del sistema de diseño, solo en desarrollo (en producción no existe)
+  {
+    path: 'sistema-diseno',
+    canMatch: [() => isDevMode()],
+    title: 'Sistema de diseño · CampusBite',
+    loadComponent: () =>
+      import('@shell/sistema-diseno/sistema-diseno.page').then((m) => m.SistemaDisenoPage),
   },
   {
     path: '**',
