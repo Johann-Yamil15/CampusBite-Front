@@ -3,9 +3,11 @@ import {
   enCurso,
   etapa,
   folioDe,
+  motivoNoCancelable,
   pasoAlumno,
   piezas,
   puedeTransicionar,
+  reporteValido,
   totalLineas,
 } from './orden.model';
 
@@ -56,5 +58,20 @@ describe('orden.model', () => {
     ];
     expect(piezas({ lineas })).toBe(3);
     expect(totalLineas(lineas)).toBe(25.5);
+  });
+
+  // CL-Sprint5 11/11/2026 (etapa 6)
+  it('explica por qué ya no se puede cancelar, solo fuera de pendiente y confirmada', () => {
+    expect(motivoNoCancelable({ estado: 'pendiente' })).toBeNull();
+    expect(motivoNoCancelable({ estado: 'confirmada' })).toBeNull();
+    expect(motivoNoCancelable({ estado: 'en_preparacion' })).toContain('ya está preparando');
+    expect(motivoNoCancelable({ estado: 'lista' })).toContain('listo para recoger');
+  });
+
+  it('un reporte con "Otro" pide contar qué pasó; los demás motivos no', () => {
+    expect(reporteValido({ motivo: 'falto_articulo', detalle: '' })).toBe(true);
+    expect(reporteValido({ motivo: 'otro', detalle: 'mal' })).toBe(false);
+    expect(reporteValido({ motivo: 'otro', detalle: 'El vaso venía roto' })).toBe(true);
+    expect(reporteValido({ motivo: 'cobro', detalle: 'x'.repeat(301) })).toBe(false);
   });
 });

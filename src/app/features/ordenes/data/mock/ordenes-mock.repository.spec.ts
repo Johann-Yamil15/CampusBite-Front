@@ -1,9 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { Observable, firstValueFrom } from 'rxjs';
+import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
 import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@core/mock/demo-db';
 import { Orden } from '@features/ordenes/domain/models/orden.model';
-import { OrdenesMockRepository } from './ordenes-mock.repository';
+import { MOCK_COCINA, OrdenesMockRepository } from './ordenes-mock.repository';
 
 /** ISO con offset dentro de `minutos`. */
 const dentroDe = (minutos: number) => new Date(Date.now() + minutos * 60_000).toISOString();
@@ -20,7 +21,11 @@ describe('OrdenesMockRepository', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [{ provide: MOCK_LATENCIA_MS, useValue: 0 }, OrdenesMockRepository],
+      providers: [
+        { provide: MOCK_LATENCIA_MS, useValue: 0 },
+        { provide: MOCK_COCINA, useValue: null },
+        OrdenesMockRepository,
+      ],
     });
     repo = TestBed.inject(OrdenesMockRepository);
   });
@@ -124,6 +129,52 @@ describe('OrdenesMockRepository', () => {
       const id = de('confirmada').idOrden;
       expect(await falla(repo.rechazar(id, '  '))).toMatchObject({ status: 400 });
       expect((await valor(repo.rechazar(id, 'Sin insumos'))).estado).toBe('cancelada');
+    });
+  });
+
+  // CL-Sprint5 11/11/2026 (etapa 6)
+  describe('reportes y cocina simulada', () => {
+    it('reportar responde un folio, una sola vez por orden', async () => {
+      const id = (await valor(repo.misOrdenes()))[0].idOrden;
+      expect(await falla(repo.reportar(id, { motivo: 'otro', detalle: 'mal' }))).toMatchObject({ status: 422 });
+      const r = await valor(repo.reportar(id, { motivo: 'falto_articulo', detalle: '' }));
+      expect(r.folio).toMatch(/^R-\d{6}$/);
+      expect(await falla(repo.reportar(id, { motivo: 'cobro', detalle: '' }))).toMatchObject({ status: 409 });
+    });
+
+    it('la cocina avanza una orden nueva hasta "lista" y nunca la entrega', async () => {
+      vi.useFakeTimers();
+      try {
+        TestBed.resetTestingModule();
+        TestBed.configureTestingModule({
+          providers: [
+            { provide: MOCK_LATENCIA_MS, useValue: 0 },
+            { provide: MOCK_COCINA, useValue: { confirmarPagoMs: 1000, prepararMs: 1000, terminarMs: 1000 } },
+            OrdenesMockRepository,
+          ],
+        });
+        repo = TestBed.inject(OrdenesMockRepository);
+        const orden = await valor(
+          repo.crear({
+            idCafeteria: DEMO_CAFETERIA.central,
+            recogidaEn: dentroDe(30),
+            metodo: 'transferencia',
+            items: [{ idProducto: DEMO_PRODUCTO.sandwich, cantidad: 1 }],
+          }),
+        );
+        const estado = async () => (await valor(repo.obtener(orden.idOrden))).estado;
+        expect(await estado()).toBe('pendiente');
+        vi.advanceTimersByTime(1000);
+        expect(await estado()).toBe('confirmada');
+        vi.advanceTimersByTime(1000);
+        expect(await estado()).toBe('en_preparacion');
+        vi.advanceTimersByTime(1000);
+        expect(await estado()).toBe('lista');
+        vi.advanceTimersByTime(60_000);
+        expect(await estado()).toBe('lista');
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 });

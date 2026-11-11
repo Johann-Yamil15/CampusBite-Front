@@ -2,7 +2,13 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, defer, finalize, of, tap } from 'rxjs';
 import { ApiError } from '@core/http/api-error';
 import { OrdenesRepository } from '@features/ordenes/domain/repositories/ordenes.repository';
-import { NuevaOrden, Orden, enCurso } from '@features/ordenes/domain/models/orden.model';
+import {
+  NuevaOrden,
+  Orden,
+  ReporteProblema,
+  ReporteRecibido,
+  enCurso,
+} from '@features/ordenes/domain/models/orden.model';
 
 /**
  * CL-Sprint5 11/11/2026: los pedidos del alumno con sesión. Reemplaza a PedidosAlumnoStore (JY-Sprint4) y a
@@ -45,6 +51,29 @@ export class MisPedidosFacade {
         finalize(() => this.cargando.set(false)),
       );
     });
+  }
+
+  /**
+   * CL-Sprint5 11/11/2026 (etapa 6): vuelve a pedir la lista sin tocar `cargando()` ni `error()`, para el
+   * seguimiento en vivo: la pantalla no parpadea y un fallo de red momentáneo no tapa lo que ya se ve.
+   */
+  refrescar(): Observable<Orden[]> {
+    return this.repo.misOrdenes().pipe(
+      tap((ordenes) => {
+        this._ordenes.set(ordenes);
+        this.cargado = true;
+      }),
+    );
+  }
+
+  /** CL-Sprint5 11/11/2026 (etapa 6): como `refrescar`, para una sola orden (el detalle en vivo). */
+  refrescarPedido(idOrden: string): Observable<Orden> {
+    return this.repo.obtener(idOrden).pipe(tap((orden) => this.poner(orden)));
+  }
+
+  /** CL-Sprint5 11/11/2026 (etapa 6): "Reportar un problema". Los errores le llegan a quien se suscribe. */
+  reportar(idOrden: string, reporte: ReporteProblema): Observable<ReporteRecibido> {
+    return this.repo.reportar(idOrden, reporte);
   }
 
   /** Lee el signal: dentro de un computed se actualiza solo. */

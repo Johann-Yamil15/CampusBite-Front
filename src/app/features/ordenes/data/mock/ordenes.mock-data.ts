@@ -46,6 +46,15 @@ export function estadoPagoDe(metodo: MetodoPagoOrden, estado: EstadoOrden): Esta
   return estado === 'pendiente' ? 'pendiente' : 'pagado';
 }
 
+/** CL-Sprint5 11/11/2026 (etapa 6): un producto que la cafetería ya retiró de su menú. */
+const LINEA_RETIRADA: LineaOrden = {
+  idProducto: '00000000-0000-4000-8000-0000000000f1',
+  producto: 'Malteada de Vainilla',
+  cantidad: 1,
+  precioUnitario: 45,
+  imagenUrl: null,
+};
+
 interface Semilla {
   /** Los 8 primeros hexadecimales del id: dan el folio (CB-2411-0042). */
   prefijo: string;
@@ -110,7 +119,7 @@ const SEMILLAS: Semilla[] = [
     prefijo: '24110042', idCafeteria: C.central, alumno: JUAN,
     estado: 'en_preparacion', creadoEn: '2026-11-05T12:05:00-06:00', recogidaEn: '2026-11-05T13:30:00-06:00',
     metodo: 'efectivo', codigo: '774210', notas: 'Sin cebolla, por favor.',
-    lineas: [lineaDemo(P.sandwich, 1), lineaDemo(P.latte, 2)],
+    lineas: [lineaDemo(P.sandwich, 1), lineaDemo(P.panini, 2)],
   },
   {
     prefijo: '24110040', idCafeteria: C.central, alumno: otro(3, 'Sofía Mendoza', '23300204'),
@@ -147,7 +156,8 @@ const SEMILLAS: Semilla[] = [
     prefijo: '24110038', idCafeteria: C.sabor, alumno: JUAN,
     estado: 'entregada', creadoEn: '2026-11-04T14:20:00-06:00', recogidaEn: '2026-11-04T15:00:00-06:00',
     metodo: 'tarjeta', codigo: '587330', notas: null,
-    lineas: [lineaDemo(P.hamburguesa, 1), lineaDemo(P.papas, 1)],
+    // La malteada ya no está en el menú: "Volver a pedir" avisa que no se pudo agregar
+    lineas: [lineaDemo(P.hamburguesa, 1), LINEA_RETIRADA],
   },
   {
     prefijo: '24110035', idCafeteria: C.express, alumno: JUAN,

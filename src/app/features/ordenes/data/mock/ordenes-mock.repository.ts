@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { DestroyRef, Injectable, InjectionToken, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { MockBackend, MockHttpError } from '@core/mock/mock-backend';
 import {
@@ -16,12 +16,33 @@ import {
   MINUTOS_MINIMOS_RECOGIDA,
   NuevaOrden,
   Orden,
+  ReporteProblema,
+  ReporteRecibido,
   cancelablePorAlumno,
   folioDe,
   puedeTransicionar,
+  reporteValido,
   totalLineas,
 } from '@features/ordenes/domain/models/orden.model';
 import { RegistroOrdenMock, estadoPagoDe, lineaDemo, ordenesDemo } from './ordenes.mock-data';
+
+/**
+ * CL-Sprint5 11/11/2026 (etapa 6): tiempos de la "cocina simulada". Sin back no hay quién mueva las órdenes
+ * nuevas del alumno mientras él mira su pedido, así que el mock hace lo que haría la cafetería: confirma el
+ * pago de una transferencia, la pasa a preparación y la deja lista. Nunca la entrega (eso pide el código en
+ * el mostrador, desde el tablero). Si el tablero la mueve antes, la cocina sigue desde ese estado. Las
+ * órdenes de ejemplo no se mueven solas. `null` la apaga.
+ */
+export interface TiemposCocinaMock {
+  confirmarPagoMs: number;
+  prepararMs: number;
+  terminarMs: number;
+}
+
+export const MOCK_COCINA = new InjectionToken<TiemposCocinaMock | null>('MOCK_COCINA', {
+  providedIn: 'root',
+  factory: () => ({ confirmarPagoMs: 20_000, prepararMs: 15_000, terminarMs: 40_000 }),
+});
 
 /**
  * CL-Sprint5 11/11/2026: órdenes simuladas mientras el back no tiene OrdenesController. Aplica las mismas
@@ -36,6 +57,15 @@ import { RegistroOrdenMock, estadoPagoDe, lineaDemo, ordenesDemo } from './orden
 export class OrdenesMockRepository extends OrdenesRepository {
   private readonly backend = inject(MockBackend);
   private readonly registros: RegistroOrdenMock[] = ordenesDemo();
+  private readonly cocina = inject(MOCK_COCINA);
+  private readonly timers = new Set<ReturnType<typeof setTimeout>>();
+  /** Órdenes que ya tienen un reporte (uno por orden). */
+  private readonly reportadas = new Set<string>();
+
+  constructor() {
+    super();
+    inject(DestroyRef).onDestroy(() => this.timers.forEach((t) => clearTimeout(t)));
+  }
 
   // ---------- Alumno ----------
 
@@ -86,7 +116,9 @@ export class OrdenesMockRepository extends OrdenesRepository {
         notas: nueva.notas?.trim() || null,
         lineas,
       };
-      this.registros.unshift({ idAlumno: DEMO_ALUMNO.id, orden });
+      const registro = { idAlumno: DEMO_ALUMNO.id, orden };
+      this.registros.unshift(registro);
+      this.programarCocina(registro);
       return paraAlumno(orden);
     });
   }
@@ -113,6 +145,21 @@ export class OrdenesMockRepository extends OrdenesRepository {
       }
       this.mover(r, 'cancelada');
       return paraAlumno(r.orden);
+    });
+  }
+
+  reportar(idOrden: string, reporte: ReporteProblema): Observable<ReporteRecibido> {
+    return this.backend.responder(() => {
+      const r = this.buscar(idOrden);
+      if (r.idAlumno !== DEMO_ALUMNO.id) throw new MockHttpError(404, 'La orden no existe');
+      if (!reporteValido(reporte)) {
+        throw new MockHttpError(422, 'Cuéntanos qué pasó (al menos 10 caracteres, máximo 300)');
+      }
+      if (this.reportadas.has(idOrden)) {
+        throw new MockHttpError(409, 'Ya reportaste un problema con este pedido; lo estamos revisando');
+      }
+      this.reportadas.add(idOrden);
+      return { folio: `R-${codigoAleatorio()}` };
     });
   }
 
@@ -164,6 +211,29 @@ export class OrdenesMockRepository extends OrdenesRepository {
   }
 
   // ---------- Internos ----------
+
+  /** Avanza sola una orden nueva, paso a paso, como lo haría la cafetería (ver MOCK_COCINA). */
+  private programarCocina(r: RegistroOrdenMock): void {
+    const t = this.cocina;
+    if (!t) return;
+    const pasos: [EstadoOrden, EstadoOrden, number][] = [
+      ['pendiente', 'confirmada', t.confirmarPagoMs],
+      ['confirmada', 'en_preparacion', t.prepararMs],
+      ['en_preparacion', 'lista', t.terminarMs],
+    ];
+    const siguiente = (): void => {
+      const paso = pasos.find(([de]) => de === r.orden.estado);
+      if (!paso) return; // lista, entregada o cancelada: ya no le toca a la cocina
+      const timer = setTimeout(() => {
+        this.timers.delete(timer);
+        // Si el tablero ya la movió, se sigue desde donde quedó
+        if (r.orden.estado === paso[0]) this.mover(r, paso[1]);
+        siguiente();
+      }, paso[2]);
+      this.timers.add(timer);
+    };
+    siguiente();
+  }
 
   private buscar(idOrden: string): RegistroOrdenMock {
     const r = this.registros.find((x) => x.orden.idOrden === idOrden);

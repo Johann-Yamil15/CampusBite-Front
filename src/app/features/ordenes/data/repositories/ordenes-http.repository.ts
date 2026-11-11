@@ -6,6 +6,8 @@ import {
   EstadoAvanceCafeteria,
   NuevaOrden,
   Orden,
+  ReporteProblema,
+  ReporteRecibido,
 } from '@features/ordenes/domain/models/orden.model';
 import { OrdenDto, PaginaDto } from '@features/ordenes/data/dtos/orden.dto';
 import { OrdenMapper } from '@features/ordenes/data/mappers/orden.mapper';
@@ -45,6 +47,14 @@ export class OrdenesHttpRepository extends OrdenesRepository {
     return this.api
       .post<OrdenDto>(`ordenes/${idOrden}/cancelar`, {})
       .pipe(map(OrdenMapper.toDomain));
+  }
+
+  /** CL-Sprint5 11/11/2026 (etapa 6): endpoint nuevo, propuesto en BACKEND_SPECIFICATION.md. */
+  reportar(idOrden: string, reporte: ReporteProblema): Observable<ReporteRecibido> {
+    return this.api.post<ReporteRecibido>(`ordenes/${idOrden}/reportes`, {
+      motivo: reporte.motivo,
+      detalle: reporte.detalle.trim() || null,
+    });
   }
 
   ordenesCafeteria(idCafeteria: string): Observable<Orden[]> {

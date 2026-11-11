@@ -71,6 +71,16 @@ describe('OrdenesHttpRepository', () => {
     });
   });
 
+  it('reportar manda POST /api/ordenes/{id}/reportes (etapa 6)', () => {
+    let folio = '';
+    repo.reportar(ID, { motivo: 'falto_articulo', detalle: '  ' }).subscribe((r) => (folio = r.folio));
+    const req = http.expectOne(`/api/ordenes/${ID}/reportes`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ motivo: 'falto_articulo', detalle: null });
+    req.flush({ folio: 'R-123456' });
+    expect(folio).toBe('R-123456');
+  });
+
   it('misOrdenes pide la primera página y devuelve sus items', () => {
     let total = -1;
     repo.misOrdenes().subscribe((lista) => (total = lista.length));

@@ -3,6 +3,8 @@ import {
   EstadoAvanceCafeteria,
   NuevaOrden,
   Orden,
+  ReporteProblema,
+  ReporteRecibido,
 } from '@features/ordenes/domain/models/orden.model';
 
 /**
@@ -23,6 +25,8 @@ export abstract class OrdenesRepository {
   abstract obtener(idOrden: string): Observable<Orden>;
   /** Solo en pendiente o confirmada. */
   abstract cancelar(idOrden: string): Observable<Orden>;
+  /** CL-Sprint5 11/11/2026 (etapa 6): el alumno reporta un problema con su orden (endpoint nuevo). */
+  abstract reportar(idOrden: string, reporte: ReporteProblema): Observable<ReporteRecibido>;
 
   // ---------- Cafetería ----------
   /** Órdenes del día de la cafetería (activas y cerradas), por hora de recogida. */
