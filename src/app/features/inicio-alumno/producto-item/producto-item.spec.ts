@@ -5,8 +5,8 @@ import { Subject } from 'rxjs';
 import { vi } from 'vitest';
 
 import { ProductoItemComponent } from './producto-item';
-import { CarritoService } from '../../../services/carrito';
-import { ProductoMenu } from '../../../models/menu.model';
+import { CarritoService } from '@shared/carrito/carrito';
+import { ProductoMenu } from '@shared/menu/menu.model';
 
 describe('ProductoItemComponent', () => {
   let component: ProductoItemComponent;

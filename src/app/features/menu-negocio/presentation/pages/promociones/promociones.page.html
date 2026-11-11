@@ -1,0 +1,200 @@
+<!-- JY-Sprint4 05/11/2026: cascarón visual. Crear, editar, pausar y eliminar cambian la lista en pantalla;
+     nada se guarda todavía. -->
+<section class="pg" aria-labelledby="promos-title">
+  <header class="pg-head">
+    <div>
+      <h1 id="promos-title">Promociones</h1>
+      <p class="pg-sub">Ofertas que verán los alumnos en tu menú.</p>
+    </div>
+    <button type="button" class="cb-btn cb-btn--primary" (click)="nueva()">
+      <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+      Nueva promoción
+    </button>
+  </header>
+
+  <dl class="cb-kpis">
+    <div>
+      <dt>Activas</dt>
+      <dd>{{ activas() }}</dd>
+    </div>
+    <div>
+      <dt>Totales</dt>
+      <dd>{{ promos().length }}</dd>
+    </div>
+    <div>
+      <dt>Usos este mes</dt>
+      <dd>{{ usosTotales() }}</dd>
+    </div>
+  </dl>
+
+  <div class="grid">
+    @for (p of visibles(); track p.id) {
+      <article class="promo" [class.pausada]="!p.activa">
+        <header class="promo-head">
+          <span class="promo-tipo">{{ etiquetaTipo[p.tipo] }}</span>
+          <span class="chip" [class]="p.activa ? 'estado-listo' : 'estado-entregado'">
+            {{ p.activa ? 'Activa' : 'En pausa' }}
+          </span>
+        </header>
+
+        <h2>{{ p.nombre }}</h2>
+        <p class="promo-desc">{{ p.descripcion }}</p>
+
+        <p class="promo-valor">
+          @if (p.tipo === 'porcentaje') {
+            <strong>{{ p.valor }}%</strong> de descuento
+          } @else {
+            <strong>{{ p.valor | currency: 'MXN' }}</strong>
+            {{ p.tipo === 'combo' ? 'el combo' : 'por platillo' }}
+          }
+        </p>
+
+        <p class="promo-fechas">
+          <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.9">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+          </svg>
+          {{ p.desde }} → {{ p.hasta }}
+        </p>
+
+        <p class="promo-usos">{{ p.usos }} usos</p>
+
+        <div class="promo-acciones">
+          <button type="button" class="cb-btn cb-btn--small" (click)="editar(p)">Editar</button>
+          <button type="button" class="cb-btn cb-btn--small" (click)="alternar(p)">
+            {{ p.activa ? 'Pausar' : 'Activar' }}
+          </button>
+          <button
+            type="button"
+            class="cb-btn cb-btn--small cb-btn--danger-text"
+            (click)="eliminando.set(p)"
+          >
+            Eliminar
+          </button>
+        </div>
+      </article>
+    } @empty {
+      <div class="vacio grid-full">
+        <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3zM6 6h.008v.008H6V6z" />
+        </svg>
+        <h2>Todavía no tienes promociones</h2>
+        <p>Una oferta bien puesta llena la cafetería en las horas flojas.</p>
+        <button type="button" class="cb-btn cb-btn--primary" (click)="nueva()">
+          Crear la primera
+        </button>
+      </div>
+    }
+  </div>
+
+  <app-paginador
+    [total]="promos().length"
+    [porPagina]="porPagina"
+    [(pagina)]="paginaActual"
+    etiqueta="promociones"
+  />
+</section>
+
+<!-- Crear / editar -->
+@if (editando(); as p) {
+  <app-modal
+    [title]="p.id ? 'Editar promoción' : 'Nueva promoción'"
+    subtitle="Así la verán los alumnos en tu menú"
+    (closed)="cerrar()"
+  >
+    <div class="cb-form">
+      <label class="cb-field">
+        <span>Nombre</span>
+        <input
+          type="text"
+          maxlength="60"
+          placeholder="Combo Estudiantil"
+          data-modal-focus
+          [value]="p.nombre"
+          (input)="campo('nombre', $event)"
+        />
+      </label>
+
+      <label class="cb-field">
+        <span>Descripción</span>
+        <textarea
+          rows="2"
+          maxlength="140"
+          placeholder="Hamburguesa + bebida del día."
+          [value]="p.descripcion"
+          (input)="campo('descripcion', $event)"
+        ></textarea>
+      </label>
+
+      <div class="cb-form-row">
+        <label class="cb-field">
+          <span>Tipo</span>
+          <select [value]="p.tipo" (change)="tipo($event)">
+            @for (t of tipos; track t) {
+              <option [value]="t">{{ etiquetaTipo[t] }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="cb-field">
+          <span>{{ p.tipo === 'porcentaje' ? 'Descuento (%)' : 'Precio (MXN)' }}</span>
+          <input
+            type="number"
+            min="1"
+            [max]="p.tipo === 'porcentaje' ? 100 : 2000"
+            [value]="p.valor"
+            (input)="valor($event)"
+          />
+        </label>
+      </div>
+
+      <div class="cb-form-row">
+        <label class="cb-field">
+          <span>Desde</span>
+          <input type="date" [value]="p.desde" (input)="campo('desde', $event)" />
+        </label>
+        <label class="cb-field">
+          <span>Hasta</span>
+          <input type="date" [value]="p.hasta" (input)="campo('hasta', $event)" />
+        </label>
+      </div>
+
+      @if (!valida()) {
+        <p class="pista">
+          Ponle un nombre de al menos 3 letras, un valor mayor a cero y las dos fechas.
+        </p>
+      }
+    </div>
+
+    <div modalActions>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="cerrar()">Cancelar</button>
+      <button type="button" class="cb-btn cb-btn--primary" [disabled]="!valida()" (click)="guardar()">
+        {{ p.id ? 'Guardar cambios' : 'Crear promoción' }}
+      </button>
+    </div>
+  </app-modal>
+}
+
+<!-- Eliminar -->
+@if (eliminando(); as p) {
+  <app-modal
+    title="¿Eliminar esta promoción?"
+    [subtitle]="p.nombre"
+    size="sm"
+    (closed)="eliminando.set(null)"
+  >
+    <p class="modal-texto">
+      Dejará de verse en tu menú. Si solo quieres dejarla para después, mejor pónla en pausa.
+    </p>
+
+    <div modalActions>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="eliminando.set(null)">
+        Cancelar
+      </button>
+      <button type="button" class="cb-btn cb-btn--danger" data-modal-focus (click)="eliminar()">
+        Sí, eliminar
+      </button>
+    </div>
+  </app-modal>
+}

@@ -3,8 +3,8 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
-import { MenuService } from '../../services/menu';
-import { MenuCafeteria } from '../../models/menu.model';
+import { MenuService } from '@shared/menu/menu';
+import { MenuCafeteria } from '@shared/menu/menu.model';
 import { ApiError } from '@core/http/api-error';
 import { NegocioCardComponent } from './negocio-card/negocio-card';
 

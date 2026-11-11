@@ -14,9 +14,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
 import { ApiError } from '@core/http/api-error';
-import { CrearOrdenRequest } from '../../../models/menu.model';
-import { CarritoService } from '../../../services/carrito';
-import { OrdenService } from '../../../services/orden';
+import { CrearOrdenRequest } from '@shared/menu/menu.model';
+import { CarritoService } from '@shared/carrito/carrito';
+import { OrdenService } from '@shared/menu/orden';
 
 type MetodoPago = CrearOrdenRequest['metodo'];
 

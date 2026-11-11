@@ -1,0 +1,158 @@
+// JY-Sprint4 05/11/2026: estadísticas. Gráficas hechas con CSS, sin librería: son barras, no hace falta más.
+// El mobiliario común (.pg, .tabs) está en styles.scss
+.cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: var(--cb-space-md);
+  align-items: start;
+}
+
+// ---------- Barras verticales ----------
+.barras {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 0.4rem;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+}
+
+.barra-marco {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  height: 8rem;
+  border-radius: 6px;
+  background: var(--cb-surface-low);
+  overflow: hidden;
+}
+
+.barra {
+  width: 100%;
+  border-radius: 6px 6px 0 0;
+  background: linear-gradient(
+    to top,
+    var(--cb-primary-container-dark),
+    var(--cb-primary-container-light)
+  );
+
+  &.cero {
+    background: var(--cb-surface-high);
+  }
+}
+
+.barra-dia {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--cb-ink);
+}
+
+.barra-monto {
+  font-size: 0.6875rem;
+  color: var(--cb-text-muted);
+  text-align: center;
+}
+
+.nota {
+  margin: var(--cb-space-md) 0 0;
+  font-size: 0.75rem;
+  color: var(--cb-text-muted);
+}
+
+// ---------- Barras horizontales ----------
+.lineas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+  }
+}
+
+.linea-pos {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-brand-soft);
+  color: var(--cb-primary);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.linea-etiqueta {
+  flex-shrink: 0;
+  width: 3rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--cb-ink);
+}
+
+.linea-ancha {
+  width: 11rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linea-marco {
+  flex: 1;
+  min-width: 2rem;
+  height: 0.6rem;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-surface-low);
+  overflow: hidden;
+}
+
+.linea-relleno {
+  display: block;
+  height: 100%;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-primary-container);
+}
+
+.linea-valor {
+  flex-shrink: 0;
+  min-width: 2rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  color: var(--cb-ink);
+  text-align: right;
+}
+
+.linea-monto {
+  flex-shrink: 0;
+  min-width: 4rem;
+  font-size: 0.75rem;
+  color: var(--cb-text-muted);
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  .linea-ancha {
+    width: 7rem;
+  }
+
+  .linea-monto {
+    display: none;
+  }
+}

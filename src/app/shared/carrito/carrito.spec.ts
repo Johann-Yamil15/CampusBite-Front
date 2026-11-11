@@ -2,7 +2,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { CarritoService } from './carrito';
-import { ItemCarrito } from '../models/menu.model';
+import { ItemCarrito } from '@shared/menu/menu.model';
 
 describe('CarritoService', () => {
   let carrito: CarritoService;

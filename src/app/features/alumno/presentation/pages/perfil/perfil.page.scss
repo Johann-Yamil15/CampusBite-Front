@@ -1,0 +1,182 @@
+// JY-Sprint4 05/11/2026: perfil del alumno. El mobiliario común (.pg, .chip) está en styles.scss
+// ---------- Identidad ----------
+.identidad {
+  display: flex;
+  align-items: center;
+  gap: var(--cb-space-lg);
+  flex-wrap: wrap;
+
+  img {
+    border-radius: var(--cb-radius-pill);
+    object-fit: cover;
+  }
+}
+
+.identidad-datos {
+  flex: 1;
+  min-width: 12rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--cb-ink);
+  }
+}
+
+.correo {
+  margin: 0.15rem 0 0;
+  font-size: 0.875rem;
+  color: var(--cb-text-muted);
+}
+
+.etiquetas {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0.6rem 0 0;
+  flex-wrap: wrap;
+}
+
+// ---------- Columnas ----------
+.cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: var(--cb-space-md);
+  align-items: start;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cb-space-md);
+  min-width: 0;
+}
+
+// ---------- Métricas ----------
+.metricas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.metrica {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.85rem 0.5rem;
+  border: 1px solid var(--cb-line-soft);
+  border-radius: var(--cb-radius);
+  background: var(--cb-surface-low);
+  text-align: center;
+  text-decoration: none;
+
+  strong {
+    font-size: 1.375rem;
+    font-weight: 800;
+    color: var(--cb-primary);
+  }
+
+  span {
+    font-size: 0.75rem;
+    color: var(--cb-text-muted);
+  }
+
+  &:hover {
+    border-color: var(--cb-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cb-primary);
+    outline-offset: 2px;
+  }
+}
+
+// ---------- Avisos ----------
+.opciones {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.opcion {
+  padding: 0.7rem 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--cb-line-soft);
+  }
+}
+
+// ---------- Accesos ----------
+.accesos {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  button,
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--cb-space-md);
+    width: 100%;
+    padding: 0.7rem 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+
+    span {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    strong {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--cb-ink);
+    }
+
+    small {
+      font-size: 0.8125rem;
+      color: var(--cb-text-muted);
+    }
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+      flex-shrink: 0;
+      color: var(--cb-text-muted);
+    }
+
+    &:hover strong {
+      color: var(--cb-primary);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--cb-primary);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+  }
+
+  li:not(:last-child) {
+    border-bottom: 1px solid var(--cb-line-soft);
+  }
+}
+
+.salir {
+  width: 100%;
+  margin-top: var(--cb-space-md);
+}
+
+// ---------- Modales ----------
+.modal-texto {
+  margin: 0;
+  color: var(--cb-ink-soft);
+  font-size: 0.9375rem;
+}
+

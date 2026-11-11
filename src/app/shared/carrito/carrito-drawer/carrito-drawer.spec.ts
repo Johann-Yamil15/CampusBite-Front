@@ -5,7 +5,7 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 
 import { CarritoDrawerComponent } from './carrito-drawer';
-import { CarritoService } from '../../../services/carrito';
+import { CarritoService } from '@shared/carrito/carrito';
 
 describe('CarritoDrawerComponent', () => {
   let component: CarritoDrawerComponent;

@@ -4,8 +4,8 @@ import { CurrencyPipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ItemCarrito } from '../../../models/menu.model';
-import { CarritoService } from '../../../services/carrito';
+import { ItemCarrito } from '@shared/menu/menu.model';
+import { CarritoService } from '@shared/carrito/carrito';
 
 export const MAX_CANTIDAD_PRODUCTO = 20;
 

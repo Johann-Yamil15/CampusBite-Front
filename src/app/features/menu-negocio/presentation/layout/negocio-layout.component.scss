@@ -1,0 +1,110 @@
+// JY-Sprint4 05/11/2026: mismo armado que panel-negocio.page (sidebar 248px · contenido), para que las
+// secciones nuevas se vean como una continuación del panel y no como otra app.
+:host {
+  display: block;
+  min-height: 100dvh;
+  background: var(--cb-bg);
+}
+
+.ng-shell {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+.ng-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ng-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.5rem;
+  border-bottom: 1px solid var(--cb-line-soft);
+  background: var(--cb-surface);
+}
+
+.ng-user {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-left: auto;
+
+  img {
+    border-radius: var(--cb-radius-pill);
+    object-fit: cover;
+  }
+}
+
+.ng-user-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.ng-user-name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--cb-ink);
+}
+
+.ng-user-role {
+  font-size: 0.75rem;
+  color: var(--cb-text-muted);
+}
+
+.ng-logout {
+  display: none;
+}
+
+.ng-main {
+  flex: 1;
+  padding: 1.5rem;
+  min-width: 0;
+}
+
+@media (max-width: 960px) {
+  .ng-shell {
+    grid-template-columns: minmax(0, 1fr);
+    // Hueco para la barra inferior en la que se convierte el sidebar
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .ng-topbar {
+    padding: 0.7rem 1rem;
+  }
+
+  .ng-user-text {
+    display: none;
+  }
+
+  .ng-logout {
+    display: inline-flex;
+    align-items: center;
+    min-height: 38px;
+    padding: 0 0.85rem;
+    border: 1px solid var(--cb-line);
+    border-radius: var(--cb-radius-pill);
+    background: var(--cb-surface);
+    color: var(--cb-ink-soft);
+    font: inherit;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid var(--cb-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  .ng-main {
+    padding: 1rem;
+  }
+}

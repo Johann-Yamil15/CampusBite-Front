@@ -9,7 +9,9 @@
         <div class="nombre-datos">
           <div class="nombre-row">
             <span class="negocio-nombre">{{ negocio.cafeteria }}</span>
-            <span class="chip-campus" *ngIf="negocio.esDelCampus">Campus UTTT</span>
+            @if (negocio.esDelCampus) {
+              <span class="chip-campus">Campus UTTT</span>
+            }
           </div>
           <div class="info-row">
             <span class="info-item"><mat-icon>location_on</mat-icon> {{ negocio.puntoEntrega }}</span>

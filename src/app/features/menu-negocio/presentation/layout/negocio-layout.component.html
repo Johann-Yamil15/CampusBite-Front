@@ -1,0 +1,26 @@
+<!-- JY-Sprint4 05/11/2026: chrome de las secciones del Panel de Negocio. El buscador de la topbar es del
+     panel de Inicio, aquí no se repite: cada sección trae sus propios filtros. -->
+<div class="ng-shell">
+  <app-negocio-nav
+    [cafeteria]="cafeterias.selected()"
+    (goToMenu)="goToMenu()"
+    (logout)="logout()"
+  />
+
+  <div class="ng-body">
+    <header class="ng-topbar">
+      <div class="ng-user">
+        <img src="assets/images/logo-campusbite.png" alt="" width="44" height="44" />
+        <div class="ng-user-text">
+          <span class="ng-user-name">{{ cafeterias.selected()?.name ?? 'Mi negocio' }}</span>
+          <span class="ng-user-role">Encargado</span>
+        </div>
+      </div>
+      <button type="button" class="ng-logout" (click)="logout()">Salir</button>
+    </header>
+
+    <main class="ng-main">
+      <router-outlet />
+    </main>
+  </div>
+</div>

@@ -3,8 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 
 import { CarritoItemComponent } from './carrito-item';
-import { CarritoService } from '../../../services/carrito';
-import { ItemCarrito } from '../../../models/menu.model';
+import { CarritoService } from '@shared/carrito/carrito';
+import { ItemCarrito } from '@shared/menu/menu.model';
 
 describe('CarritoItemComponent', () => {
   let component: CarritoItemComponent;

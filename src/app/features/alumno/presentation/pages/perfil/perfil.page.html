@@ -1,0 +1,235 @@
+<!-- JY-Sprint4 05/11/2026: cascarón visual. Editar perfil y cambiar contraseña validan y aplican el cambio
+     en pantalla; "Cerrar sesión" cierra la sesión de verdad. Falta persistir en el back. -->
+<section class="pg" aria-labelledby="perfil-title">
+  <header class="pg-head">
+    <div>
+      <h1 id="perfil-title">Mi perfil</h1>
+      <p class="pg-sub">Tus datos, tus avisos y tu sesión.</p>
+    </div>
+  </header>
+
+  <article class="cb-card identidad">
+    <img [src]="foto" alt="" width="84" height="84" />
+    <div class="identidad-datos">
+      <h2>{{ nombre() }}</h2>
+      <p class="correo">{{ correo() }}</p>
+      @if (telefono()) {
+        <p class="correo">{{ telefono() }}</p>
+      }
+      <p class="etiquetas">
+        <span class="chip estado-listo">{{ rol() }}</span>
+        <span class="chip estado-recibido">Matrícula {{ matricula }}</span>
+      </p>
+    </div>
+    <button type="button" class="cb-btn cb-btn--secondary" (click)="abrirEditar()">
+      Editar perfil
+    </button>
+  </article>
+
+  <div class="cols">
+    <div class="col">
+      <article class="cb-card">
+        <h2 class="cb-card-title">Mi actividad</h2>
+        <div class="metricas">
+          <a class="metrica" routerLink="/pedidos">
+            <strong>{{ pedidosTotales() }}</strong>
+            <span>Pedidos hechos</span>
+          </a>
+          <a class="metrica" routerLink="/pedidos">
+            <strong>{{ pedidosEnCurso() }}</strong>
+            <span>En curso ahora</span>
+          </a>
+          <a class="metrica" routerLink="/favoritos">
+            <strong>3</strong>
+            <span>Favoritos</span>
+          </a>
+        </div>
+      </article>
+
+      <article class="cb-card">
+        <h2 class="cb-card-title">Avisos</h2>
+        <ul class="opciones">
+          <li class="cb-switch-row opcion">
+            <label for="avisos-pedido">
+              <strong>Estado de mis pedidos</strong>
+              <small>Te avisamos cuando tu pedido esté listo para recoger.</small>
+            </label>
+            <input
+              id="avisos-pedido"
+              type="checkbox"
+              class="cb-switch"
+              [checked]="avisosPedido()"
+              (change)="alternarAviso('avisosPedido')"
+            />
+          </li>
+          <li class="cb-switch-row opcion">
+            <label for="avisos-promos">
+              <strong>Promociones</strong>
+              <small>Ofertas de las cafeterías que sigues.</small>
+            </label>
+            <input
+              id="avisos-promos"
+              type="checkbox"
+              class="cb-switch"
+              [checked]="avisosPromos()"
+              (change)="alternarAviso('avisosPromos')"
+            />
+          </li>
+        </ul>
+      </article>
+    </div>
+
+    <div class="col">
+      <article class="cb-card">
+        <h2 class="cb-card-title">Cuenta y seguridad</h2>
+        <ul class="accesos">
+          <li>
+            <button type="button" (click)="abrirPassword()">
+              <span>
+                <strong>Cambiar contraseña</strong>
+                <small>Última vez: hace 3 meses</small>
+              </span>
+              <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+              </svg>
+            </button>
+          </li>
+          <li>
+            <a routerLink="/pedidos">
+              <span>
+                <strong>Historial de pedidos</strong>
+                <small>Todo lo que has pedido</small>
+              </span>
+              <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+              </svg>
+            </a>
+          </li>
+        </ul>
+
+        <button type="button" class="cb-btn cb-btn--danger salir" (click)="dialogo.set('salir')">
+          Cerrar sesión
+        </button>
+      </article>
+    </div>
+  </div>
+</section>
+
+@switch (dialogo()) {
+  @case ('editar') {
+    <app-modal title="Editar perfil" subtitle="Así te verán las cafeterías" (closed)="cerrar()">
+      <div class="cb-form">
+        <label class="cb-field" [class.invalido]="!nombreValido()">
+          <span>Nombre completo</span>
+          <input
+            type="text"
+            maxlength="80"
+            data-modal-focus
+            [value]="formNombre()"
+            (input)="campo('formNombre', $event)"
+          />
+          @if (!nombreValido()) {
+            <small>Escribe al menos 3 letras.</small>
+          }
+        </label>
+
+        <label class="cb-field">
+          <span>Correo institucional</span>
+          <input type="email" [value]="correo()" disabled />
+          <small>El correo de la UTTT no se puede cambiar.</small>
+        </label>
+
+        <label class="cb-field">
+          <span>Teléfono <small>(opcional)</small></span>
+          <input
+            type="tel"
+            maxlength="20"
+            placeholder="55 1234 5678"
+            [value]="formTelefono()"
+            (input)="campo('formTelefono', $event)"
+          />
+        </label>
+      </div>
+
+      <div modalActions>
+        <button type="button" class="cb-btn cb-btn--secondary" (click)="cerrar()">Cancelar</button>
+        <button
+          type="button"
+          class="cb-btn cb-btn--primary"
+          [disabled]="!nombreValido()"
+          (click)="guardarPerfil()"
+        >
+          Guardar cambios
+        </button>
+      </div>
+    </app-modal>
+  }
+
+  @case ('password') {
+    <app-modal title="Cambiar contraseña" size="sm" (closed)="cerrar()">
+      <div class="cb-form">
+        <label class="cb-field">
+          <span>Contraseña actual</span>
+          <input
+            type="password"
+            autocomplete="current-password"
+            data-modal-focus
+            [value]="actual()"
+            (input)="campo('actual', $event)"
+          />
+        </label>
+
+        <label class="cb-field" [class.invalido]="!!nueva() && !nuevaValida()">
+          <span>Nueva contraseña</span>
+          <input
+            type="password"
+            autocomplete="new-password"
+            [value]="nueva()"
+            (input)="campo('nueva', $event)"
+          />
+          <small>Mínimo 8 caracteres, con una mayúscula y un número.</small>
+        </label>
+
+        <label class="cb-field" [class.invalido]="!!repetida() && !coinciden()">
+          <span>Repite la nueva contraseña</span>
+          <input
+            type="password"
+            autocomplete="new-password"
+            [value]="repetida()"
+            (input)="campo('repetida', $event)"
+          />
+          @if (!!repetida() && !coinciden()) {
+            <small>Las dos contraseñas no son iguales.</small>
+          }
+        </label>
+      </div>
+
+      <div modalActions>
+        <button type="button" class="cb-btn cb-btn--secondary" (click)="cerrar()">Cancelar</button>
+        <button
+          type="button"
+          class="cb-btn cb-btn--primary"
+          [disabled]="!passwordValido()"
+          (click)="guardarPassword()"
+        >
+          Cambiar contraseña
+        </button>
+      </div>
+    </app-modal>
+  }
+
+  @case ('salir') {
+    <app-modal title="¿Cerrar sesión?" size="sm" (closed)="cerrar()">
+      <p class="modal-texto">
+        Tendrás que volver a entrar con tu correo institucional. Tu carrito se vacía al salir.
+      </p>
+
+      <div modalActions>
+        <button type="button" class="cb-btn cb-btn--secondary" (click)="cerrar()">Quedarme</button>
+        <button type="button" class="cb-btn cb-btn--danger" data-modal-focus (click)="salir()">
+          Sí, salir
+        </button>
+      </div>
+    </app-modal>
+  }
+}

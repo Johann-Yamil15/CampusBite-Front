@@ -1,6 +1,6 @@
 // FB-Sprint4 29/10/2026: Signal store global para manejar el estado del carrito (límite 20 y validar cafetería única).
 import { Injectable, computed, signal } from '@angular/core';
-import { ItemCarrito } from '../models/menu.model';
+import { ItemCarrito } from '@shared/menu/menu.model';
 
 @Injectable({ providedIn: 'root' })
 export class CarritoService {

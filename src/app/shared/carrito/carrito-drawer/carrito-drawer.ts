@@ -6,8 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CarritoService } from '../../../services/carrito';
-import { MenuService } from '../../../services/menu';
+import { CarritoService } from '@shared/carrito/carrito';
+import { MenuService } from '@shared/menu/menu';
 import { CarritoItemComponent } from '../carrito-item/carrito-item';
 import { ConfirmarOrdenComponent, ConfirmarOrdenData } from '../confirmar-orden/confirmar-orden';
 

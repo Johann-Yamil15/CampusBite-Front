@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatIconModule } from '@angular/material/icon';
-import { MenuCafeteria } from '../../../models/menu.model';
+import { MenuCafeteria } from '@shared/menu/menu.model';
 import { ProductoItemComponent } from '../producto-item/producto-item'; // Ajusta la ruta
 
 @Component({

@@ -6,8 +6,8 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { ConfirmarOrdenComponent, ConfirmarOrdenData, aIsoConOffset } from './confirmar-orden';
-import { CarritoService } from '../../../services/carrito';
-import { OrdenService } from '../../../services/orden';
+import { CarritoService } from '@shared/carrito/carrito';
+import { OrdenService } from '@shared/menu/orden';
 
 // FB-Sprint4 01/11/2026: genera el valor local "YYYY-MM-DDTHH:mm" que produce <input type="datetime-local">
 function localEnMinutos(minutos: number): string {

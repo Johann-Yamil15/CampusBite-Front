@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { ProductoMenu } from '../../../models/menu.model';
-import { CarritoService } from '../../../services/carrito'; // Ajusta la ruta si es necesario
+import { ProductoMenu } from '@shared/menu/menu.model';
+import { CarritoService } from '@shared/carrito/carrito'; // Ajusta la ruta si es necesario
 
 @Component({
   selector: 'app-producto-item',

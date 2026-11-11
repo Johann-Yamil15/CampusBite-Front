@@ -66,7 +66,13 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('@features/inicio-alumno/inicio-alumno').then(m => m.InicioAlumnoComponent)
   },
-  
+  // JY-Sprint4 05/11/2026: resto de las pantallas del alumno (cascarón visual): /buscar, /pedidos,
+  // /pedidos/:folio, /favoritos y /perfil. Traen su propio sidebar, por eso van fuera del MainLayout.
+  {
+    path: '',
+    canActivate: [authGuard],
+    loadChildren: () => import('@features/alumno/alumno.routes'),
+  },
   {
     path: '**',
     title: 'No encontrado · CampusBite',

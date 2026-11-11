@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AuthFacade } from '@features/auth';
 import { Cafeteria, CafeteriaFacade } from '@features/cafeterias';
@@ -102,6 +103,8 @@ describe('PanelNegocioPage', () => {
     await TestBed.configureTestingModule({
       imports: [PanelNegocioPage],
       providers: [
+        // JY-Sprint4 05/11/2026: el sidebar ya navega (routerLink), así que necesita ActivatedRoute
+        provideRouter([]),
         MenuNegocioFacade,
         { provide: MenuRepository, useValue: repo },
         { provide: CafeteriaFacade, useValue: fakeCafeterias() },

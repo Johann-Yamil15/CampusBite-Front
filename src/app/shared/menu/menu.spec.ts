@@ -4,7 +4,6 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { MenuService } from './menu';
-import { environment } from '../../environments/environment';
 
 describe('MenuService', () => {
   let service: MenuService;
@@ -22,13 +21,13 @@ describe('MenuService', () => {
 
   it('listarMenu hace GET a /menu', () => {
     service.listarMenu().subscribe(menu => expect(menu).toEqual([]));
-    const req = http.expectOne(`${environment.apiUrl}/menu`);
+    const req = http.expectOne('/api/menu');
     expect(req.request.method).toBe('GET');
     req.flush([]);
   });
 
   it('menuCafeteria hace GET a /menu/:id', () => {
     service.menuCafeteria('c1').subscribe();
-    http.expectOne(`${environment.apiUrl}/menu/c1`).flush({});
+    http.expectOne('/api/menu/c1').flush({});
   });
 });

@@ -2,7 +2,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { NegocioCardComponent } from './negocio-card';
-import { MenuCafeteria } from '../../../models/menu.model';
+import { MenuCafeteria } from '@shared/menu/menu.model';
 
 describe('NegocioCardComponent', () => {
   let component: NegocioCardComponent;

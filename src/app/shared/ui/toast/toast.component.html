@@ -1,0 +1,30 @@
+<!-- JY-Sprint4 05/11/2026: los avisos se anuncian con aria-live para que un lector de pantalla los lea
+     sin que el usuario pierda el foco donde estaba. -->
+<div class="toast-pila" role="status" aria-live="polite">
+  @for (t of toasts.toasts(); track t.id) {
+    <div class="toast" [class]="'toast-' + t.kind">
+      <svg class="toast-icono" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        @switch (t.kind) {
+          @case ('ok') {
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          }
+          @case ('error') {
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          }
+          @default {
+            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+          }
+        }
+      </svg>
+
+      <p class="toast-texto">{{ t.text }}</p>
+
+      <button type="button" class="toast-x" (click)="toasts.dismiss(t.id)">
+        <span class="sr-only">Descartar aviso</span>
+        <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  }
+</div>

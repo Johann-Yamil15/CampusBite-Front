@@ -1,0 +1,149 @@
+// JY-Sprint4 05/11/2026: favoritos. El mobiliario común (.pg, .chip, .vacio) está en styles.scss
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: var(--cb-space-md);
+}
+
+.grid-full {
+  grid-column: 1 / -1;
+}
+
+.caf {
+  display: flex;
+  flex-direction: column;
+  background: var(--cb-surface);
+  border: 1px solid var(--cb-line-soft);
+  border-radius: var(--cb-radius-lg);
+  box-shadow: var(--cb-shadow-sm);
+  overflow: hidden;
+}
+
+.caf-foto {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: var(--cb-surface-low);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+}
+
+.corazon {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-surface);
+  color: var(--cb-primary);
+  cursor: pointer;
+  box-shadow: var(--cb-shadow-sm);
+
+  svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+
+  &:hover {
+    background: var(--cb-brand-soft);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cb-primary);
+    outline-offset: 2px;
+  }
+}
+
+.cerrada {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: var(--cb-radius-pill);
+  // Velo oscuro: el blanco mantiene contraste sobre cualquier foto
+  background: rgba(27, 28, 28, 0.78);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 800;
+}
+
+.caf-cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: var(--cb-space-md);
+  flex: 1;
+}
+
+.caf-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--cb-ink);
+  }
+}
+
+.caf-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--cb-text-muted);
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+}
+
+.caf-datos {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--cb-ink-muted);
+}
+
+.estrella {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-weight: 700;
+  color: var(--cb-secondary);
+
+  svg {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+}
+
+.caf-acciones {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: var(--cb-space-sm);
+}
+
+.cb-btn--compacto {
+  flex: 1;
+  min-height: 38px;
+  padding: 0 0.75rem;
+  font-size: 0.8125rem;
+}

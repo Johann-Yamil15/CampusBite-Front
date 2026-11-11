@@ -1,0 +1,223 @@
+<!-- JY-Sprint4 05/11/2026: cascarón visual. Avanzar, entregar y rechazar mueven la tarjeta en pantalla pero
+     todavía no llaman al back. -->
+<section class="pg" aria-labelledby="pedidos-neg-title">
+  <header class="pg-head">
+    <div>
+      <h1 id="pedidos-neg-title">Pedidos</h1>
+      <p class="pg-sub">Lo que tus clientes están esperando ahora mismo.</p>
+    </div>
+    <dl class="cb-kpis kpis">
+      <div>
+        <dt>Activos</dt>
+        <dd>{{ activos() }}</dd>
+      </div>
+      <div>
+        <dt>Por cobrar</dt>
+        <dd>{{ porCobrar() | currency: 'MXN' }}</dd>
+      </div>
+    </dl>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Vista de pedidos">
+    <button
+      type="button"
+      role="tab"
+      class="tab"
+      [class.active]="vista() === 'tablero'"
+      [attr.aria-selected]="vista() === 'tablero'"
+      (click)="vista.set('tablero')"
+    >
+      Tablero
+      <span class="tab-count">{{ activos() }}</span>
+    </button>
+    <button
+      type="button"
+      role="tab"
+      class="tab"
+      [class.active]="vista() === 'cerrados'"
+      [attr.aria-selected]="vista() === 'cerrados'"
+      (click)="vista.set('cerrados')"
+    >
+      Cerrados hoy
+      <span class="tab-count">{{ cerrados().length }}</span>
+    </button>
+  </div>
+
+  @if (vista() === 'tablero') {
+    <div class="tablero">
+      @for (columna of columnas; track columna) {
+        <section class="columna" [attr.aria-label]="etiquetaColumna[columna]">
+          <header class="columna-head">
+            <h2>{{ etiquetaColumna[columna] }}</h2>
+            <span class="columna-num">{{ enColumna(columna).length }}</span>
+          </header>
+
+          <div class="columna-cuerpo">
+            @for (orden of enColumna(columna); track orden.folio) {
+              <article class="orden" [class]="'borde-' + orden.estado">
+                <header class="orden-head">
+                  <strong class="orden-folio">{{ orden.folio }}</strong>
+                  <span class="orden-hora">{{ orden.recogidaEn | date: 'HH:mm' }}</span>
+                </header>
+
+                <p class="orden-alumno">{{ orden.alumno }} · {{ orden.matricula }}</p>
+
+                <ul class="orden-lineas">
+                  @for (linea of orden.lineas; track linea.producto) {
+                    <li>
+                      <span class="linea-cant">{{ linea.cantidad }}×</span>
+                      {{ linea.producto }}
+                    </li>
+                  }
+                </ul>
+
+                @if (orden.notas) {
+                  <p class="orden-notas">“{{ orden.notas }}”</p>
+                }
+
+                <footer class="orden-foot">
+                  <span class="orden-total">{{ total(orden) | currency: 'MXN' }}</span>
+                  <span class="orden-metodo">{{ orden.metodo }}</span>
+                </footer>
+
+                <div class="orden-acciones">
+                  <button type="button" class="cb-btn cb-btn--primary cb-btn--chico" (click)="avanzar(orden)">
+                    {{ accion[columna] }}
+                  </button>
+                  <button type="button" class="cb-btn cb-btn--secondary cb-btn--chico" (click)="abrir(orden)">
+                    Detalle
+                  </button>
+                </div>
+              </article>
+            } @empty {
+              <p class="columna-vacia">Nada por aquí.</p>
+            }
+          </div>
+        </section>
+      }
+    </div>
+  } @else {
+    <div class="cerrados">
+      @for (orden of cerradosPagina(); track orden.folio) {
+        <article class="cerrado">
+          <span class="chip" [class]="'estado-' + orden.estado">{{ etiquetaEstado[orden.estado] }}</span>
+          <div class="cerrado-info">
+            <strong>{{ orden.folio }}</strong>
+            <span>{{ orden.alumno }} · {{ piezas(orden) }} art. · {{ orden.creadoEn | date: 'HH:mm' }}</span>
+          </div>
+          <span class="cerrado-total">{{ total(orden) | currency: 'MXN' }}</span>
+          <button type="button" class="cb-btn cb-btn--small" (click)="abrir(orden)">Ver</button>
+        </article>
+      } @empty {
+        <div class="vacio">
+          <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h2>Todavía no cierras ningún pedido hoy</h2>
+          <p>Los pedidos entregados y los rechazados aparecerán aquí.</p>
+        </div>
+      }
+
+      <app-paginador
+        [total]="cerrados().length"
+        [porPagina]="porPagina"
+        [(pagina)]="pagina"
+        etiqueta="pedidos"
+      />
+    </div>
+  }
+</section>
+
+<!-- Detalle del pedido -->
+@if (abierta(); as o) {
+  <app-modal
+    [title]="'Pedido ' + o.folio"
+    [subtitle]="o.alumno + ' · ' + o.matricula"
+    size="md"
+    (closed)="cerrar()"
+  >
+    <div class="det-cabeza">
+      <span class="chip" [class]="'estado-' + o.estado">{{ etiquetaEstado[o.estado] }}</span>
+      <span class="det-hora">Recoge a las {{ o.recogidaEn | date: 'HH:mm' }}</span>
+    </div>
+
+    <ul class="det-lineas">
+      @for (linea of o.lineas; track linea.producto) {
+        <li>
+          <span class="det-cant">{{ linea.cantidad }}×</span>
+          <span class="det-prod">{{ linea.producto }}</span>
+          <span class="det-precio">{{ linea.precio * linea.cantidad | currency: 'MXN' }}</span>
+        </li>
+      }
+    </ul>
+
+    <dl class="det-resumen">
+      <dt>Método de pago</dt>
+      <dd class="capitalizar">{{ o.metodo }}</dd>
+      <dt>Artículos</dt>
+      <dd>{{ piezas(o) }}</dd>
+      <dt class="fuerte">Total</dt>
+      <dd class="fuerte">{{ total(o) | currency: 'MXN' }}</dd>
+    </dl>
+
+    @if (o.notas) {
+      <p class="det-notas"><strong>Notas del alumno:</strong> {{ o.notas }}</p>
+    }
+
+    <div modalActions>
+      @if (o.estado !== 'entregado' && o.estado !== 'cancelado') {
+        <button type="button" class="cb-btn cb-btn--danger" (click)="pedirMotivo(o)">
+          Rechazar
+        </button>
+        <button type="button" class="cb-btn cb-btn--primary" data-modal-focus (click)="avanzar(o)">
+          {{ accion[o.estado] }}
+        </button>
+      } @else {
+        <button type="button" class="cb-btn cb-btn--secondary" data-modal-focus (click)="cerrar()">
+          Cerrar
+        </button>
+      }
+    </div>
+  </app-modal>
+}
+
+<!-- Rechazar con motivo -->
+@if (rechazando(); as o) {
+  <app-modal
+    title="¿Rechazar este pedido?"
+    [subtitle]="o.folio + ' · ' + o.alumno"
+    size="sm"
+    (closed)="rechazando.set(null)"
+  >
+    <p class="modal-texto">
+      El alumno recibirá el aviso con tu motivo. Si ya pagó, tendrás que devolverle el dinero en el
+      mostrador.
+    </p>
+
+    <label class="cb-field">
+      <span>Motivo <small>(lo ve el alumno)</small></span>
+      <textarea
+        rows="3"
+        maxlength="160"
+        placeholder="Se nos acabó el ingrediente, cerramos antes…"
+        data-modal-focus
+        [value]="motivo()"
+        (input)="onMotivo($event)"
+      ></textarea>
+    </label>
+
+    <div modalActions>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="rechazando.set(null)">
+        Mejor no
+      </button>
+      <button
+        type="button"
+        class="cb-btn cb-btn--danger"
+        [disabled]="!motivo().trim()"
+        (click)="rechazar()"
+      >
+        Rechazar pedido
+      </button>
+    </div>
+  </app-modal>
+}

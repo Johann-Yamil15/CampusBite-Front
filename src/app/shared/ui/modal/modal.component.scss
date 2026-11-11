@@ -1,0 +1,96 @@
+// JY-Sprint4 05/11/2026: modal con los tokens del sistema (ver src/styles/_tokens.scss)
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: var(--cb-space-md);
+  background: rgba(27, 28, 28, 0.52);
+  backdrop-filter: blur(2px);
+  animation: modal-fade 0.14s ease-out;
+}
+
+.modal-panel {
+  width: 100%;
+  max-height: calc(100dvh - 2 * var(--cb-space-lg));
+  display: flex;
+  flex-direction: column;
+  background: var(--cb-surface);
+  border: 1px solid var(--cb-line-soft);
+  border-radius: var(--cb-radius-lg);
+  box-shadow: var(--cb-shadow-lg);
+  animation: modal-rise 0.16s ease-out;
+
+  &:focus-visible {
+    outline: 2px solid var(--cb-primary);
+    outline-offset: 2px;
+  }
+
+  &.size-sm { max-width: 26rem; }
+  &.size-md { max-width: 34rem; }
+  &.size-lg { max-width: 48rem; }
+}
+
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--cb-space-md);
+  padding: var(--cb-space-lg) var(--cb-space-lg) var(--cb-space-md);
+  border-bottom: 1px solid var(--cb-line-soft);
+
+  h2 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--cb-ink);
+  }
+}
+
+.modal-sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--cb-text-muted);
+}
+
+.modal-title { flex: 1; }
+
+.modal-x {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-surface-low);
+  color: var(--cb-text-muted);
+  cursor: pointer;
+
+  svg { width: 1.125rem; height: 1.125rem; }
+  &:hover { background: var(--cb-surface-high); color: var(--cb-ink); }
+  &:focus-visible { outline: 2px solid var(--cb-primary); outline-offset: 2px; }
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--cb-space-lg);
+}
+
+.modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--cb-space-sm);
+  padding: var(--cb-space-md) var(--cb-space-lg) var(--cb-space-lg);
+
+  // Sin acciones no se ve el espacio de más
+  &:empty { display: none; }
+}
+
+@keyframes modal-fade { from { opacity: 0; } }
+@keyframes modal-rise { from { opacity: 0; transform: translateY(8px) scale(0.98); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop, .modal-panel { animation: none; }
+}
