@@ -4,6 +4,7 @@
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+@use 'sass:meta';
 @use 'tokens';
 html {
   height: 100%;
@@ -23,7 +24,9 @@ body {
   // Default the application to a light color theme. This can be changed to
   // `dark` to enable the dark color theme, or to `light dark` to defer to the
   // user's system settings.
-  color-scheme: light;
+  // CL-Sprint5 11/11/2026: `light dark`, igual que los tokens: con `light` los controles nativos (inputs de
+  // fecha, select, barras de scroll) se quedaban claros sobre las pantallas en modo oscuro.
+  color-scheme: light dark;
 
   // Set a default background, font and text colors for the application using
   // Angular Material's system-level CSS variables. Learn more about these
@@ -151,13 +154,19 @@ body {
   text-decoration: none;
   cursor: pointer;
   transition:
-    background 0.2s,
-    border-color 0.2s,
-    color 0.2s;
+    background var(--cb-dur-state),
+    border-color var(--cb-dur-state),
+    color var(--cb-dur-state),
+    transform var(--cb-dur-press) var(--cb-ease-out);
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px var(--cb-brand-ring);
+    box-shadow: var(--cb-focus-ring);
+  }
+
+  // CL-Sprint5 11/11/2026: respuesta al toque (sin mover lo de alrededor: scale no cambia el layout)
+  &:active:not(:disabled) {
+    transform: scale(0.97);
   }
 
   &:disabled {
@@ -166,28 +175,31 @@ body {
   }
 }
 
+// CL-Sprint5 11/11/2026: los colores de los botones salen de los tokens de acción y de superficie, nunca de
+// un #fff fijo: así funcionan en claro y en oscuro (antes el primario daba 1.7:1 en oscuro y el
+// secundario era blanco con texto claro).
 .cb-btn--primary {
-  background: var(--cb-brand-strong);
-  color: #fff;
+  background: var(--cb-action);
+  color: var(--cb-on-action);
   &:hover:not(:disabled) {
-    background: #8a2b00;
+    background: var(--cb-action-hover);
   }
 }
 
 .cb-btn--secondary {
   border-color: var(--cb-line);
-  background: #fff;
+  background: var(--cb-surface);
   color: var(--cb-ink-soft);
   &:hover:not(:disabled) {
-    background: var(--cb-canvas);
+    background: var(--cb-surface-high);
   }
 }
 
 .cb-btn--danger {
-  background: var(--cb-danger-strong);
-  color: #fff;
+  background: var(--cb-danger-action);
+  color: var(--cb-on-danger-action);
   &:hover:not(:disabled) {
-    background: #9f1616;
+    background: var(--cb-danger-action-hover);
   }
 }
 
@@ -195,7 +207,7 @@ body {
   padding: 0 0.85rem;
   font-size: 0.85rem;
   border-color: var(--cb-line);
-  background: #fff;
+  background: var(--cb-surface);
   color: var(--cb-ink-soft);
   &:hover:not(:disabled) {
     border-color: var(--cb-brand);
@@ -401,7 +413,7 @@ input:-webkit-autofill:focus {
   margin-top: 0.5rem;
   min-height: 50px;
   font-size: 1rem;
-  box-shadow: 0 10px 20px -8px rgba(171, 53, 0, 0.45);
+  box-shadow: 0 10px 20px -8px var(--cb-action-shadow);
   transition:
     background 0.2s,
     box-shadow 0.2s,
@@ -931,3 +943,8 @@ input:-webkit-autofill:focus {
     transition: none;
   }
 }
+
+// CL-Sprint5 11/11/2026: piezas base del sistema de diseño (botones extra, insignias, chips, esqueleto…).
+// Se cargan AL FINAL a propósito: sus variantes (.cb-btn--icon, --lg…) deben ganarle a la base .cb-btn,
+// que tiene la misma especificidad. Con @use quedarían al principio del CSS y perderían.
+@include meta.load-css('componentes');
