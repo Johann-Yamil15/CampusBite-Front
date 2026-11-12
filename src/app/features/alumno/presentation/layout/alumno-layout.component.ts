@@ -28,7 +28,8 @@ import { ModalComponent } from '@shared/ui/modal/modal.component';
 import { FavoritosFacade } from '@features/alumno/application/favoritos.facade';
 import { CarritoStore } from '@features/alumno/application/carrito.store';
 import { CarritoUiService } from '@features/alumno/presentation/carrito-ui.service';
-import { nombreDesdeCorreo } from '@features/alumno/presentation/nombre';
+import { PerfilFacade } from '@features/alumno/application/perfil.facade';
+import { SesionUiService } from '@features/alumno/presentation/sesion-ui.service';
 import { CarritoDrawerComponent } from '@features/alumno/presentation/components/carrito-drawer/carrito-drawer.component';
 import { CheckoutComponent } from '@features/alumno/presentation/components/checkout/checkout.component';
 
@@ -80,16 +81,12 @@ export class AlumnoLayoutComponent {
   /** Insignia de "Pedidos": cuántos siguen en curso. */
   protected readonly enCurso = computed(() => this.pedidos.enCurso().length);
 
-  protected readonly correo = computed(() => this.auth.user()?.email ?? null);
-  protected readonly nombre = computed(() => nombreDesdeCorreo(this.correo()));
-  protected readonly primerNombre = computed(() => this.nombre().split(' ')[0]);
-  protected readonly iniciales = computed(() =>
-    this.nombre()
-      .split(' ')
-      .slice(0, 2)
-      .map((p) => p.charAt(0))
-      .join(''),
-  );
+  // CL-Sprint5 11/11/2026 (etapa 8): nombre e iniciales de PerfilFacade, los mismos que muestra el perfil
+  private readonly perfil = inject(PerfilFacade);
+  protected readonly correo = this.perfil.correo;
+  protected readonly nombre = this.perfil.nombre;
+  protected readonly primerNombre = this.perfil.primerNombre;
+  protected readonly iniciales = this.perfil.iniciales;
 
   /** Abierto/cerrado del drawer: lo comparten la barra, la barra "Ver carrito" y las pantallas. */
   private readonly carritoUi = inject(CarritoUiService);
@@ -97,7 +94,9 @@ export class AlumnoLayoutComponent {
   /** Etapa 5: el checkout (modal) también vive en el layout. */
   protected readonly checkoutAbierto = this.carritoUi.checkoutAbierto;
   protected readonly menuAbierto = signal(false);
-  protected readonly confirmandoSalida = signal(false);
+  /** CL-Sprint5 11/11/2026 (etapa 8): la confirmación también la abre el Perfil. */
+  private readonly sesionUi = inject(SesionUiService);
+  protected readonly confirmandoSalida = this.sesionUi.confirmandoSalida;
 
   private readonly menu = viewChild<ElementRef<HTMLElement>>('menuUsuario');
 
@@ -106,6 +105,8 @@ export class AlumnoLayoutComponent {
     this.pedidos.cargar().subscribe({ error: () => undefined });
     // CL-Sprint5 11/11/2026 (etapa 7): los corazones de todas las pantallas leen estos favoritos
     this.favoritos.cargar().subscribe({ error: () => undefined });
+    // CL-Sprint5 11/11/2026 (etapa 8): el nombre que escribió el alumno y sus preferencias
+    this.perfil.cargar().subscribe({ error: () => undefined });
 
     // Tras recargar la página la sesión sigue (token) pero el usuario no está en memoria: se pide a /me
     // para el saludo. Si falla, se saluda como "Alumno"; un 401 ya lo maneja el errorInterceptor.

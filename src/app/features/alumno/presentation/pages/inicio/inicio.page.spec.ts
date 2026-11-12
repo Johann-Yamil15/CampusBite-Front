@@ -6,7 +6,7 @@ import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
 import { AuthFacade } from '@features/auth';
 import { provideCatalogo } from '@features/catalogo';
 import { MisPedidosFacade, provideOrdenes } from '@features/ordenes';
-import { provideFavoritos } from '@features/alumno/alumno.providers';
+import { provideFavoritos, providePerfil } from '@features/alumno/alumno.providers';
 import { InicioPage } from './inicio.page';
 
 /** CL-Sprint5 11/11/2026: el inicio arma sus secciones con el catálogo mock (sin latencia). */
@@ -22,6 +22,7 @@ describe('InicioPage', () => {
         provideCatalogo(),
         provideOrdenes(),
         provideFavoritos(),
+        providePerfil(),
         { provide: MOCK_LATENCIA_MS, useValue: 0 },
         {
           provide: AuthFacade,

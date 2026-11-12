@@ -14,14 +14,13 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AuthFacade } from '@features/auth';
 import { CatalogoFacade, Promocion } from '@features/catalogo';
 import { ETIQUETA_ETAPA, MisPedidosFacade, etapa } from '@features/ordenes';
 import { IconComponent } from '@shared/ui/icon/icon.component';
 import { FavoritosFacade } from '@features/alumno/application/favoritos.facade';
 import { CafeteriaCardComponent } from '@features/alumno/presentation/components/cafeteria-card/cafeteria-card.component';
 import { PlatilloCardComponent } from '@features/alumno/presentation/components/platillo-card/platillo-card.component';
-import { nombreDesdeCorreo } from '@features/alumno/presentation/nombre';
+import { PerfilFacade } from '@features/alumno/application/perfil.facade';
 
 interface CategoriaVisual {
   nombre: string;
@@ -38,8 +37,8 @@ interface CategoriaVisual {
 export class InicioPage implements OnInit {
   private readonly catalogo = inject(CatalogoFacade);
   private readonly favoritos = inject(FavoritosFacade);
+  private readonly perfil = inject(PerfilFacade);
   private readonly pedidos = inject(MisPedidosFacade);
-  private readonly auth = inject(AuthFacade);
 
   protected readonly cargando = this.catalogo.cargando;
   protected readonly error = this.catalogo.error;
@@ -49,8 +48,9 @@ export class InicioPage implements OnInit {
   protected readonly etiquetaEtapa = ETIQUETA_ETAPA;
   protected readonly etapa = etapa;
 
+  // CL-Sprint5 11/11/2026 (etapa 8): el mismo nombre del layout y del perfil
   protected readonly primerNombre = computed(
-    () => nombreDesdeCorreo(this.auth.user()?.email).split(' ')[0],
+    () => this.perfil.primerNombre(),
   );
 
   /** Cada categoría con la foto de su platillo mejor calificado. */

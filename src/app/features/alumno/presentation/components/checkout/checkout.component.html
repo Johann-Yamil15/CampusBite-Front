@@ -22,6 +22,9 @@
         @if (cafeteria(); as c) {
           <p class="co-nota">
             <app-icon nombre="ubicacion" />Recoges en {{ c.puntoEntrega }}{{ c.cierraA ? ' · cierra a las ' + c.cierraA : '' }}
+            @if (esPuntoFrecuente()) {
+              <span class="cb-badge cb-badge--marca co-frecuente">Tu punto frecuente</span>
+            }
           </p>
         }
       } @else if (cafeteria()) {
@@ -42,7 +45,7 @@
           <button type="button" role="radio" class="co-metodo" [attr.aria-checked]="metodo() === m" (click)="metodo.set(m)">
             <span class="co-metodo-icono"><app-icon [nombre]="infoMetodo[m].icono" /></span>
             <span class="co-metodo-texto">
-              <strong>{{ infoMetodo[m].etiqueta }}</strong>
+              <strong>{{ infoMetodo[m].etiqueta }}@if (m === metodoPreferido()) {<span class="co-preferido"> · tu preferido</span>}</strong>
               <small>{{ infoMetodo[m].detalle }}</small>
             </span>
             <span class="co-metodo-check" aria-hidden="true">
@@ -53,6 +56,9 @@
           </button>
         }
       </div>
+      @if (preferidoNoAceptado(); as m) {
+        <p class="co-nota"><app-icon nombre="info" />Esta cafetería no acepta {{ infoMetodo[m].etiqueta.toLowerCase() }}, tu método preferido.</p>
+      }
     </section>
 
     <!-- Notas -->

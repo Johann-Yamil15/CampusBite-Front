@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { provideFavoritos } from '@features/alumno/alumno.providers';
+import { provideFavoritos, providePerfil } from '@features/alumno/alumno.providers';
 
 /**
  * JY-Sprint4 05/11/2026: rutas del alumno (cascarón visual). Todas cuelgan de AlumnoLayoutComponent para
@@ -15,7 +15,7 @@ export default [
   { path: 'inicio', pathMatch: 'full', redirectTo: '' },
   {
     path: '',
-    providers: [provideFavoritos()],
+    providers: [provideFavoritos(), providePerfil()],
     loadComponent: () =>
       import('./presentation/layout/alumno-layout.component').then((m) => m.AlumnoLayoutComponent),
     children: [

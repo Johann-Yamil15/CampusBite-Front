@@ -30,6 +30,7 @@ import {
   opcionesRecogida,
 } from '@features/alumno/domain/models/recogida.model';
 import { CarritoUiService } from '@features/alumno/presentation/carrito-ui.service';
+import { PerfilFacade } from '@features/alumno/application/perfil.facade';
 
 interface InfoMetodo {
   etiqueta: string;
@@ -75,6 +76,7 @@ export class CheckoutComponent {
   private readonly pedidos = inject(MisPedidosFacade);
   private readonly ui = inject(CarritoUiService);
   private readonly router = inject(Router);
+  private readonly perfil = inject(PerfilFacade);
 
   protected readonly infoMetodo = INFO_METODO;
   protected readonly maxNotas = MAX_NOTAS_ORDEN;
@@ -90,6 +92,17 @@ export class CheckoutComponent {
   });
 
   protected readonly metodos = computed<MetodoPago[]>(() => this.cafeteria()?.metodosPago ?? []);
+
+  // CL-Sprint5 11/11/2026 (etapa 8): preferencias del Perfil como valores iniciales
+  protected readonly metodoPreferido = computed(() => this.perfil.preferencias().metodoPago);
+  /** El preferido no se puede usar aquí: se avisa en vez de cambiarlo sin decir nada. */
+  protected readonly preferidoNoAceptado = computed(() => {
+    const m = this.metodoPreferido();
+    return m && this.metodos().length && !this.metodos().includes(m) ? m : null;
+  });
+  protected readonly esPuntoFrecuente = computed(
+    () => !!this.cafeteria() && this.perfil.preferencias().idCafeteriaFrecuente === this.carrito.idCafeteria(),
+  );
 
   /** Índice del horario elegido (0 = lo antes posible). */
   protected readonly recogida = signal(0);
@@ -112,12 +125,15 @@ export class CheckoutComponent {
     const reloj = setInterval(() => this.ahora.set(new Date()), REFRESCO_MS);
     inject(DestroyRef).onDestroy(() => clearInterval(reloj));
 
-    // El primer método que acepta la cafetería queda elegido (el alumno lo cambia con un toque)
+    // Queda elegido el método preferido del Perfil si esta cafetería lo acepta; si no, el primero que acepta
+    // (el alumno lo cambia con un toque)
     effect(() => {
       const metodos = this.metodos();
+      const preferido = this.metodoPreferido();
       untracked(() => {
         const actual = this.metodo();
-        if (!actual || !metodos.includes(actual)) this.metodo.set(metodos[0] ?? null);
+        if (actual && metodos.includes(actual)) return;
+        this.metodo.set(preferido && metodos.includes(preferido) ? preferido : (metodos[0] ?? null));
       });
     });
 

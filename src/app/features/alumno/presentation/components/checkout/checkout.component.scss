@@ -275,3 +275,13 @@
     transition: none;
   }
 }
+
+// CL-Sprint5 11/11/2026 (etapa 8): marcas de las preferencias del Perfil
+.co-frecuente {
+  margin-left: 0.35rem;
+}
+
+.co-preferido {
+  font-weight: 600;
+  color: var(--cb-primary);
+}
