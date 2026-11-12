@@ -139,7 +139,8 @@
       }
       <span class="tb-hora" [class.tarde]="minutos < 0 && o.estado !== 'lista'">
         <app-icon nombre="reloj" />{{ o.recogidaEn | date: 'HH:mm' }}
-        <small>{{ minutos >= 0 ? 'en ' + minutos + ' min' : 'hace ' + -minutos + ' min' }}</small>
+        <!-- Lejos de la hora (pedidos de otro día) se muestra la fecha, no "hace 9000 min" -->
+        <small>{{ minutos > 180 || minutos < -180 ? (o.recogidaEn | date: 'd MMM') : minutos >= 0 ? 'en ' + minutos + ' min' : 'hace ' + -minutos + ' min' }}</small>
       </span>
     </header>
 
@@ -199,7 +200,7 @@
           autocomplete="off"
           pattern="[0-9]*"
           [attr.maxlength]="largoCodigo"
-          placeholder="000000"
+          placeholder="······"
           data-modal-focus
           [value]="codigo()"
           (input)="escribirCodigo($event)"

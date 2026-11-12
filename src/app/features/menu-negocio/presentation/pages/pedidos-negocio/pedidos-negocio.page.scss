@@ -207,6 +207,7 @@
 }
 
 .tb-folio {
+  white-space: nowrap;
   font-size: var(--cb-text-md);
   font-weight: 800;
   color: var(--cb-ink);
@@ -356,6 +357,12 @@
 
 .cb-field .tb-codigo {
   font-size: 1.9rem;
+
+  &::placeholder {
+    color: var(--cb-text-muted);
+    opacity: 0.45;
+  }
+
   font-weight: 800;
   letter-spacing: 0.5em;
   text-align: center;
