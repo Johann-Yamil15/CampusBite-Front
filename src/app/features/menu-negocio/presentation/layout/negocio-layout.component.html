@@ -3,6 +3,7 @@
 <div class="ng-shell">
   <app-negocio-nav
     [cafeteria]="cafeterias.selected()"
+    [pedidosNuevos]="pedidosNuevos()"
     (goToMenu)="goToMenu()"
     (logout)="logout()"
   />

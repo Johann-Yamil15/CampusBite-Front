@@ -224,3 +224,17 @@
     transition: none;
   }
 }
+
+// CL-Sprint5 11/11/2026 (etapa 9): insignia de pedidos nuevos en "Pedidos"
+.nav-badge {
+  margin-left: auto;
+  min-width: 1.35rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #ab3500;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: center;
+}

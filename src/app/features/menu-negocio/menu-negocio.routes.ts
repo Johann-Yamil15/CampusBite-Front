@@ -63,6 +63,15 @@ export default [
             (m) => m.HorarioPage,
           ),
       },
+      {
+        // CL-Sprint5 11/11/2026 (etapa 9): datos del negocio y métodos de pago (CafeteriaFacade.update)
+        path: 'configuracion',
+        title: 'Configuración · CampusBite',
+        loadComponent: () =>
+          import('@features/menu-negocio/presentation/pages/configuracion/configuracion.page').then(
+            (m) => m.ConfiguracionPage,
+          ),
+      },
     ],
   },
 ] satisfies Routes;
