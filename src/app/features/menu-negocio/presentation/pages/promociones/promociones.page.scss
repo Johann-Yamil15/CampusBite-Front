@@ -122,3 +122,22 @@
   color: var(--cb-ink-soft);
 }
 
+
+// CL-Sprint5 11/11/2026 (etapa 9): errores por campo e íconos del sistema de diseño
+.promo-error {
+  color: var(--cb-danger);
+  font-weight: 700;
+}
+
+.promo-fechas app-icon {
+  --icon-size: 1rem;
+}
+
+.vacio app-icon {
+  --icon-size: 2.75rem;
+  color: var(--cb-primary-container);
+}
+
+.pg-head .cb-btn {
+  --icon-size: 1.1rem;
+}

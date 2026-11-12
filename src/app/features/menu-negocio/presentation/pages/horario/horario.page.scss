@@ -210,3 +210,26 @@
   }
 }
 
+
+// CL-Sprint5 11/11/2026 (etapa 9): carga, día de hoy y vacío con app-icon
+.hr-cargando {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cb-space-md);
+}
+
+.dia.hoy {
+  padding-inline: 0.6rem;
+  border-radius: var(--cb-radius);
+  background: var(--cb-brand-soft);
+
+  small {
+    font-weight: 600;
+    color: var(--cb-primary);
+  }
+}
+
+.vacio app-icon {
+  --icon-size: 2.75rem;
+  color: var(--cb-primary-container);
+}
