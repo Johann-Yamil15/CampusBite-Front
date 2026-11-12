@@ -25,6 +25,7 @@ import { MisPedidosFacade } from '@features/ordenes';
 import { IconComponent } from '@shared/ui/icon/icon.component';
 import { NombreIcono } from '@shared/ui/icon/icons';
 import { ModalComponent } from '@shared/ui/modal/modal.component';
+import { FavoritosFacade } from '@features/alumno/application/favoritos.facade';
 import { CarritoStore } from '@features/alumno/application/carrito.store';
 import { CarritoUiService } from '@features/alumno/presentation/carrito-ui.service';
 import { nombreDesdeCorreo } from '@features/alumno/presentation/nombre';
@@ -71,6 +72,7 @@ export class AlumnoLayoutComponent {
   private readonly router = inject(Router);
   private readonly auth = inject(AuthFacade);
   private readonly pedidos = inject(MisPedidosFacade);
+  private readonly favoritos = inject(FavoritosFacade);
   protected readonly carrito = inject(CarritoStore);
 
   protected readonly nav = NAV;
@@ -102,6 +104,8 @@ export class AlumnoLayoutComponent {
   constructor() {
     // La insignia y el perfil necesitan los pedidos aunque no se abra /pedidos
     this.pedidos.cargar().subscribe({ error: () => undefined });
+    // CL-Sprint5 11/11/2026 (etapa 7): los corazones de todas las pantallas leen estos favoritos
+    this.favoritos.cargar().subscribe({ error: () => undefined });
 
     // Tras recargar la página la sesión sigue (token) pero el usuario no está en memoria: se pide a /me
     // para el saludo. Si falla, se saluda como "Alumno"; un 401 ya lo maneja el errorInterceptor.

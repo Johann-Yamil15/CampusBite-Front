@@ -9,6 +9,8 @@
       <span class="cb-badge cb-badge--foto pc-oferta">Cerrada ahora</span>
     }
   </button>
+  <!-- CL-Sprint5 11/11/2026 (etapa 7): corazón de favoritos sobre la foto -->
+  <app-corazon class="pc-fav" tipo="platillo" [id]="p.idProducto" [nombre]="p.producto" />
 
   <div class="pc-cuerpo">
     <h3 class="pc-nombre">
@@ -38,9 +40,16 @@
       @if (cerrada()) {
         <span class="pc-no-disponible">No disponible</span>
       } @else if (enCarrito() === 0) {
-        <button type="button" class="pc-agregar" [attr.aria-label]="'Agregar ' + p.producto + ' al carrito'" (click)="agregarUno()">
-          <app-icon nombre="mas" [grosor]="2.25" />
-        </button>
+        @if (agregarConTexto()) {
+          <!-- CL-Sprint5 11/11/2026 (etapa 7): en Favoritos el botón dice "Agregar" -->
+          <button type="button" class="cb-btn cb-btn--primary cb-btn--small pc-agregar-texto" (click)="agregarUno()">
+            <app-icon nombre="mas" [grosor]="2.25" />Agregar<span class="sr-only"> {{ p.producto }} al carrito</span>
+          </button>
+        } @else {
+          <button type="button" class="pc-agregar" [attr.aria-label]="'Agregar ' + p.producto + ' al carrito'" (click)="agregarUno()">
+            <app-icon nombre="mas" [grosor]="2.25" />
+          </button>
+        }
       } @else {
         <app-cantidad
           [valor]="enCarrito()"

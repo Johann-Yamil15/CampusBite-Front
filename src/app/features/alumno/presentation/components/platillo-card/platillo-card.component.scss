@@ -6,6 +6,7 @@
 }
 
 .pc {
+  position: relative;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -199,4 +200,17 @@
   .pc-agregar {
     transition: none;
   }
+}
+
+// CL-Sprint5 11/11/2026 (etapa 7): corazón sobre la esquina de la foto (fuera del botón de la foto, para no
+// anidar botones) y botón "Agregar" con texto de Favoritos.
+.pc-fav {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+}
+
+.pc-agregar-texto {
+  --icon-size: 1rem;
 }

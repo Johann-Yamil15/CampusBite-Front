@@ -31,16 +31,7 @@
         </div>
 
         <div class="ti-acciones">
-          <button
-            type="button"
-            class="cb-btn cb-btn--secondary ti-fav"
-            [class.activo]="favorita()"
-            [attr.aria-pressed]="favorita()"
-            (click)="alternarFavorito()"
-          >
-            <app-icon [nombre]="favorita() ? 'corazon-lleno' : 'corazon'" />
-            {{ favorita() ? 'Guardada' : 'Guardar' }}
-          </button>
+          <app-corazon tipo="cafeteria" variante="etiqueta" [id]="c.idCafeteria" [nombre]="c.cafeteria" />
           <button type="button" class="cb-btn cb-btn--icon" aria-label="Compartir esta cafetería" (click)="compartir()">
             <app-icon nombre="copiar" />
           </button>

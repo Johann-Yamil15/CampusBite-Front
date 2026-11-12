@@ -19,6 +19,7 @@ import { IconComponent } from '@shared/ui/icon/icon.component';
 import { NombreIcono } from '@shared/ui/icon/icons';
 import { ToastService } from '@shared/ui/toast/toast.service';
 import { FavoritosFacade } from '@features/alumno/application/favoritos.facade';
+import { CorazonComponent } from '@features/alumno/presentation/components/corazon/corazon.component';
 import { PlatilloCardComponent } from '@features/alumno/presentation/components/platillo-card/platillo-card.component';
 
 const PROMOS = 'Promociones';
@@ -36,7 +37,7 @@ interface SeccionMenu {
 
 @Component({
   selector: 'app-tienda-page',
-  imports: [RouterLink, CalificacionComponent, IconComponent, PlatilloCardComponent],
+  imports: [RouterLink, CalificacionComponent, IconComponent, CorazonComponent, PlatilloCardComponent],
   templateUrl: './tienda.page.html',
   styleUrl: './tienda.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,7 +58,6 @@ export class TiendaPage {
 
   protected readonly cafeteria = computed(() => this.catalogo.cafeteria(this.id()));
 
-  protected readonly favorita = computed(() => this.favoritos.ids().has(this.id()));
 
   /** Los platillos de la tienda, con su cafetería (lo que espera la tarjeta). */
   private readonly platillos = computed<PlatilloCatalogo[]>(() => {
@@ -116,18 +116,6 @@ export class TiendaPage {
       },
     });
     this.favoritos.cargar().subscribe({ error: () => undefined });
-  }
-
-  protected alternarFavorito(): void {
-    const c = this.cafeteria();
-    if (!c) return;
-    this.favoritos.alternar('cafeteria', c.idCafeteria).subscribe({
-      next: (guardada) =>
-        this.toast.ok(
-          guardada ? `${c.cafeteria} se guardó en tus favoritos.` : `${c.cafeteria} salió de tus favoritos.`,
-        ),
-      error: (e: ApiError) => this.toast.error(e?.message ?? 'No se pudo actualizar tus favoritos.'),
-    });
   }
 
   /** Comparte con el menú del sistema si existe (teléfono); si no, copia el enlace. */

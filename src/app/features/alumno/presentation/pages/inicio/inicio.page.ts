@@ -14,12 +14,10 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ApiError } from '@core/http/api-error';
 import { AuthFacade } from '@features/auth';
 import { CatalogoFacade, Promocion } from '@features/catalogo';
 import { ETIQUETA_ETAPA, MisPedidosFacade, etapa } from '@features/ordenes';
 import { IconComponent } from '@shared/ui/icon/icon.component';
-import { ToastService } from '@shared/ui/toast/toast.service';
 import { FavoritosFacade } from '@features/alumno/application/favoritos.facade';
 import { CafeteriaCardComponent } from '@features/alumno/presentation/components/cafeteria-card/cafeteria-card.component';
 import { PlatilloCardComponent } from '@features/alumno/presentation/components/platillo-card/platillo-card.component';
@@ -42,7 +40,6 @@ export class InicioPage implements OnInit {
   private readonly favoritos = inject(FavoritosFacade);
   private readonly pedidos = inject(MisPedidosFacade);
   private readonly auth = inject(AuthFacade);
-  private readonly toast = inject(ToastService);
 
   protected readonly cargando = this.catalogo.cargando;
   protected readonly error = this.catalogo.error;
@@ -86,18 +83,6 @@ export class InicioPage implements OnInit {
     this.catalogo.cargar(forzar).subscribe({ error: () => undefined });
   }
 
-  protected esFavorita(idCafeteria: string): boolean {
-    return this.favoritos.esFavorito('cafeteria', idCafeteria);
-  }
-
-  protected alternarFavorito(idCafeteria: string): void {
-    const nombre = this.catalogo.cafeteria(idCafeteria)?.cafeteria ?? 'La cafetería';
-    this.favoritos.alternar('cafeteria', idCafeteria).subscribe({
-      next: (guardada) =>
-        this.toast.ok(guardada ? `${nombre} se guardó en tus favoritos.` : `${nombre} salió de tus favoritos.`),
-      error: (e: ApiError) => this.toast.error(e?.message ?? 'No se pudo actualizar tus favoritos.'),
-    });
-  }
 
   /** A dónde lleva una promoción: la tienda de su cafetería o el buscador por categoría. */
   protected enlacePromo(promo: Promocion): string[] {

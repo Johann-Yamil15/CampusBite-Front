@@ -11,6 +11,7 @@ import { IconComponent } from '@shared/ui/icon/icon.component';
 import { ModalComponent } from '@shared/ui/modal/modal.component';
 import { ToastService } from '@shared/ui/toast/toast.service';
 import { CarritoStore } from '@features/alumno/application/carrito.store';
+import { CorazonComponent } from '@features/alumno/presentation/components/corazon/corazon.component';
 import {
   CarritoDeOtraCafeteriaError,
   ItemCarrito,
@@ -21,7 +22,7 @@ export const SIN_IMAGEN = 'assets/images/producto-sin-imagen.svg';
 
 @Component({
   selector: 'app-platillo-card',
-  imports: [CurrencyPipe, CalificacionComponent, CantidadComponent, IconComponent, ModalComponent],
+  imports: [CurrencyPipe, CalificacionComponent, CantidadComponent, CorazonComponent, IconComponent, ModalComponent],
   templateUrl: './platillo-card.component.html',
   styleUrl: './platillo-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,6 +33,8 @@ export class PlatilloCardComponent {
   readonly mostrarCafeteria = input(true);
   /** La cafetería está cerrada: se ve el platillo pero no se puede pedir. */
   readonly cerrada = input(false);
+  /** CL-Sprint5 11/11/2026 (etapa 7): botón "Agregar" con texto en vez del "+" (pantalla de Favoritos). */
+  readonly agregarConTexto = input(false);
 
   private readonly carrito = inject(CarritoStore);
   private readonly toast = inject(ToastService);

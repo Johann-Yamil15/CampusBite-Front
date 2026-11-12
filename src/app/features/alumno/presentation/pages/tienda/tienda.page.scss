@@ -109,19 +109,6 @@
   gap: var(--cb-space-sm);
 }
 
-.ti-fav {
-  --icon-size: 1.15rem;
-
-  &.activo {
-    border-color: var(--cb-danger-line);
-    color: var(--cb-danger);
-
-    app-icon {
-      animation: cb-rebote var(--cb-dur-enter) var(--cb-ease-spring);
-    }
-  }
-}
-
 .ti-datos {
   display: grid;
   grid-template-columns: 1fr;
@@ -216,8 +203,3 @@
   color: var(--cb-primary-container);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .ti-fav.activo app-icon {
-    animation: none;
-  }
-}

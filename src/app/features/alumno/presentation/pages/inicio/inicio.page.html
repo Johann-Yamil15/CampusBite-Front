@@ -126,8 +126,6 @@
         @for (c of cafeterias(); track c.idCafeteria) {
           <app-cafeteria-card
             [cafeteria]="c"
-            [favorita]="esFavorita(c.idCafeteria)"
-            (alternarFavorito)="alternarFavorito($event)"
           />
         } @empty {
           @if (!error()) {

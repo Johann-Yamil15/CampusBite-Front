@@ -1,15 +1,16 @@
 // CL-Sprint5 11/11/2026: tarjeta de cafetería (etapa 3). Portada con velo y nombre encima en blanco (el velo
 // garantiza el contraste sobre cualquier foto y en cualquier tema), corazón de favorito, calificación,
 // tiempo, punto de entrega y si está abierta. Toda la tarjeta lleva a la tienda /cafeterias/:id.
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MenuCafeteria } from '@features/catalogo';
 import { CalificacionComponent } from '@shared/ui/calificacion/calificacion.component';
 import { IconComponent } from '@shared/ui/icon/icon.component';
+import { CorazonComponent } from '@features/alumno/presentation/components/corazon/corazon.component';
 
 @Component({
   selector: 'app-cafeteria-card',
-  imports: [RouterLink, CalificacionComponent, IconComponent],
+  imports: [RouterLink, CalificacionComponent, IconComponent, CorazonComponent],
   template: `
     @let c = cafeteria();
     <article class="cc cb-card cb-card--interactiva" [class.cc-cerrada]="!c.abierta">
@@ -35,16 +36,8 @@ import { IconComponent } from '@shared/ui/icon/icon.component';
         [attr.aria-label]="'Ver el menú de ' + c.cafeteria"
       ></a>
 
-      <button
-        type="button"
-        class="cc-fav"
-        [class.activo]="favorita()"
-        [attr.aria-pressed]="favorita()"
-        [attr.aria-label]="(favorita() ? 'Quitar ' : 'Guardar ') + c.cafeteria + (favorita() ? ' de favoritos' : ' en favoritos')"
-        (click)="alternarFavorito.emit(c.idCafeteria)"
-      >
-        <app-icon [nombre]="favorita() ? 'corazon-lleno' : 'corazon'" />
-      </button>
+      <!-- CL-Sprint5 11/11/2026 (etapa 7): el corazón compartido (se sincroniza en toda la app) -->
+      <app-corazon class="cc-fav" tipo="cafeteria" [id]="c.idCafeteria" [nombre]="c.cafeteria" />
 
       <div class="cc-cuerpo">
         <p class="cb-meta">
@@ -128,27 +121,6 @@ import { IconComponent } from '@shared/ui/icon/icon.component';
       top: 0.6rem;
       right: 0.6rem;
       z-index: 3;
-      display: grid;
-      place-items: center;
-      width: 2.5rem;
-      height: 2.5rem;
-      border: 0;
-      border-radius: var(--cb-radius-pill);
-      background: var(--cb-surface);
-      color: var(--cb-ink-soft);
-      box-shadow: var(--cb-shadow-sm);
-      cursor: pointer;
-      --icon-size: 1.25rem;
-    }
-    .cc-fav:focus-visible {
-      outline: none;
-      box-shadow: var(--cb-focus-ring);
-    }
-    .cc-fav.activo {
-      color: var(--cb-danger-action);
-    }
-    .cc-fav.activo app-icon {
-      animation: cb-rebote var(--cb-dur-enter) var(--cb-ease-spring);
     }
     .cc-cuerpo {
       display: flex;
@@ -166,16 +138,9 @@ import { IconComponent } from '@shared/ui/icon/icon.component';
       color: var(--cb-text-muted);
       --icon-size: 0.95rem;
     }
-    @media (prefers-reduced-motion: reduce) {
-      .cc-fav.activo app-icon {
-        animation: none;
-      }
-    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CafeteriaCardComponent {
   readonly cafeteria = input.required<MenuCafeteria>();
-  readonly favorita = input(false);
-  readonly alternarFavorito = output<string>();
 }

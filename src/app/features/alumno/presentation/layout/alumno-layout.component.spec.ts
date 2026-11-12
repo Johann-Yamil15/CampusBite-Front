@@ -7,6 +7,7 @@ import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
 import { AuthFacade } from '@features/auth';
 import { provideCatalogo } from '@features/catalogo';
 import { provideOrdenes } from '@features/ordenes';
+import { provideFavoritos } from '@features/alumno/alumno.providers';
 import { nombreDesdeCorreo } from '@features/alumno/presentation/nombre';
 import { AlumnoLayoutComponent } from './alumno-layout.component';
 
@@ -28,6 +29,7 @@ describe('AlumnoLayoutComponent', () => {
         provideRouter([]),
         provideOrdenes(),
         provideCatalogo(),
+        provideFavoritos(),
         { provide: MOCK_LATENCIA_MS, useValue: 0 },
         { provide: AuthFacade, useValue: auth },
       ],

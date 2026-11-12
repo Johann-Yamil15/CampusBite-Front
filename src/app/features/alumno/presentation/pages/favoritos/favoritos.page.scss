@@ -1,149 +1,182 @@
-// JY-Sprint4 05/11/2026: favoritos. El mobiliario común (.pg, .chip, .vacio) está en styles.scss
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+// CL-Sprint5 11/11/2026 (etapa 7): Favoritos. Platillos: 2 columnas en teléfono, 3 en tableta y 4 en
+// escritorio (como la tienda). Cafeterías: 1, 2 y 3. El mobiliario común (.pg, .tabs, .vacio) está en
+// styles.scss.
+@use 'breakpoints' as *;
+
+.fv {
+  display: flex;
+  flex-direction: column;
   gap: var(--cb-space-md);
 }
 
-.grid-full {
-  grid-column: 1 / -1;
+.fv-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--cb-space-md);
+
+  @media (min-width: $cb-bp-tablet) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  @media (min-width: $cb-bp-desktop) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  > li {
+    min-width: 0;
+  }
+
+  > .vacio {
+    grid-column: 1 / -1;
+  }
 }
 
-.caf {
+.fv-grid--cafeterias {
+  grid-template-columns: 1fr;
+
+  @media (min-width: $cb-bp-tablet) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: $cb-bp-desktop) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.vacio app-icon {
+  --icon-size: 2.75rem;
+  color: var(--cb-primary-container);
+}
+
+// ---------- Ya no disponible ----------
+.fv-retirado {
+  position: relative;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  background: var(--cb-surface);
-  border: 1px solid var(--cb-line-soft);
-  border-radius: var(--cb-radius-lg);
-  box-shadow: var(--cb-shadow-sm);
+  padding: 0;
   overflow: hidden;
 }
 
-.caf-foto {
-  position: relative;
-  aspect-ratio: 16 / 10;
-  background: var(--cb-surface-low);
+.fv-retirado-foto {
+  aspect-ratio: 4 / 3;
 
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
+    filter: grayscale(1);
+    opacity: 0.6;
+  }
+
+  &.cb-media--16x9 {
+    aspect-ratio: 16 / 9;
   }
 }
 
-.corazon {
+.fv-retirado-badge {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+}
+
+.fv-fav {
   position: absolute;
   top: 0.5rem;
   right: 0.5rem;
-  display: grid;
-  place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 0;
-  border-radius: var(--cb-radius-pill);
-  background: var(--cb-surface);
-  color: var(--cb-primary);
-  cursor: pointer;
-  box-shadow: var(--cb-shadow-sm);
-
-  svg {
-    width: 1.15rem;
-    height: 1.15rem;
-  }
-
-  &:hover {
-    background: var(--cb-brand-soft);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--cb-primary);
-    outline-offset: 2px;
-  }
+  z-index: 2;
 }
 
-.cerrada {
-  position: absolute;
-  bottom: 0.5rem;
-  left: 0.5rem;
-  padding: 0.15rem 0.55rem;
-  border-radius: var(--cb-radius-pill);
-  // Velo oscuro: el blanco mantiene contraste sobre cualquier foto
-  background: rgba(27, 28, 28, 0.78);
-  color: #fff;
-  font-size: 0.6875rem;
-  font-weight: 800;
-}
-
-.caf-cuerpo {
+.fv-retirado-cuerpo {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  padding: var(--cb-space-md);
-  flex: 1;
-}
+  align-items: flex-start;
+  gap: 0.4rem;
+  padding: 0.75rem 0.85rem 0.9rem;
 
-.caf-top {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-
-  h2 {
+  h3 {
     margin: 0;
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: var(--cb-text-md);
+    font-weight: 800;
     color: var(--cb-ink);
+  }
+
+  .cb-btn {
+    margin-top: auto;
   }
 }
 
-.caf-meta {
+.fv-retirado-caf {
   display: flex;
   align-items: center;
   gap: 0.3rem;
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: var(--cb-text-sm);
   color: var(--cb-text-muted);
 
-  svg {
-    width: 1rem;
-    height: 1rem;
-    flex-shrink: 0;
-  }
+  --icon-size: 0.95rem;
 }
 
-.caf-datos {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+.fv-retirado-nota {
   margin: 0;
-  font-size: 0.8125rem;
-  color: var(--cb-ink-muted);
+  font-size: var(--cb-text-sm);
+  color: var(--cb-ink-soft);
 }
 
-.estrella {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.2rem;
-  font-weight: 700;
-  color: var(--cb-secondary);
-
-  svg {
-    width: 0.9rem;
-    height: 0.9rem;
-  }
-}
-
-.caf-acciones {
+// ---------- Carga y error ----------
+.fv-esqueleto {
   display: flex;
-  gap: 0.4rem;
-  margin-top: auto;
-  padding-top: var(--cb-space-sm);
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
 }
 
-.cb-btn--compacto {
-  flex: 1;
-  min-height: 38px;
-  padding: 0 0.75rem;
-  font-size: 0.8125rem;
+.fv-esq-foto {
+  aspect-ratio: 4 / 3;
+  border-radius: 0;
+}
+
+.fv-grid--cafeterias .fv-esq-foto {
+  aspect-ratio: 16 / 9;
+}
+
+.fv-esq-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem;
+}
+
+.fv-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--cb-space-sm) var(--cb-space-md);
+  padding: var(--cb-space-md);
+  border-color: var(--cb-danger-line);
+
+  > app-icon {
+    color: var(--cb-danger);
+
+    --icon-size: 1.5rem;
+  }
+
+  > div {
+    flex: 1;
+    min-width: 12rem;
+  }
+
+  strong {
+    color: var(--cb-ink);
+  }
+
+  p {
+    margin: 0.15rem 0 0;
+    font-size: var(--cb-text-sm);
+    color: var(--cb-text-muted);
+  }
 }
