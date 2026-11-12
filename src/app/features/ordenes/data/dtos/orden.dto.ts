@@ -41,6 +41,8 @@ export interface OrdenDto {
   metodo: MetodoPagoDto;
   estadoPago: EstadoPagoDto;
   notas: string | null;
+  /** CL-Sprint5 11/11/2026 (etapa 9): opcional en el contrato; null si no se canceló. */
+  motivoCancelacion?: string | null;
   lineas: LineaOrdenDto[];
 }
 

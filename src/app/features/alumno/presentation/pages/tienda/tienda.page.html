@@ -66,6 +66,21 @@
       </dl>
     </header>
 
+    <!-- CL-Sprint5 11/11/2026 (etapa 9): promociones activas del local (las publica el encargado) -->
+    @if (promociones().length) {
+      <section class="ti-promos" aria-label="Promociones de {{ c.cafeteria }}">
+        @for (p of promociones(); track p.idPromocion) {
+          <article class="ti-promo">
+            <span class="cb-badge cb-badge--promo">{{ p.etiqueta }}</span>
+            <div>
+              <strong>{{ p.titulo }}</strong>
+              <p>{{ p.subtitulo }}</p>
+            </div>
+          </article>
+        }
+      </section>
+    }
+
     @if (!c.abierta) {
       <p class="ti-cerrada" role="status">
         <app-icon nombre="info" />

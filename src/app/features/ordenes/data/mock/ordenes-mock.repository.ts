@@ -1,6 +1,7 @@
 import { DestroyRef, Injectable, InjectionToken, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { MockBackend, MockHttpError } from '@core/mock/mock-backend';
+import { DemoNegocioStore, aMinutos } from '@core/mock/demo-negocio.store';
 import {
   DEMO_ALUMNO,
   DEMO_CAFETERIAS,
@@ -58,6 +59,13 @@ export class OrdenesMockRepository extends OrdenesRepository {
   private readonly backend = inject(MockBackend);
   private readonly registros: RegistroOrdenMock[] = ordenesDemo();
   private readonly cocina = inject(MOCK_COCINA);
+  private readonly negocio = inject(DemoNegocioStore);
+  /**
+   * CL-Sprint5 11/11/2026 (etapa 9): cuándo pidió el tablero del negocio sus órdenes por última vez. Mientras
+   * el encargado tenga el tablero abierto (lo refresca cada pocos segundos) la cocina simulada no mueve
+   * nada: las transiciones las hace él.
+   */
+  private ultimoTablero = 0;
   private readonly timers = new Set<ReturnType<typeof setTimeout>>();
   /** Órdenes que ya tienen un reporte (uno por orden). */
   private readonly reportadas = new Set<string>();
@@ -73,6 +81,9 @@ export class OrdenesMockRepository extends OrdenesRepository {
     return this.backend.responder(() => {
       const c = DEMO_CAFETERIAS.find((x) => x.id === nueva.idCafeteria);
       if (!c) throw new MockHttpError(400, 'La cafetería no existe o no está activa');
+      // CL-Sprint5 11/11/2026 (etapa 9): respeta el horario y el "cerrar por hoy" del negocio
+      const hoy = this.negocio.estadoHoy(c.id);
+      if (!hoy.abierta) throw new MockHttpError(400, 'La cafetería está cerrada en este momento');
       if (!c.metodosPago.includes(nueva.metodo)) {
         throw new MockHttpError(400, `La cafetería no acepta el método de pago ${nueva.metodo}`);
       }
@@ -86,6 +97,10 @@ export class OrdenesMockRepository extends OrdenesRepository {
       );
       if (ajenos) {
         throw new MockHttpError(400, 'Hay productos inexistentes, no disponibles o de otra cafetería');
+      }
+      const r = new Date(nueva.recogidaEn);
+      if (hoy.cierraA && r.getHours() * 60 + r.getMinutes() > aMinutos(hoy.cierraA)) {
+        throw new MockHttpError(400, `La cafetería cierra a las ${hoy.cierraA}; elige una hora antes`);
       }
       if (nueva.items.some((i) => i.cantidad < 1 || i.cantidad > MAX_CANTIDAD_POR_PRODUCTO)) {
         throw new MockHttpError(400, 'La cantidad por producto debe estar entre 1 y 20');
@@ -114,6 +129,7 @@ export class OrdenesMockRepository extends OrdenesRepository {
         metodo: nueva.metodo,
         estadoPago: estadoPagoDe(nueva.metodo, estado),
         notas: nueva.notas?.trim() || null,
+        motivoCancelacion: null,
         lineas,
       };
       const registro = { idAlumno: DEMO_ALUMNO.id, orden };
@@ -144,6 +160,7 @@ export class OrdenesMockRepository extends OrdenesRepository {
         throw new MockHttpError(400, 'La orden ya está en preparación y no se puede cancelar');
       }
       this.mover(r, 'cancelada');
+      r.orden = { ...r.orden, motivoCancelacion: 'Lo cancelaste tú' };
       return paraAlumno(r.orden);
     });
   }
@@ -166,6 +183,7 @@ export class OrdenesMockRepository extends OrdenesRepository {
   // ---------- Cafetería ----------
 
   ordenesCafeteria(idCafeteria: string): Observable<Orden[]> {
+    this.ultimoTablero = Date.now();
     return this.backend.responder(() =>
       this.registros
         .filter(
@@ -206,6 +224,18 @@ export class OrdenesMockRepository extends OrdenesRepository {
       const r = this.buscar(idOrden);
       if (!motivo.trim()) throw new MockHttpError(400, 'Indica el motivo del rechazo');
       this.mover(r, 'cancelada');
+      r.orden = { ...r.orden, motivoCancelacion: motivo.trim() };
+      return structuredClone(r.orden);
+    });
+  }
+
+  confirmarPago(idOrden: string): Observable<Orden> {
+    return this.backend.responder(() => {
+      const r = this.buscar(idOrden);
+      if (r.orden.estado !== 'pendiente') {
+        throw new MockHttpError(400, 'El pago de esta orden ya estaba confirmado');
+      }
+      this.mover(r, 'confirmada');
       return structuredClone(r.orden);
     });
   }
@@ -226,8 +256,10 @@ export class OrdenesMockRepository extends OrdenesRepository {
       if (!paso) return; // lista, entregada o cancelada: ya no le toca a la cocina
       const timer = setTimeout(() => {
         this.timers.delete(timer);
+        // Con el tablero abierto manda el encargado: la cocina espera otra vuelta sin mover nada
+        const tableroAbierto = Date.now() - this.ultimoTablero < TABLERO_ACTIVO_MS;
         // Si el tablero ya la movió, se sigue desde donde quedó
-        if (r.orden.estado === paso[0]) this.mover(r, paso[1]);
+        if (!tableroAbierto && r.orden.estado === paso[0]) this.mover(r, paso[1]);
         siguiente();
       }, paso[2]);
       this.timers.add(timer);
@@ -256,6 +288,9 @@ export class OrdenesMockRepository extends OrdenesRepository {
     };
   }
 }
+
+/** Cuánto se considera "abierto" el tablero después de su última consulta (refresca cada 10 s). */
+const TABLERO_ACTIVO_MS = 30_000;
 
 /** El alumno no recibe sus propios datos de alumno (eso es para la cafetería). */
 function paraAlumno(orden: Orden): Orden {

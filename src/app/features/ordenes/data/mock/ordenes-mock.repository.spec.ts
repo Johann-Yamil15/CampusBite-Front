@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { Observable, firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
+import { DemoNegocioStore } from '@core/mock/demo-negocio.store';
 import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@core/mock/demo-db';
 import { Orden } from '@features/ordenes/domain/models/orden.model';
 import { MOCK_COCINA, OrdenesMockRepository } from './ordenes-mock.repository';
@@ -11,6 +12,14 @@ const dentroDe = (minutos: number) => new Date(Date.now() + minutos * 60_000).to
 
 /** CL-Sprint5 11/11/2026: el mock aplica las mismas reglas que los SP de órdenes de la BD. */
 describe('OrdenesMockRepository', () => {
+
+  // CL-Sprint5 11/11/2026 (etapa 9): el abierto/cerrado sale del horario del negocio; se fija el reloj en un
+  // miércoles a mediodía para que la prueba no dependa de la hora en que corre.
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 11, 12, 0));
+  });
+  afterEach(() => vi.useRealTimers());
   let repo: OrdenesMockRepository;
 
   const valor = <T>(o: Observable<T>) => firstValueFrom(o);
@@ -128,8 +137,42 @@ describe('OrdenesMockRepository', () => {
     it('rechazar pide motivo y cancela', async () => {
       const id = de('confirmada').idOrden;
       expect(await falla(repo.rechazar(id, '  '))).toMatchObject({ status: 400 });
-      expect((await valor(repo.rechazar(id, 'Sin insumos'))).estado).toBe('cancelada');
+      const rechazada = await valor(repo.rechazar(id, 'Sin insumos'));
+      expect(rechazada).toMatchObject({ estado: 'cancelada', motivoCancelacion: 'Sin insumos' });
     });
+
+    // CL-Sprint5 11/11/2026 (etapa 9)
+    it('confirmar pago solo desde pendiente (transferencia)', async () => {
+      const nueva = await valor(
+        repo.crear({
+          idCafeteria: DEMO_CAFETERIA.central,
+          recogidaEn: dentroDe(30),
+          metodo: 'transferencia',
+          items: [{ idProducto: DEMO_PRODUCTO.sandwich, cantidad: 1 }],
+        }),
+      );
+      expect(nueva.estado).toBe('pendiente');
+      const pagada = await valor(repo.confirmarPago(nueva.idOrden));
+      expect(pagada).toMatchObject({ estado: 'confirmada', estadoPago: 'pagado' });
+      expect(await falla(repo.confirmarPago(nueva.idOrden))).toMatchObject({ status: 400 });
+    });
+  });
+
+  // CL-Sprint5 11/11/2026 (etapa 9): el pedido respeta el horario del negocio
+  it('no deja pedir si la cafetería cerró por hoy o después de su cierre', async () => {
+    const pedir = (recogidaEn: string) =>
+      repo.crear({
+        idCafeteria: DEMO_CAFETERIA.central,
+        recogidaEn,
+        metodo: 'efectivo',
+        items: [{ idProducto: DEMO_PRODUCTO.sandwich, cantidad: 1 }],
+      });
+    expect(await falla(pedir(new Date(2026, 10, 11, 17, 30).toISOString()))).toMatchObject({
+      message: 'La cafetería cierra a las 17:00; elige una hora antes',
+    });
+    TestBed.inject(DemoNegocioStore).cerrarHoy(DEMO_CAFETERIA.central);
+    expect(await falla(pedir(dentroDe(30)))).toMatchObject({ message: 'La cafetería está cerrada en este momento' });
+    TestBed.inject(DemoNegocioStore).reabrir(DEMO_CAFETERIA.central);
   });
 
   // CL-Sprint5 11/11/2026 (etapa 6)
@@ -144,6 +187,7 @@ describe('OrdenesMockRepository', () => {
 
     it('la cocina avanza una orden nueva hasta "lista" y nunca la entrega', async () => {
       vi.useFakeTimers();
+      vi.setSystemTime(new Date(2026, 10, 11, 12, 0));
       try {
         TestBed.resetTestingModule();
         TestBed.configureTestingModule({

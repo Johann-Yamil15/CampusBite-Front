@@ -40,6 +40,10 @@
               <app-icon nombre="cerrar" />
               <span>
                 Este pedido se canceló y no se preparará.
+                <!-- CL-Sprint5 11/11/2026 (etapa 9): el motivo que escribió la cafetería al rechazarlo -->
+                @if (p.motivoCancelacion) {
+                  <strong class="pd-motivo">Motivo: {{ p.motivoCancelacion }}.</strong>
+                }
                 @if (p.metodo !== 'efectivo') {
                   Si ya habías pagado, el reembolso se gestiona con la cafetería.
                 }

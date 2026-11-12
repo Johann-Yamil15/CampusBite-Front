@@ -51,6 +51,7 @@ export const OrdenMapper = {
       metodo: dto.metodo.toLowerCase() as MetodoPagoOrden,
       estadoPago: dto.estadoPago.toLowerCase() as EstadoPago,
       notas: dto.notas,
+      motivoCancelacion: dto.motivoCancelacion ?? null,
       lineas: dto.lineas.map((l) => ({ ...l })),
     };
   },

@@ -203,3 +203,39 @@
   color: var(--cb-primary-container);
 }
 
+
+// CL-Sprint5 11/11/2026 (etapa 9): franja de promociones del local. Se desliza de lado en teléfono.
+.ti-promos {
+  display: flex;
+  gap: var(--cb-space-sm);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-block: 2px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.ti-promo {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  max-width: 20rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--cb-primary-container);
+  border-radius: var(--cb-radius-lg);
+  background: var(--cb-brand-soft);
+
+  strong {
+    display: block;
+    color: var(--cb-ink);
+  }
+
+  p {
+    margin: 0.15rem 0 0;
+    font-size: var(--cb-text-sm);
+    color: var(--cb-ink-soft);
+  }
+}

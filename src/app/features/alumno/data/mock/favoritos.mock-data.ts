@@ -31,8 +31,11 @@ export interface FilaPlatilloFavorito {
   cafeteria: string;
 }
 
+/** CL-Sprint5 11/11/2026 (etapa 9): `abierta` dice si abre ahora (horario del negocio, DemoNegocioStore). */
+export type AbiertaAhora = (idCafeteria: string) => boolean;
+
 /** La favorita tal como la devolvería el back, o `null` si la cafetería no existe. */
-export function favoritaDemo(idCafeteria: string): CafeteriaFavorita | null {
+export function favoritaDemo(idCafeteria: string, abierta: AbiertaAhora): CafeteriaFavorita | null {
   const c = DEMO_CAFETERIAS.find((x) => x.id === idCafeteria);
   if (!c) return null;
   return {
@@ -42,7 +45,7 @@ export function favoritaDemo(idCafeteria: string): CafeteriaFavorita | null {
     calificacion: c.calificacion,
     puntoEntrega: c.puntoEntrega,
     esDelCampus: c.esDelCampus,
-    abierta: c.abierta,
+    abierta: abierta(c.id),
     platillos: DEMO_PRODUCTOS.filter((p) => p.idCafeteria === c.id).length,
   };
 }
@@ -63,13 +66,13 @@ export function filaPlatilloDemo(idProducto: string): FilaPlatilloFavorito | nul
 }
 
 /** El favorito como lo devolvería el back: con el precio de hoy y si se puede pedir. */
-export function platilloFavoritoDemo(fila: FilaPlatilloFavorito): PlatilloFavorito {
+export function platilloFavoritoDemo(fila: FilaPlatilloFavorito, abierta: AbiertaAhora): PlatilloFavorito {
   const hoy = filaPlatilloDemo(fila.idProducto);
   const c = DEMO_CAFETERIAS.find((x) => x.id === fila.idCafeteria);
   return {
     ...(hoy ?? fila),
     disponible: !!hoy,
-    cafeteriaAbierta: !!c?.abierta,
+    cafeteriaAbierta: !!c && abierta(c.id),
   };
 }
 

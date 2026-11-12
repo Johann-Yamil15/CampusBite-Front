@@ -90,6 +90,7 @@ function aRegistro(s: Semilla): RegistroOrdenMock {
       metodo: s.metodo,
       estadoPago: estadoPagoDe(s.metodo, s.estado),
       notas: s.notas,
+      motivoCancelacion: s.estado === 'cancelada' ? 'Se nos acabó un producto' : null,
       lineas: s.lineas,
     },
   };

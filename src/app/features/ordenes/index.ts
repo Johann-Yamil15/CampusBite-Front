@@ -8,6 +8,9 @@ export {
   ETIQUETA_ETAPA,
   ETIQUETA_MOTIVO_REPORTE,
   LONGITUD_CODIGO_RECOGIDA,
+  MAX_MOTIVO_RECHAZO,
+  MIN_MOTIVO_RECHAZO,
+  MOTIVOS_RECHAZO,
   MAX_CANTIDAD_POR_PRODUCTO,
   MAX_DETALLE_REPORTE,
   MAX_NOTAS_ORDEN,
@@ -15,7 +18,9 @@ export {
   MIN_DETALLE_OTRO,
   MINUTOS_MINIMOS_RECOGIDA,
   MOTIVOS_REPORTE,
+  accionTablero,
   cancelablePorAlumno,
+  codigoValido,
   enCurso,
   etapa,
   motivoNoCancelable,
@@ -24,6 +29,7 @@ export {
   reporteValido,
 } from './domain/models/orden.model';
 export type {
+  AccionTablero,
   EstadoAvanceCafeteria,
   EstadoOrden,
   EstadoPago,

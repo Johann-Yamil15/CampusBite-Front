@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { MockBackend, MockHttpError } from '@core/mock/mock-backend';
+import { DemoNegocioStore } from '@core/mock/demo-negocio.store';
 import { TokenStorageService } from '@core/services/token-storage.service';
 import { readJwtClaim } from '@core/utils/jwt.util';
 import { FavoritosRepository } from '@features/alumno/domain/repositories/favoritos.repository';
@@ -37,6 +38,8 @@ interface Guardado {
 export class FavoritosMockRepository extends FavoritosRepository {
   private readonly backend = inject(MockBackend);
   private readonly tokens = inject(TokenStorageService);
+  private readonly negocio = inject(DemoNegocioStore);
+  private readonly abierta = (id: string) => this.negocio.estadoHoy(id).abierta;
   /** Respaldo si localStorage no está disponible. */
   private enMemoria: Guardado | null = null;
 
@@ -45,14 +48,14 @@ export class FavoritosMockRepository extends FavoritosRepository {
   listarCafeterias(): Observable<CafeteriaFavorita[]> {
     return this.backend.responder(() =>
       this.leer()
-        .cafeterias.map(favoritaDemo)
+        .cafeterias.map((id) => favoritaDemo(id, this.abierta))
         .filter((f): f is CafeteriaFavorita => f !== null),
     );
   }
 
   agregarCafeteria(idCafeteria: string): Observable<CafeteriaFavorita> {
     return this.backend.responder(() => {
-      const favorita = favoritaDemo(idCafeteria);
+      const favorita = favoritaDemo(idCafeteria, this.abierta);
       if (!favorita) throw new MockHttpError(404, 'La cafetería no existe o no está activa.');
       const g = this.leer();
       if (!g.cafeterias.includes(idCafeteria)) {
@@ -72,18 +75,18 @@ export class FavoritosMockRepository extends FavoritosRepository {
   // ---------- Platillos ----------
 
   listarPlatillos(): Observable<PlatilloFavorito[]> {
-    return this.backend.responder(() => this.leer().platillos.map(platilloFavoritoDemo));
+    return this.backend.responder(() => this.leer().platillos.map((f) => platilloFavoritoDemo(f, this.abierta)));
   }
 
   agregarPlatillo(idProducto: string): Observable<PlatilloFavorito> {
     return this.backend.responder(() => {
       const g = this.leer();
       const guardada = g.platillos.find((f) => f.idProducto === idProducto);
-      if (guardada) return platilloFavoritoDemo(guardada);
+      if (guardada) return platilloFavoritoDemo(guardada, this.abierta);
       const fila = filaPlatilloDemo(idProducto);
       if (!fila) throw new MockHttpError(404, 'El producto no existe o ya no está en el menú.');
       this.escribir({ ...g, platillos: [fila, ...g.platillos] });
-      return platilloFavoritoDemo(fila);
+      return platilloFavoritoDemo(fila, this.abierta);
     });
   }
 

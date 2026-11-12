@@ -13,6 +13,14 @@ const EN_PREPARACION = '24110042-0000-4000-8000-000000000000';
 
 /** CL-Sprint5 11/11/2026 (etapa 6): detalle con seguimiento en vivo, código y cancelación. */
 describe('PedidoDetallePage', () => {
+
+  // CL-Sprint5 11/11/2026 (etapa 9): el abierto/cerrado sale del horario del negocio; se fija el reloj en un
+  // miércoles a mediodía para que la prueba no dependa de la hora en que corre.
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 11, 12, 0));
+  });
+  afterEach(() => vi.useRealTimers());
   let fixture: ComponentFixture<PedidoDetallePage>;
   let el: HTMLElement;
 
@@ -103,7 +111,8 @@ describe('PedidoDetallePage', () => {
   });
 
   it('avanza en vivo cuando el tablero del negocio cambia el estado', async () => {
-    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] });
+    vi.setSystemTime(new Date(2026, 10, 11, 12, 0));
     await configurar();
     const id = await nuevo();
     await abrir(id);

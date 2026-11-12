@@ -36,4 +36,6 @@ export abstract class OrdenesRepository {
   abstract entregar(idOrden: string, codigoRecogida: string): Observable<Orden>;
   /** La cafetería rechaza/cancela con un motivo que se le muestra al alumno. */
   abstract rechazar(idOrden: string, motivo: string): Observable<Orden>;
+  /** CL-Sprint5 11/11/2026 (etapa 9): la cafetería confirma que recibió la transferencia (pendiente → confirmada). */
+  abstract confirmarPago(idOrden: string): Observable<Orden>;
 }

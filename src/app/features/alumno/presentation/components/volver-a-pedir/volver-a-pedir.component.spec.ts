@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 import { provideRouter } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
@@ -14,6 +15,14 @@ const CANCELADA = '24110035-0000-4000-8000-000000000000'; // Express: latte
 
 /** CL-Sprint5 11/11/2026 (etapa 6): volver a pedir con los productos reales de hoy. */
 describe('VolverAPedirComponent', () => {
+
+  // CL-Sprint5 11/11/2026 (etapa 9): el abierto/cerrado sale del horario del negocio; se fija el reloj en un
+  // miércoles a mediodía para que la prueba no dependa de la hora en que corre.
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 11, 12, 0));
+  });
+  afterEach(() => vi.useRealTimers());
   let fixture: ComponentFixture<VolverAPedirComponent>;
   let el: HTMLElement;
   let carrito: CarritoStore;

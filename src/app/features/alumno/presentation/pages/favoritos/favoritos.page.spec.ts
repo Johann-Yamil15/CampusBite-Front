@@ -12,6 +12,14 @@ import { FavoritosPage } from './favoritos.page';
 
 /** CL-Sprint5 11/11/2026 (etapa 7): Favoritos con pestañas, disponibilidad, vacío y error. */
 describe('FavoritosPage', () => {
+
+  // CL-Sprint5 11/11/2026 (etapa 9): el abierto/cerrado sale del horario del negocio; se fija el reloj en un
+  // miércoles a mediodía para que la prueba no dependa de la hora en que corre.
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 11, 12, 0));
+  });
+  afterEach(() => vi.useRealTimers());
   let fixture: ComponentFixture<FavoritosPage>;
   let el: HTMLElement;
 

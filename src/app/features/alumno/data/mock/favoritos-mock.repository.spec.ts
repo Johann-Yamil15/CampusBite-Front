@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 import { Observable, firstValueFrom } from 'rxjs';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
 import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@core/mock/demo-db';
@@ -10,6 +11,14 @@ const tokenDe = (sub: string) => `x.${btoa(JSON.stringify({ sub })).replace(/=+$
 
 /** CL-Sprint5 11/11/2026 (etapa 7): favoritos simulados, persistentes en localStorage por usuario. */
 describe('FavoritosMockRepository', () => {
+
+  // CL-Sprint5 11/11/2026 (etapa 9): el abierto/cerrado sale del horario del negocio; se fija el reloj en un
+  // miércoles a mediodía para que la prueba no dependa de la hora en que corre.
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 10, 11, 12, 0));
+  });
+  afterEach(() => vi.useRealTimers());
   const valor = <T>(o: Observable<T>) => firstValueFrom(o);
   let repo: FavoritosMockRepository;
 

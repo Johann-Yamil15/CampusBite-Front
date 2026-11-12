@@ -57,6 +57,10 @@ export class TiendaPage {
   protected readonly errorCarga = signal<string | null>(null);
 
   protected readonly cafeteria = computed(() => this.catalogo.cafeteria(this.id()));
+  /** CL-Sprint5 11/11/2026 (etapa 9): promociones activas que el encargado publicó para esta cafetería. */
+  protected readonly promociones = computed(() =>
+    this.catalogo.promociones().filter((p) => p.idCafeteria === this.id()),
+  );
 
 
   /** Los platillos de la tienda, con su cafetería (lo que espera la tarjeta). */
@@ -116,6 +120,8 @@ export class TiendaPage {
       },
     });
     this.favoritos.cargar().subscribe({ error: () => undefined });
+    // Si fallan, la tienda simplemente no muestra la franja de promociones
+    this.catalogo.cargarPromociones().subscribe({ error: () => undefined });
   }
 
   /** Comparte con el menú del sistema si existe (teléfono); si no, copia el enlace. */

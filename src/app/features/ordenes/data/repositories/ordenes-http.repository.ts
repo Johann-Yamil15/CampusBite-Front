@@ -75,6 +75,13 @@ export class OrdenesHttpRepository extends OrdenesRepository {
       .pipe(map(OrdenMapper.toDomain));
   }
 
+  /** CL-Sprint5 11/11/2026 (etapa 9): endpoint nuevo (llama a sp_confirmar_pago). */
+  confirmarPago(idOrden: string): Observable<Orden> {
+    return this.api
+      .post<OrdenDto>(`ordenes/${idOrden}/confirmar-pago`, {})
+      .pipe(map(OrdenMapper.toDomain));
+  }
+
   rechazar(idOrden: string, motivo: string): Observable<Orden> {
     return this.api
       .post<OrdenDto>(`ordenes/${idOrden}/rechazar`, { motivo })

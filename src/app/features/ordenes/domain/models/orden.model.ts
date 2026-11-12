@@ -68,6 +68,8 @@ export interface Orden {
   metodo: MetodoPagoOrden;
   estadoPago: EstadoPago;
   notas: string | null;
+  /** CL-Sprint5 11/11/2026 (etapa 9): por qué se canceló o rechazó (lo ve el alumno); `null` si no aplica. */
+  motivoCancelacion: string | null;
   lineas: LineaOrden[];
 }
 
@@ -218,4 +220,41 @@ export function reporteValido(r: ReporteProblema): boolean {
   const detalle = r.detalle.trim();
   if (detalle.length > MAX_DETALLE_REPORTE) return false;
   return r.motivo !== 'otro' || detalle.length >= MIN_DETALLE_OTRO;
+}
+
+// ---------- Tablero del negocio (etapa 9) ----------
+
+/** CL-Sprint5 11/11/2026 (etapa 9): motivos rápidos para rechazar un pedido desde el tablero. */
+export const MOTIVOS_RECHAZO = [
+  'Se nos acabó un producto',
+  'Cerramos antes de la hora de recogida',
+  'Pedido duplicado',
+  'El alumno pidió cancelarlo',
+] as const;
+
+/** Lo mínimo de un motivo de rechazo (el que se teclea en "Otro"). */
+export const MIN_MOTIVO_RECHAZO = 5;
+export const MAX_MOTIVO_RECHAZO = 200;
+
+/** El código que teclea el encargado: 6 dígitos exactos. */
+export function codigoValido(codigo: string): boolean {
+  return new RegExp(`^\\d{${LONGITUD_CODIGO_RECOGIDA}}$`).test(codigo);
+}
+
+/** Qué hace el encargado con un pedido en cada estado (la siguiente transición permitida). */
+export type AccionTablero = 'confirmar_pago' | 'preparar' | 'marcar_lista' | 'entregar' | null;
+
+export function accionTablero(orden: Pick<Orden, 'estado'>): AccionTablero {
+  switch (orden.estado) {
+    case 'pendiente':
+      return 'confirmar_pago';
+    case 'confirmada':
+      return 'preparar';
+    case 'en_preparacion':
+      return 'marcar_lista';
+    case 'lista':
+      return 'entregar';
+    default:
+      return null;
+  }
 }
