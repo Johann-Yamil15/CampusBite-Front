@@ -1,222 +1,285 @@
-<!-- JY-Sprint4 05/11/2026: cascarón visual. Avanzar, entregar y rechazar mueven la tarjeta en pantalla pero
-     todavía no llaman al back. -->
-<section class="pg" aria-labelledby="pedidos-neg-title">
-  <header class="pg-head">
+<!-- CL-Sprint5 11/11/2026 (etapa 9): tablero de pedidos del encargado -->
+<section class="tb" aria-labelledby="tb-titulo">
+  <header class="tb-head">
     <div>
-      <h1 id="pedidos-neg-title">Pedidos</h1>
-      <p class="pg-sub">Lo que tus clientes están esperando ahora mismo.</p>
+      <h1 id="tb-titulo">Pedidos</h1>
+      <p class="tb-sub"><span class="tb-vivo" aria-hidden="true"></span>En vivo · lo que tus clientes esperan ahora</p>
     </div>
-    <dl class="cb-kpis kpis">
+    <dl class="tb-kpis">
       <div>
         <dt>Activos</dt>
         <dd>{{ activos() }}</dd>
       </div>
       <div>
         <dt>Por cobrar</dt>
-        <dd>{{ porCobrar() | currency: 'MXN' }}</dd>
+        <dd>{{ porCobrar() | currency: 'MXN' : 'symbol-narrow' : '1.0-0' }}</dd>
       </div>
     </dl>
   </header>
 
-  <div class="tabs" role="tablist" aria-label="Vista de pedidos">
-    <button
-      type="button"
-      role="tab"
-      class="tab"
-      [class.active]="vista() === 'tablero'"
-      [attr.aria-selected]="vista() === 'tablero'"
-      (click)="vista.set('tablero')"
-    >
-      Tablero
-      <span class="tab-count">{{ activos() }}</span>
-    </button>
-    <button
-      type="button"
-      role="tab"
-      class="tab"
-      [class.active]="vista() === 'cerrados'"
-      [attr.aria-selected]="vista() === 'cerrados'"
-      (click)="vista.set('cerrados')"
-    >
-      Cerrados hoy
-      <span class="tab-count">{{ cerrados().length }}</span>
-    </button>
+  @if (recientes().size) {
+    <p class="tb-nuevos" role="status">
+      <app-icon nombre="campana" />
+      <span>
+        <strong>{{ recientes().size === 1 ? 'Llegó un pedido nuevo' : 'Llegaron ' + recientes().size + ' pedidos nuevos' }}</strong>
+        Están resaltados en "Nuevos".
+      </span>
+      @if (pestana() !== 'nuevos') {
+        <button type="button" class="cb-btn cb-btn--small cb-btn--primary" (click)="verPestana('nuevos')">Ver</button>
+      }
+    </p>
+  }
+
+  <div class="tabs tb-tabs" role="tablist" aria-label="Pedidos por estado">
+    @for (p of pestanas; track p) {
+      <button
+        type="button"
+        role="tab"
+        class="tab"
+        [id]="'tab-' + p"
+        aria-controls="tb-panel"
+        [class.active]="pestana() === p"
+        [attr.aria-selected]="pestana() === p"
+        [attr.tabindex]="pestana() === p ? 0 : -1"
+        (click)="verPestana(p)"
+        (keydown)="teclaPestana($event)"
+      >
+        {{ etiqueta[p] }}
+        <span class="tab-count">{{ cuenta()[p] }}</span>
+      </button>
+    }
   </div>
 
-  @if (vista() === 'tablero') {
-    <div class="tablero">
-      @for (columna of columnas; track columna) {
-        <section class="columna" [attr.aria-label]="etiquetaColumna[columna]">
-          <header class="columna-head">
-            <h2>{{ etiquetaColumna[columna] }}</h2>
-            <span class="columna-num">{{ enColumna(columna).length }}</span>
-          </header>
-
-          <div class="columna-cuerpo">
-            @for (orden of enColumna(columna); track orden.folio) {
-              <article class="orden" [class]="'borde-' + orden.estado">
-                <header class="orden-head">
-                  <strong class="orden-folio">{{ orden.folio }}</strong>
-                  <span class="orden-hora">{{ orden.recogidaEn | date: 'HH:mm' }}</span>
-                </header>
-
-                <p class="orden-alumno">{{ orden.alumno }} · {{ orden.matricula }}</p>
-
-                <ul class="orden-lineas">
-                  @for (linea of orden.lineas; track linea.producto) {
-                    <li>
-                      <span class="linea-cant">{{ linea.cantidad }}×</span>
-                      {{ linea.producto }}
-                    </li>
-                  }
-                </ul>
-
-                @if (orden.notas) {
-                  <p class="orden-notas">“{{ orden.notas }}”</p>
-                }
-
-                <footer class="orden-foot">
-                  <span class="orden-total">{{ total(orden) | currency: 'MXN' }}</span>
-                  <span class="orden-metodo">{{ orden.metodo }}</span>
-                </footer>
-
-                <div class="orden-acciones">
-                  <button type="button" class="cb-btn cb-btn--primary cb-btn--chico" (click)="avanzar(orden)">
-                    {{ accion[columna] }}
-                  </button>
-                  <button type="button" class="cb-btn cb-btn--secondary cb-btn--chico" (click)="abrir(orden)">
-                    Detalle
-                  </button>
-                </div>
-              </article>
-            } @empty {
-              <p class="columna-vacia">Nada por aquí.</p>
-            }
-          </div>
-        </section>
-      }
-    </div>
-  } @else {
-    <div class="cerrados">
-      @for (orden of cerradosPagina(); track orden.folio) {
-        <article class="cerrado">
-          <span class="chip" [class]="'estado-' + orden.estado">{{ etiquetaEstado[orden.estado] }}</span>
-          <div class="cerrado-info">
-            <strong>{{ orden.folio }}</strong>
-            <span>{{ orden.alumno }} · {{ piezas(orden) }} art. · {{ orden.creadoEn | date: 'HH:mm' }}</span>
-          </div>
-          <span class="cerrado-total">{{ total(orden) | currency: 'MXN' }}</span>
-          <button type="button" class="cb-btn cb-btn--small" (click)="abrir(orden)">Ver</button>
-        </article>
-      } @empty {
-        <div class="vacio">
-          <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h2>Todavía no cierras ningún pedido hoy</h2>
-          <p>Los pedidos entregados y los rechazados aparecerán aquí.</p>
+  <div id="tb-panel" role="tabpanel" [attr.aria-labelledby]="'tab-' + pestana()" [attr.aria-busy]="cargando()">
+    @if (error(); as e) {
+      <div class="tb-error cb-card" role="alert">
+        <app-icon nombre="alerta" />
+        <div>
+          <strong>No pudimos cargar los pedidos</strong>
+          <p>{{ e }}</p>
         </div>
-      }
-
-      <app-paginador
-        [total]="cerrados().length"
-        [porPagina]="porPagina"
-        [(pagina)]="pagina"
-        etiqueta="pedidos"
-      />
-    </div>
-  }
+        <button type="button" class="cb-btn cb-btn--secondary cb-btn--small" (click)="cargar()">
+          <app-icon nombre="recargar" />Reintentar
+        </button>
+      </div>
+    } @else if (cargando() && !activos() && !cerrados().length) {
+      <div class="tb-columnas" aria-label="Cargando pedidos">
+        @for (c of columnas; track c) {
+          <div class="tb-columna" [class.oculta-movil]="c !== 'nuevos'" aria-hidden="true">
+            <div class="cb-skeleton" style="height: 1.2rem; width: 40%"></div>
+            <div class="cb-skeleton" style="height: 9rem"></div>
+            <div class="cb-skeleton" style="height: 9rem"></div>
+          </div>
+        }
+      </div>
+    } @else if (sinPedidos()) {
+      <div class="vacio">
+        <app-icon nombre="pedidos" />
+        <h2>Aún no hay pedidos hoy</h2>
+        <p>En cuanto un alumno pida, aparecerá aquí y te avisaremos.</p>
+        <button type="button" class="cb-btn cb-btn--secondary" (click)="cargar()"><app-icon nombre="recargar" />Revisar de nuevo</button>
+      </div>
+    } @else if (pestana() === 'cerrados') {
+      <ul class="tb-cerrados">
+        @for (o of cerradosPagina(); track o.idOrden) {
+          <li class="cb-card tb-cerrado">
+            <span class="chip" [class]="'estado-' + etapa(o.estado)">{{ etiquetaEtapa[etapa(o.estado)] }}</span>
+            <div class="tb-cerrado-info">
+              <strong>{{ o.folio }}</strong>
+              <span>{{ o.alumno?.nombre }} · {{ piezas(o) }} {{ piezas(o) === 1 ? 'artículo' : 'artículos' }} · {{ o.creadoEn | date: 'HH:mm' }}</span>
+              @if (o.motivoCancelacion) {
+                <span class="tb-motivo">Motivo: {{ o.motivoCancelacion }}</span>
+              }
+            </div>
+            <span class="tb-cerrado-total">{{ o.total | currency: 'MXN' : 'symbol-narrow' }}</span>
+          </li>
+        } @empty {
+          <li class="vacio">
+            <app-icon nombre="palomita-circulo" />
+            <p>{{ vacio.cerrados }}</p>
+          </li>
+        }
+      </ul>
+      <app-paginador [total]="cerrados().length" [porPagina]="porPagina" [(pagina)]="paginaCerrados" etiqueta="pedidos" />
+    } @else {
+      <div class="tb-columnas">
+        @for (c of columnas; track c) {
+          <section class="tb-columna" [class.oculta-movil]="c !== pestana()" [attr.aria-label]="etiqueta[c]">
+            <header class="tb-columna-head">
+              <h2>{{ etiqueta[c] }}</h2>
+              <span class="tb-num">{{ cuenta()[c] }}</span>
+            </header>
+            @for (o of porColumna()[c]; track o.idOrden) {
+              <ng-container [ngTemplateOutlet]="tarjeta" [ngTemplateOutletContext]="{ $implicit: o }" />
+            } @empty {
+              <p class="tb-vacia">{{ vacio[c] }}</p>
+            }
+          </section>
+        }
+      </div>
+    }
+  </div>
 </section>
 
-<!-- Detalle del pedido -->
-@if (abierta(); as o) {
-  <app-modal
-    [title]="'Pedido ' + o.folio"
-    [subtitle]="o.alumno + ' · ' + o.matricula"
-    size="md"
-    (closed)="cerrar()"
+<!-- Tarjeta de un pedido activo -->
+<ng-template #tarjeta let-o>
+  @let accion = accionDe(o);
+  @let minutos = minutosPara(o);
+  <article
+    class="cb-card tb-orden"
+    [class.reciente]="recientes().has(o.idOrden)"
+    [class]="'borde-' + etapa(o.estado)"
+    (pointerenter)="visto(o)"
+    (focusin)="visto(o)"
   >
-    <div class="det-cabeza">
-      <span class="chip" [class]="'estado-' + o.estado">{{ etiquetaEstado[o.estado] }}</span>
-      <span class="det-hora">Recoge a las {{ o.recogidaEn | date: 'HH:mm' }}</span>
-    </div>
+    <header class="tb-orden-head">
+      <strong class="tb-folio">{{ o.folio }}</strong>
+      @if (recientes().has(o.idOrden)) {
+        <span class="cb-badge cb-badge--promo tb-badge-nuevo">Nuevo</span>
+      }
+      <span class="tb-hora" [class.tarde]="minutos < 0 && o.estado !== 'lista'">
+        <app-icon nombre="reloj" />{{ o.recogidaEn | date: 'HH:mm' }}
+        <!-- Lejos de la hora (pedidos de otro día) se muestra la fecha, no "hace 9000 min" -->
+        <small>{{ minutos > 180 || minutos < -180 ? (o.recogidaEn | date: 'd MMM') : minutos >= 0 ? 'en ' + minutos + ' min' : 'hace ' + -minutos + ' min' }}</small>
+      </span>
+    </header>
 
-    <ul class="det-lineas">
-      @for (linea of o.lineas; track linea.producto) {
-        <li>
-          <span class="det-cant">{{ linea.cantidad }}×</span>
-          <span class="det-prod">{{ linea.producto }}</span>
-          <span class="det-precio">{{ linea.precio * linea.cantidad | currency: 'MXN' }}</span>
-        </li>
+    <p class="tb-alumno"><app-icon nombre="perfil" />{{ o.alumno?.nombre }}@if (o.alumno?.matricula) { · {{ o.alumno.matricula }}}</p>
+
+    <ul class="tb-lineas">
+      @for (l of o.lineas; track l.idProducto) {
+        <li><span class="tb-cant">{{ l.cantidad }}×</span> {{ l.producto }}</li>
       }
     </ul>
 
-    <dl class="det-resumen">
-      <dt>Método de pago</dt>
-      <dd class="capitalizar">{{ o.metodo }}</dd>
-      <dt>Artículos</dt>
-      <dd>{{ piezas(o) }}</dd>
-      <dt class="fuerte">Total</dt>
-      <dd class="fuerte">{{ total(o) | currency: 'MXN' }}</dd>
-    </dl>
-
     @if (o.notas) {
-      <p class="det-notas"><strong>Notas del alumno:</strong> {{ o.notas }}</p>
+      <p class="tb-notas">“{{ o.notas }}”</p>
     }
 
-    <div modalActions>
-      @if (o.estado !== 'entregado' && o.estado !== 'cancelado') {
-        <button type="button" class="cb-btn cb-btn--danger" (click)="pedirMotivo(o)">
-          Rechazar
-        </button>
-        <button type="button" class="cb-btn cb-btn--primary" data-modal-focus (click)="avanzar(o)">
-          {{ accion[o.estado] }}
-        </button>
+    <p class="tb-pago">
+      <strong>{{ o.total | currency: 'MXN' : 'symbol-narrow' }}</strong>
+      <span class="cb-badge">{{ o.metodo === 'efectivo' ? 'Efectivo' : o.metodo === 'tarjeta' ? 'Tarjeta' : 'Transferencia' }}</span>
+      @if (o.estado === 'pendiente') {
+        <span class="cb-badge cb-badge--alerta">Pago por confirmar</span>
+      } @else if (o.estadoPago === 'pagado') {
+        <span class="cb-badge cb-badge--ok">Pagado</span>
       } @else {
-        <button type="button" class="cb-btn cb-btn--secondary" data-modal-focus (click)="cerrar()">
-          Cerrar
+        <span class="cb-badge">Cobrar al entregar</span>
+      }
+    </p>
+
+    <div class="tb-acciones">
+      @if (accion) {
+        <button
+          type="button"
+          class="cb-btn cb-btn--primary cb-btn--small"
+          [disabled]="procesando() === o.idOrden"
+          (click)="accionar(o)"
+        >
+          {{ procesando() === o.idOrden ? 'Guardando…' : boton[accion] }}
         </button>
       }
+      <button type="button" class="cb-btn cb-btn--ghost cb-btn--small tb-rechazar" (click)="pedirRechazo(o)">
+        {{ etapa(o.estado) === 'recibido' ? 'Rechazar' : 'Cancelar' }}
+      </button>
+    </div>
+  </article>
+</ng-template>
+
+<!-- Entregar: el encargado teclea el código que le muestra el alumno -->
+@if (entregando(); as o) {
+  <app-modal title="Entregar pedido" [subtitle]="o.folio + ' · ' + (o.alumno?.nombre ?? '')" size="sm" (closed)="cerrarEntrega()">
+    <form id="form-entrega" class="tb-entrega" novalidate (submit)="entregar($event)">
+      <p>Pídele al alumno su <strong>código de recogida</strong> y escríbelo aquí. Sin el código correcto no se entrega.</p>
+      <label class="cb-field">
+        <span>Código de {{ largoCodigo }} dígitos</span>
+        <input
+          class="tb-codigo"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          pattern="[0-9]*"
+          [attr.maxlength]="largoCodigo"
+          placeholder="······"
+          data-modal-focus
+          [value]="codigo()"
+          (input)="escribirCodigo($event)"
+          [attr.aria-invalid]="!!errorCodigo()"
+          aria-describedby="tb-codigo-ayuda"
+        />
+        <small id="tb-codigo-ayuda" [class.tb-error-texto]="errorCodigo()" role="status">
+          {{ errorCodigo() ?? codigo().length + ' de ' + largoCodigo + ' dígitos' }}
+        </small>
+      </label>
+      <p class="tb-entrega-cobro">
+        @if (o.estadoPago === 'pagado') {
+          <app-icon nombre="palomita-circulo" />Ya está pagado.
+        } @else {
+          <app-icon nombre="efectivo" />Cobra {{ o.total | currency: 'MXN' : 'symbol-narrow' }} en efectivo.
+        }
+      </p>
+    </form>
+    <div modalActions>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="cerrarEntrega()">Cancelar</button>
+      <button
+        type="submit"
+        form="form-entrega"
+        class="cb-btn cb-btn--primary"
+        [disabled]="!codigoCompleto() || procesando() === o.idOrden"
+        [attr.aria-busy]="procesando() === o.idOrden"
+      >
+        {{ procesando() === o.idOrden ? 'Validando…' : 'Validar y entregar' }}
+      </button>
     </div>
   </app-modal>
 }
 
-<!-- Rechazar con motivo -->
+<!-- Rechazar o cancelar con motivo -->
 @if (rechazando(); as o) {
-  <app-modal
-    title="¿Rechazar este pedido?"
-    [subtitle]="o.folio + ' · ' + o.alumno"
-    size="sm"
-    (closed)="rechazando.set(null)"
-  >
-    <p class="modal-texto">
-      El alumno recibirá el aviso con tu motivo. Si ya pagó, tendrás que devolverle el dinero en el
-      mostrador.
+  @let nuevo = etapa(o.estado) === 'recibido';
+  <app-modal [title]="nuevo ? 'Rechazar pedido' : 'Cancelar pedido'" [subtitle]="o.folio + ' · ' + (o.alumno?.nombre ?? '')" size="sm" (closed)="cerrarRechazo()">
+    <fieldset class="tb-motivos">
+      <legend>¿Por qué?</legend>
+      <div class="tb-opciones" role="radiogroup" aria-label="Motivo">
+        @for (m of motivos; track m; let i = $index) {
+          <button
+            type="button"
+            role="radio"
+            class="tb-opcion"
+            [attr.aria-checked]="motivo() === m"
+            [attr.data-modal-focus]="i === 0 ? '' : null"
+            (click)="motivo.set(m)"
+          >
+            {{ m }}
+          </button>
+        }
+      </div>
+    </fieldset>
+    @if (motivo() === otro) {
+      <label class="cb-field">
+        <span>Escribe el motivo</span>
+        <textarea rows="2" [attr.maxlength]="maxMotivo" [value]="motivoOtro()" (input)="escribirMotivo($event)"></textarea>
+        <small>{{ motivoOtro().length }}/{{ maxMotivo }}</small>
+      </label>
+    }
+    <p class="tb-aviso">
+      <app-icon nombre="info" />
+      <span>
+        El alumno verá este motivo en su pedido.
+        @if (o.estadoPago === 'pagado') {
+          Ya pagó: gestiona su reembolso.
+        }
+      </span>
     </p>
-
-    <label class="cb-field">
-      <span>Motivo <small>(lo ve el alumno)</small></span>
-      <textarea
-        rows="3"
-        maxlength="160"
-        placeholder="Se nos acabó el ingrediente, cerramos antes…"
-        data-modal-focus
-        [value]="motivo()"
-        (input)="onMotivo($event)"
-      ></textarea>
-    </label>
-
     <div modalActions>
-      <button type="button" class="cb-btn cb-btn--secondary" (click)="rechazando.set(null)">
-        Mejor no
-      </button>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="cerrarRechazo()">Volver</button>
       <button
         type="button"
         class="cb-btn cb-btn--danger"
-        [disabled]="!motivo().trim()"
+        [disabled]="!motivoValido() || procesando() === o.idOrden"
         (click)="rechazar()"
       >
-        Rechazar pedido
+        {{ nuevo ? 'Rechazar pedido' : 'Cancelar pedido' }}
       </button>
     </div>
   </app-modal>

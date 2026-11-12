@@ -5,11 +5,31 @@
 // sobre superficies claras (6.2–6.5:1, WCAG AA). --cb-primary-container (#FF6B35) es MÁS vibrante pero
 // NO pasa 4.5:1 sobre fondos claros: úsalo solo en superficies grandes, íconos o fondos con texto oscuro
 // encima, nunca como color de texto pequeño ni de borde de foco.
+//
+// CL-Sprint5 11/11/2026: sistema de diseño unificado (alumno + negocio). Se conservan todos los tokens
+// anteriores (las pantallas ya escritas los usan) y se agregan:
+//   - Acción (--cb-action*): el color de los botones principales, con su texto. En claro es el naranja
+//     oscuro con texto blanco; en oscuro, el naranja vivo con texto casi negro (6.7:1). Antes el botón
+//     primario usaba --cb-brand-strong, que en oscuro vale #ffb59d, con texto blanco: 1.7:1, ilegible.
+//   - Escala tipográfica, movimiento, capas (z-index), ancho de contenido y sombras para oscuro.
+// Los breakpoints van en _breakpoints.scss (solo variables Sass: las media queries no leen CSS vars, y
+// así un componente los importa sin duplicar este :root en su CSS).
 :root {
   color-scheme: light dark;
 
   // Tipografía
   --cb-font: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  // Escala (base 16px). xs solo para insignias y metadatos, nunca para párrafos.
+  --cb-text-xs: 0.75rem; // 12
+  --cb-text-sm: 0.875rem; // 14
+  --cb-text-md: 1rem; // 16
+  --cb-text-lg: 1.125rem; // 18
+  --cb-text-xl: 1.375rem; // 22
+  --cb-text-2xl: 1.75rem; // 28
+  --cb-text-3xl: clamp(1.875rem, 1.4rem + 1.6vw, 2.25rem); // 30–36
+  --cb-leading-tight: 1.2;
+  --cb-leading: 1.5;
+  --cb-tracking-tight: -0.015em;
 
   // Superficies
   --cb-bg: #fcf9f8; // surface
@@ -45,11 +65,28 @@
   --cb-brand-soft: #fff1ea;
   --cb-brand-ring: rgba(171, 53, 0, 0.25);
 
+  // CL-Sprint5 11/11/2026: acción principal (botones). Usar SIEMPRE el par fondo + texto.
+  --cb-action: #ab3500;
+  --cb-on-action: #ffffff; // 6.5:1
+  --cb-action-hover: #8a2b00;
+  --cb-action-shadow: rgba(171, 53, 0, 0.35);
+  // Botón de peligro
+  --cb-danger-action: #ba1a1a;
+  --cb-on-danger-action: #ffffff; // 6.5:1
+  --cb-danger-action-hover: #9f1616;
+  // CL-Sprint5 11/11/2026: botón deshabilitado. Gris neutro (sin tinte naranja, para que no parezca activo)
+  // con texto legible aunque no sea obligatorio por WCAG: 5.66:1 en claro, 5.32:1 en oscuro.
+  --cb-disabled: #e6e1df;
+  --cb-on-disabled: #5e5450;
+
   // Secundario — Amarillo Mango (promos, destacados; nunca para texto de cuerpo)
   --cb-secondary: #7f5700;
   --cb-on-secondary: #ffffff;
   --cb-secondary-container: #ffb628;
   --cb-on-secondary-container: #6d4a00;
+  // CL-Sprint5 11/11/2026: insignia de oferta (mango con texto casi negro: 9.6:1, igual en claro y oscuro)
+  --cb-promo: #ffb628;
+  --cb-on-promo: #2e1e00;
 
   // Terciario — Verde Éxito
   --cb-success: #006d43;
@@ -62,59 +99,135 @@
   --cb-danger-soft: #ffdad6;
   --cb-danger-line: #ffb4ab;
 
+  // CL-Sprint5 11/11/2026: texto sobre fotos (siempre con el velo --cb-image-scrim debajo)
+  --cb-on-image: #ffffff;
+  --cb-image-scrim: linear-gradient(180deg, rgba(20, 12, 8, 0) 35%, rgba(20, 12, 8, 0.78) 100%);
+  // Fondo detrás de modales y del carrito
+  --cb-scrim: rgba(27, 28, 28, 0.52);
+  // Brillo del esqueleto de carga
+  --cb-skeleton: #efeae8;
+  --cb-skeleton-shine: #f8f5f4;
+
   // Forma y radio
+  --cb-radius-sm: 0.5rem; // CL-Sprint5: chips pequeños, miniaturas
   --cb-radius: 0.75rem; // rounded-md
   --cb-radius-lg: 1rem;
   --cb-radius-xl: 1.5rem;
   --cb-radius-pill: 9999px;
 
-  // Espaciado
+  // Espaciado (ritmo de 4/8 px)
   --cb-space-xs: 0.25rem;
   --cb-space-sm: 0.5rem;
   --cb-space-md: 1rem;
   --cb-space-lg: 1.5rem;
   --cb-space-xl: 2rem;
+  --cb-space-2xl: 3rem; // CL-Sprint5: separación entre secciones
+  // CL-Sprint5: márgenes laterales que crecen con la pantalla y ancho máximo de lectura
+  --cb-gutter: clamp(1rem, 0.6rem + 2vw, 2rem);
+  --cb-content-max: 75rem; // 1200px
 
   // Elevación (sombras cálidas y difusas, no negro puro)
   --cb-shadow-sm: 0 4px 16px -2px rgba(255, 107, 53, 0.08), 0 2px 6px -1px rgba(27, 28, 28, 0.05);
   --cb-shadow-md: 0 8px 24px -4px rgba(255, 107, 53, 0.12), 0 4px 12px -2px rgba(27, 28, 28, 0.07);
   --cb-shadow-lg: 0 16px 36px -6px rgba(27, 28, 28, 0.16);
+  --cb-shadow-xl: 0 24px 56px -12px rgba(27, 28, 28, 0.28); // CL-Sprint5: drawers y hojas
+
+  // CL-Sprint5 11/11/2026: foco visible, el mismo en todos los controles
+  --cb-focus-ring: 0 0 0 3px var(--cb-brand-ring);
+
+  // CL-Sprint5 11/11/2026: movimiento. Duraciones según la distancia: tocar < cambiar de estado < entrar.
+  --cb-dur-press: 120ms;
+  --cb-dur-state: 200ms;
+  --cb-dur-enter: 320ms;
+  --cb-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --cb-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); // rebote corto (contador del carrito, corazón)
+
+  // CL-Sprint5 11/11/2026: capas
+  --cb-z-sticky: 20;
+  --cb-z-nav: 40;
+  --cb-z-drawer: 50;
+  --cb-z-modal: 60;
+  --cb-z-toast: 70;
+}
+
+// CL-Sprint5 11/11/2026 (etapa 8): los valores del modo oscuro en un mixin, para aplicarlos según el
+// sistema (si el alumno no eligió) o a la fuerza con <html data-theme="dark"> (Perfil → Apariencia).
+@mixin cb-tokens-oscuros {
+  --cb-bg: #141311;
+  --cb-surface: #211f1d;
+  --cb-surface-low: #1b1a18;
+  --cb-surface-container: #262422;
+  --cb-surface-high: #302d2a;
+  --cb-canvas: #1b1a18;
+
+  --cb-text: #f3f0ef;
+  --cb-text-muted: #dcc3b8;
+  --cb-border: #594139;
+  --cb-line: #594139;
+  --cb-line-soft: #3a2e29;
+  --cb-ink: #f3f0ef;
+  --cb-ink-soft: #e4d8d2;
+  --cb-ink-muted: #dcc3b8;
+
+  --cb-primary: #ffb59d; // inverse-primary: tono claro para texto de marca sobre fondo oscuro
+  --cb-primary-contrast: #5f1900;
+  --cb-brand: #ffb59d;
+  --cb-brand-strong: #ffb59d;
+  --cb-brand-soft: #3a2017;
+  --cb-brand-ring: rgba(255, 181, 157, 0.3);
+
+  // CL-Sprint5 11/11/2026: botón principal en oscuro = naranja vivo con texto casi negro (6.7:1)
+  --cb-action: #ff6b35;
+  --cb-on-action: #1f0b03;
+  --cb-action-hover: #ff8a5c;
+  --cb-action-shadow: rgba(255, 107, 53, 0.22);
+  --cb-danger-action: #d32f2f; // texto blanco 5:1; el rojo de claro se pierde sobre el fondo oscuro
+  --cb-danger-action-hover: #e04848;
+  --cb-disabled: #2c2927;
+  --cb-on-disabled: #a59b96;
+
+  --cb-secondary: #ffba3b;
+  --cb-on-secondary: #281900;
+
+  --cb-success: #65dd9d;
+  --cb-success-soft: #0f2e20;
+  --cb-success-line: #1f5c3f;
+
+  --cb-danger: #ffb4ab;
+  --cb-danger-soft: #3a0a0a;
+  --cb-danger-line: #7a2a2a;
+
+  --cb-scrim: rgba(0, 0, 0, 0.62);
+  --cb-skeleton: #2a2725;
+  --cb-skeleton-shine: #353130;
+
+  // CL-Sprint5 11/11/2026: en oscuro el brillo naranja de las sombras ensucia; sombras neutras más densas
+  --cb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px -2px rgba(0, 0, 0, 0.3);
+  --cb-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.4), 0 10px 24px -4px rgba(0, 0, 0, 0.45);
+  --cb-shadow-lg: 0 16px 36px -6px rgba(0, 0, 0, 0.55);
+  --cb-shadow-xl: 0 24px 56px -12px rgba(0, 0, 0, 0.7);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --cb-bg: #141311;
-    --cb-surface: #211f1d;
-    --cb-surface-low: #1b1a18;
-    --cb-surface-container: #262422;
-    --cb-surface-high: #302d2a;
-    --cb-canvas: #1b1a18;
-
-    --cb-text: #f3f0ef;
-    --cb-text-muted: #dcc3b8;
-    --cb-border: #594139;
-    --cb-line: #594139;
-    --cb-line-soft: #3a2e29;
-    --cb-ink: #f3f0ef;
-    --cb-ink-soft: #e4d8d2;
-    --cb-ink-muted: #dcc3b8;
-
-    --cb-primary: #ffb59d; // inverse-primary: tono claro para texto de marca sobre fondo oscuro
-    --cb-primary-contrast: #5f1900;
-    --cb-brand: #ffb59d;
-    --cb-brand-strong: #ffb59d;
-    --cb-brand-soft: #3a2017;
-    --cb-brand-ring: rgba(255, 181, 157, 0.3);
-
-    --cb-secondary: #ffba3b;
-    --cb-on-secondary: #281900;
-
-    --cb-success: #65dd9d;
-    --cb-success-soft: #0f2e20;
-    --cb-success-line: #1f5c3f;
-
-    --cb-danger: #ffb4ab;
-    --cb-danger-soft: #3a0a0a;
-    --cb-danger-line: #7a2a2a;
+  :root:not([data-theme='light']) {
+    @include cb-tokens-oscuros;
   }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  @include cb-tokens-oscuros;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+// body declara `color-scheme: light dark` (styles.scss): con un tema elegido manda el del <html>
+:root[data-theme='dark'] body {
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] body {
+  color-scheme: light;
 }

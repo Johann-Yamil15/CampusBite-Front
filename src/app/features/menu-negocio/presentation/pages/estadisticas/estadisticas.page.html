@@ -1,108 +1,126 @@
-<!-- JY-Sprint4 05/11/2026: cascarón visual. Las cifras son de muestra; el selector de periodo solo reescala. -->
-<section class="pg" aria-labelledby="stats-title">
-  <header class="pg-head">
+<!-- CL-Sprint5 11/11/2026 (etapa 9): estadísticas calculadas con los pedidos simulados -->
+<section class="es" aria-labelledby="es-titulo">
+  <header class="es-head">
     <div>
-      <h1 id="stats-title">Estadísticas</h1>
-      <p class="pg-sub">Cómo le fue a tu negocio. Datos de muestra por ahora.</p>
+      <h1 id="es-titulo">Estadísticas</h1>
+      <p class="es-sub">Calculadas con tus pedidos. {{ etiquetaPeriodo[periodo()] }}.</p>
     </div>
-
-    <div class="tabs" role="tablist" aria-label="Periodo">
-      <button
-        type="button"
-        role="tab"
-        class="tab"
-        [class.active]="periodo() === 'semana'"
-        [attr.aria-selected]="periodo() === 'semana'"
-        (click)="periodo.set('semana')"
-      >
-        Semana
-      </button>
-      <button
-        type="button"
-        role="tab"
-        class="tab"
-        [class.active]="periodo() === 'mes'"
-        [attr.aria-selected]="periodo() === 'mes'"
-        (click)="periodo.set('mes')"
-      >
-        Mes
-      </button>
+    <div class="es-periodos" role="radiogroup" aria-label="Periodo">
+      @for (p of periodos; track p) {
+        <button type="button" role="radio" class="es-periodo" [attr.aria-checked]="periodo() === p" (click)="periodo.set(p)">
+          {{ etiquetaPeriodo[p] }}
+        </button>
+      }
     </div>
   </header>
 
-  <dl class="cb-kpis">
-    <div>
-      <dt>Ventas · {{ etiquetaPeriodo() }}</dt>
-      <dd>{{ ventas() | currency: 'MXN' : 'symbol' : '1.0-0' }}</dd>
+  @if (error() && !cargado()) {
+    <div class="vacio" role="alert">
+      <app-icon nombre="alerta" />
+      <h2>No pudimos calcular tus estadísticas</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="cb-btn cb-btn--primary" (click)="cargar()"><app-icon nombre="recargar" />Reintentar</button>
     </div>
-    <div>
-      <dt>Pedidos</dt>
-      <dd>{{ pedidos() }}</dd>
-    </div>
-    <div>
-      <dt>Ticket promedio</dt>
-      <dd>{{ ticket() | currency: 'MXN' : 'symbol' : '1.0-0' }}</dd>
-    </div>
-    <div>
-      <dt>Platillos vendidos</dt>
-      <dd>{{ 225 | number }}</dd>
-    </div>
-  </dl>
-
-  <div class="cols">
-    <article class="cb-card">
-      <h2 class="cb-card-title">Ventas por día</h2>
-      <ul class="barras">
-        @for (d of semana; track d.dia) {
-          <li>
-            <span class="barra-marco">
-              <span
-                class="barra"
-                [style.height]="altoBarra(d.monto)"
-                [class.cero]="d.monto === 0"
-              ></span>
-            </span>
-            <span class="barra-dia">{{ d.dia }}</span>
-            <span class="barra-monto">
-              {{ d.monto ? (d.monto | currency: 'MXN' : 'symbol' : '1.0-0') : '—' }}
-            </span>
-          </li>
-        }
-      </ul>
-      <p class="nota">El domingo no abres, por eso aparece en cero.</p>
-    </article>
-
-    <article class="cb-card">
-      <h2 class="cb-card-title">Horas con más pedidos</h2>
-      <ul class="lineas">
-        @for (h of horas; track h.hora) {
-          <li>
-            <span class="linea-etiqueta">{{ h.hora }}</span>
-            <span class="linea-marco">
-              <span class="linea-relleno" [style.width]="anchoHora(h.pedidos)"></span>
-            </span>
-            <span class="linea-valor">{{ h.pedidos }}</span>
-          </li>
-        }
-      </ul>
-      <p class="nota">Tu hora fuerte es el mediodía: ten listo lo que más sale.</p>
-    </article>
-  </div>
-
-  <article class="cb-card">
-    <h2 class="cb-card-title">Lo que más se vende</h2>
-    <ul class="lineas">
-      @for (t of top; track t.producto; let i = $index) {
-        <li>
-          <span class="linea-pos">{{ i + 1 }}</span>
-          <span class="linea-etiqueta linea-ancha">{{ t.producto }}</span>
-          <span class="linea-marco">
-            <span class="linea-relleno" [style.width]="anchoTop(t.vendidos)"></span>
-          </span>
-          <span class="linea-valor">{{ t.vendidos }}</span>
-          <span class="linea-monto">{{ t.monto | currency: 'MXN' : 'symbol' : '1.0-0' }}</span>
-        </li>
+  } @else if (!cargado()) {
+    <div class="es-kpis" role="status" aria-label="Calculando estadísticas">
+      @for (s of [0, 1, 2, 3]; track s) {
+        <div class="cb-card cb-skeleton" style="height: 6rem" aria-hidden="true"></div>
       }
-    </ul>
-  </article>
+    </div>
+    <div class="cb-card cb-skeleton" style="height: 16rem" aria-hidden="true"></div>
+  } @else if (sinDatos()) {
+    <div class="vacio">
+      <app-icon nombre="pedidos" />
+      <h2>Sin pedidos en este periodo</h2>
+      <p>Cuando lleguen pedidos {{ periodo() === 'hoy' ? 'hoy' : 'en estos días' }} verás aquí tus ventas.</p>
+      @if (periodo() !== '30d') {
+        <button type="button" class="cb-btn cb-btn--secondary" (click)="periodo.set('30d')">Ver los últimos 30 días</button>
+      }
+    </div>
+  } @else {
+    @let d = datos();
+    <dl class="es-kpis">
+      <div class="cb-card es-kpi">
+        <dt>Ventas</dt>
+        <dd>{{ d.ventas | currency: 'MXN' : 'symbol-narrow' : '1.0-0' }}</dd>
+      </div>
+      <div class="cb-card es-kpi">
+        <dt>Pedidos</dt>
+        <dd>{{ d.pedidos }}</dd>
+      </div>
+      <div class="cb-card es-kpi">
+        <dt>Ticket promedio</dt>
+        <dd>{{ d.ticketPromedio | currency: 'MXN' : 'symbol-narrow' : '1.0-0' }}</dd>
+      </div>
+      <div class="cb-card es-kpi">
+        <dt>Cancelados</dt>
+        <dd>{{ d.cancelados }}</dd>
+      </div>
+    </dl>
+
+    <section class="cb-card es-card" aria-labelledby="es-estados">
+      <h2 id="es-estados">Pedidos por estado</h2>
+      <ul class="es-estados">
+        @for (g of grupos; track g) {
+          <li class="es-estado" [class]="'es-estado--' + g">
+            <span>{{ etiquetaGrupo[g] }}</span>
+            <strong>{{ d.porEstado[g] }}</strong>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <div class="es-cols">
+      <section class="cb-card es-card es-ancha" aria-labelledby="es-dias">
+        <h2 id="es-dias">Ventas por día</h2>
+        <div class="es-barras" [class.es-barras--mes]="d.ventasPorDia.length > 7" aria-hidden="true">
+          @for (b of d.ventasPorDia; track $index) {
+            <div class="es-col" [title]="b.etiqueta + ': ' + (b.valor | currency: 'MXN' : 'symbol-narrow' : '1.0-0')">
+              @if (d.ventasPorDia.length <= 7 && b.valor) {
+                <span class="es-valor">{{ b.valor | currency: 'MXN' : 'symbol-narrow' : '1.0-0' }}</span>
+              }
+              <span class="es-barra" [style.height]="altoDia(b.valor)"></span>
+              <span class="es-eje">{{ b.etiqueta }}</span>
+            </div>
+          }
+        </div>
+        <table class="sr-only">
+          <caption>Ventas por día</caption>
+          <tr><th scope="col">Día</th><th scope="col">Ventas</th></tr>
+          @for (b of d.ventasPorDia; track $index) {
+            <tr><td>{{ b.etiqueta }}</td><td>{{ b.valor | currency: 'MXN' : 'symbol-narrow' : '1.0-0' }}</td></tr>
+          }
+        </table>
+      </section>
+
+      <section class="cb-card es-card" aria-labelledby="es-top">
+        <h2 id="es-top">Más vendidos</h2>
+        <ol class="es-filas">
+          @for (t of d.masVendidos; track t.producto; let i = $index) {
+            <li>
+              <span class="es-fila-texto"><span class="es-pos">{{ i + 1 }}</span>{{ t.producto }}</span>
+              <span class="es-fila-valor">{{ t.piezas }} pzs · {{ t.monto | currency: 'MXN' : 'symbol-narrow' : '1.0-0' }}</span>
+              <span class="es-pista" aria-hidden="true"><span class="es-relleno" [style.width]="anchoTop(t.piezas)"></span></span>
+            </li>
+          }
+        </ol>
+      </section>
+
+      <section class="cb-card es-card" aria-labelledby="es-horas">
+        <h2 id="es-horas">Horas pico</h2>
+        <ul class="es-filas">
+          @for (h of d.horasPico; track h.etiqueta) {
+            <li>
+              <span class="es-fila-texto">{{ h.etiqueta }}</span>
+              <span class="es-fila-valor">{{ h.valor }} {{ h.valor === 1 ? 'pedido' : 'pedidos' }}</span>
+              <span class="es-pista" aria-hidden="true"><span class="es-relleno" [style.width]="anchoHora(h.valor)"></span></span>
+            </li>
+          }
+        </ul>
+        @if (horaMasFuerte(); as h) {
+          <p class="es-nota">Tu hora más fuerte es a las {{ h.etiqueta }}: ten listo lo más vendido antes.</p>
+        }
+      </section>
+    </div>
+  }
 </section>

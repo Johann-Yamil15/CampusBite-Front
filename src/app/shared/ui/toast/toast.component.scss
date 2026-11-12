@@ -123,3 +123,30 @@
     animation: none;
   }
 }
+
+// CL-Sprint5 11/11/2026 (etapa 7): botón de acción del aviso ("Deshacer"). Texto de marca, 44px de alto
+// para el dedo.
+.toast-accion {
+  flex-shrink: 0;
+  align-self: center;
+  min-height: 44px;
+  margin: -0.6rem 0;
+  padding: 0 0.6rem;
+  border: 0;
+  border-radius: var(--cb-radius);
+  background: none;
+  color: var(--cb-primary);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 800;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--cb-brand-soft);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--cb-focus-ring);
+  }
+}

@@ -1,7 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Producto sin imagen">
-  <rect width="400" height="300" fill="#f6f3f2"/>
-  <circle cx="200" cy="150" r="74" fill="#ffffff" stroke="#e1bfb5" stroke-width="4"/>
-  <circle cx="200" cy="150" r="50" fill="none" stroke="#eae7e7" stroke-width="4"/>
-  <path d="M112 96v40a12 12 0 0 0 12 12v58M124 96v40M136 96v40a12 12 0 0 1-12 12" fill="none" stroke="#ab3500" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
-  <path d="M288 206V96c-14 6-22 26-22 48v14h22" fill="none" stroke="#ab3500" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+  <!-- CL-Sprint5 11/11/2026: sigue el tema del sistema. Un SVG cargado con img no ve las variables CSS de
+       la página, por eso los colores se repiten aquí: son los tokens cb-surface-low, cb-surface, cb-line,
+       cb-surface-high y cb-primary de src/styles/_tokens.scss, en claro y en oscuro. (Un comentario XML
+       no admite dos guiones seguidos, por eso los nombres van sin ellos.) -->
+  <style>
+    .fondo { fill: #f6f3f2; }
+    .plato { fill: #ffffff; stroke: #e1bfb5; }
+    .borde { stroke: #eae7e7; }
+    .cubierto { stroke: #ab3500; }
+    @media (prefers-color-scheme: dark) {
+      .fondo { fill: #1b1a18; }
+      .plato { fill: #211f1d; stroke: #594139; }
+      .borde { stroke: #302d2a; }
+      .cubierto { stroke: #ffb59d; }
+    }
+  </style>
+  <rect class="fondo" width="400" height="300"/>
+  <circle class="plato" cx="200" cy="150" r="74" stroke-width="4"/>
+  <circle class="borde" cx="200" cy="150" r="50" fill="none" stroke-width="4"/>
+  <path class="cubierto" d="M112 96v40a12 12 0 0 0 12 12v58M124 96v40M136 96v40a12 12 0 0 1-12 12" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
+  <path class="cubierto" d="M288 206V96c-14 6-22 26-22 48v14h22" fill="none" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity="0.55"/>
 </svg>

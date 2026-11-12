@@ -1,79 +1,99 @@
-<!-- JY-Sprint4 05/11/2026: cascarón visual. Los cambios de horario y el cierre de hoy no se guardan todavía. -->
+<!-- JY-Sprint4 05/11/2026: horario de la semana y cierre de hoy.
+     CL-Sprint5 11/11/2026 (etapa 9): se guarda con NegocioFacade y lo respeta el alumno (catálogo y checkout). -->
 <section class="pg" aria-labelledby="horario-title">
   <header class="pg-head">
     <div>
       <h1 id="horario-title">Horario</h1>
       <p class="pg-sub">Cuándo puede pedirte un alumno.</p>
     </div>
-    <dl class="cb-kpis kpis">
-      <div>
-        <dt>Días que abres</dt>
-        <dd>{{ diasAbiertos() }}</dd>
-      </div>
-      <div>
-        <dt>Horas por semana</dt>
-        <dd>{{ horasSemana() }}</dd>
-      </div>
-    </dl>
+    @if (horario()) {
+      <dl class="cb-kpis kpis">
+        <div>
+          <dt>Días que abres</dt>
+          <dd>{{ diasAbiertos() }}</dd>
+        </div>
+        <div>
+          <dt>Horas por semana</dt>
+          <dd>{{ horasSemana() }}</dd>
+        </div>
+      </dl>
+    }
   </header>
 
-  <!-- Cierre temporal: manda sobre el horario de la semana -->
-  <article class="cb-card cierre" [class.activo]="cerradoHoy()">
-    <div class="cierre-texto">
-      <h2>{{ cerradoHoy() ? 'Cerrado por hoy' : 'Abierto según tu horario' }}</h2>
-      <p>
-        @if (cerradoHoy()) {
-          Los alumnos ven tu cafetería como cerrada y no pueden hacer pedidos.
-        } @else {
-          Si tienes un imprevisto, puedes cerrar solo por hoy sin tocar tu horario.
-        }
-      </p>
+  @if (error() && !horario()) {
+    <div class="vacio" role="alert">
+      <app-icon nombre="alerta" />
+      <h2>No pudimos cargar tu horario</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="cb-btn cb-btn--primary" (click)="cargar()"><app-icon nombre="recargar" />Reintentar</button>
     </div>
-    @if (cerradoHoy()) {
-      <button type="button" class="cb-btn cb-btn--primary" (click)="reabrir()">
-        Volver a abrir
-      </button>
-    } @else {
-      <button type="button" class="cb-btn cb-btn--danger" (click)="confirmandoCierre.set(true)">
-        Cerrar por hoy
-      </button>
-    }
-  </article>
-
-  <article class="cb-card">
-    <h2 class="cb-card-title">Horario de la semana</h2>
-    <ul class="dias">
-      @for (d of semana(); track d.dia) {
-        <li class="dia" [class.cerrado]="!d.abre">
-          <span class="dia-nombre">{{ d.dia }}</span>
-
-          @if (d.abre) {
-            <span class="dia-rango">{{ d.desde }} – {{ d.hasta }}</span>
-            <span class="chip estado-listo">Abierto</span>
+  } @else if (!horario()) {
+    <div class="hr-cargando" role="status" aria-label="Cargando tu horario">
+      <div class="cb-card cb-skeleton" style="height: 6rem" aria-hidden="true"></div>
+      <div class="cb-card cb-skeleton" style="height: 22rem" aria-hidden="true"></div>
+    </div>
+  } @else {
+    <!-- Cierre temporal: manda sobre el horario de la semana -->
+    <article class="cb-card cierre" [class.activo]="cerradoHoy()">
+      <div class="cierre-texto">
+        <h2>{{ cerradoHoy() ? 'Cerrado por hoy' : abiertaAhora() ? 'Abierto ahora' : 'Cerrado ahora (fuera de horario)' }}</h2>
+        <p>
+          @if (cerradoHoy()) {
+            Los alumnos ven tu cafetería como cerrada y no pueden hacer pedidos. Mañana abres con tu horario normal.
           } @else {
-            <span class="dia-rango">Sin servicio</span>
-            <span class="chip estado-cancelado">Cerrado</span>
+            Así te ven los alumnos en este momento. Si tienes un imprevisto, puedes cerrar solo por hoy sin tocar tu horario.
           }
-
-          <button type="button" class="cb-btn cb-btn--small" (click)="editar(d)">Editar</button>
-        </li>
+        </p>
+      </div>
+      @if (cerradoHoy()) {
+        <button type="button" class="cb-btn cb-btn--primary" [disabled]="guardando()" (click)="reabrir()">
+          {{ guardando() ? 'Abriendo…' : 'Volver a abrir' }}
+        </button>
+      } @else {
+        <button type="button" class="cb-btn cb-btn--danger" (click)="confirmandoCierre.set(true)">
+          Cerrar por hoy
+        </button>
       }
-    </ul>
-    <p class="nota">
-      El horario no cancela los pedidos ya aceptados: esos los sigues viendo en Pedidos.
-    </p>
-  </article>
+    </article>
+
+    <article class="cb-card">
+      <h2 class="cb-card-title">Horario de la semana</h2>
+      <ul class="dias">
+        @for (d of semana(); track $index; let i = $index) {
+          <li class="dia" [class.cerrado]="!d.abre" [class.hoy]="i === hoy">
+            <span class="dia-nombre">{{ nombres[i] }}@if (i === hoy) { <small>(hoy)</small>}</span>
+
+            @if (d.abre) {
+              <span class="dia-rango">{{ d.desde }} – {{ d.hasta }}</span>
+              <span class="chip estado-listo">Abierto</span>
+            } @else {
+              <span class="dia-rango">Sin servicio</span>
+              <span class="chip estado-cancelado">Cerrado</span>
+            }
+
+            <button type="button" class="cb-btn cb-btn--small" (click)="editar(i)">
+              Editar<span class="sr-only"> {{ nombres[i] }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+      <p class="nota">
+        Los alumnos solo pueden elegir horas de recogida dentro de tu horario de hoy. El horario no cancela los
+        pedidos ya aceptados: esos los sigues viendo en Pedidos.
+      </p>
+    </article>
+  }
 </section>
 
 <!-- Editar un día -->
 @if (editando(); as d) {
-  <app-modal [title]="d.dia" subtitle="Horario de este día" size="sm" (closed)="cerrar()">
+  <app-modal [title]="nombres[d.indice]" subtitle="Horario de este día" size="sm" (closed)="cerrar()">
     <div class="cb-switch-row">
       <label for="abre-dia">
         <strong>Abro este día</strong>
         <small>Si lo apagas, el día aparece como cerrado.</small>
       </label>
-      <input id="abre-dia" type="checkbox" class="cb-switch" [checked]="d.abre" (change)="alternarAbre()" />
+      <input id="abre-dia" type="checkbox" role="switch" class="cb-switch" data-modal-focus [checked]="d.abre" (change)="alternarAbre()" />
     </div>
 
     @if (d.abre) {
@@ -89,14 +109,17 @@
       </div>
 
       @if (!rangoValido()) {
-        <p class="cb-alert-error">La hora de cierre tiene que ser después de la de apertura.</p>
+        <p class="cb-alert-error" role="alert">La hora de cierre tiene que ser después de la de apertura.</p>
       }
+    }
+    @if (errorGuardar(); as e) {
+      <p class="cb-alert-error" role="alert">{{ e }}</p>
     }
 
     <div modalActions>
       <button type="button" class="cb-btn cb-btn--secondary" (click)="cerrar()">Cancelar</button>
-      <button type="button" class="cb-btn cb-btn--primary" [disabled]="!rangoValido()" (click)="guardar()">
-        Guardar
+      <button type="button" class="cb-btn cb-btn--primary" [disabled]="!rangoValido() || guardando()" (click)="guardar()">
+        {{ guardando() ? 'Guardando…' : 'Guardar' }}
       </button>
     </div>
   </app-modal>
@@ -114,8 +137,8 @@
       <button type="button" class="cb-btn cb-btn--secondary" (click)="confirmandoCierre.set(false)">
         Cancelar
       </button>
-      <button type="button" class="cb-btn cb-btn--danger" data-modal-focus (click)="confirmarCierre()">
-        Sí, cerrar hoy
+      <button type="button" class="cb-btn cb-btn--danger" data-modal-focus [disabled]="guardando()" (click)="confirmarCierre()">
+        {{ guardando() ? 'Cerrando…' : 'Sí, cerrar hoy' }}
       </button>
     </div>
   </app-modal>

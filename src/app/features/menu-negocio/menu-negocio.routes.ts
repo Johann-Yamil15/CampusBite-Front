@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { MenuNegocioFacade } from '@features/menu-negocio/application/menu-negocio.facade';
 import { MenuRepository } from '@features/menu-negocio/domain/repositories/menu.repository';
 import { MenuHttpRepository } from '@features/menu-negocio/data/repositories/menu-http.repository';
+import { provideNegocio } from '@features/menu-negocio/negocio.providers';
 
 /**
  * CL-Sprint4 28/10/2026: HU-07B. Panel del negocio (`/mi-negocio`). Se monta en app.routes.ts con
@@ -26,6 +27,8 @@ export default [
   },
   {
     path: '',
+    // CL-Sprint5 11/11/2026 (etapa 9): horario y promociones (mock compartido con el catálogo del alumno)
+    providers: [provideNegocio()],
     loadComponent: () =>
       import('@features/menu-negocio/presentation/layout/negocio-layout.component').then(
         (m) => m.NegocioLayoutComponent,
@@ -61,6 +64,15 @@ export default [
         loadComponent: () =>
           import('@features/menu-negocio/presentation/pages/horario/horario.page').then(
             (m) => m.HorarioPage,
+          ),
+      },
+      {
+        // CL-Sprint5 11/11/2026 (etapa 9): datos del negocio y métodos de pago (CafeteriaFacade.update)
+        path: 'configuracion',
+        title: 'Configuración · CampusBite',
+        loadComponent: () =>
+          import('@features/menu-negocio/presentation/pages/configuracion/configuracion.page').then(
+            (m) => m.ConfiguracionPage,
           ),
       },
     ],

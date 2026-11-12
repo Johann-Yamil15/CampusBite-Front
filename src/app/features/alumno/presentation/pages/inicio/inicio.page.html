@@ -1,0 +1,167 @@
+<!-- CL-Sprint5 11/11/2026: inicio del alumno (etapa 3). Sin buscador propio: vive en la barra superior. -->
+<div class="in">
+  <header class="in-head">
+    <h1>¿Qué se te antoja hoy, {{ primerNombre() }}?</h1>
+    <p>Pide antes de tu receso y recoge sin hacer fila.</p>
+  </header>
+
+  <!-- Pedido en curso: el atajo más útil cuando hay uno -->
+  @if (pedidoActivo(); as o) {
+    <a class="in-activo" [class.listo]="o.estado === 'lista'" [routerLink]="['/pedidos', o.idOrden]">
+      <span class="in-activo-icono">
+        <app-icon [nombre]="o.estado === 'lista' ? 'palomita-circulo' : 'reloj'" />
+      </span>
+      <span class="in-activo-texto">
+        <strong>
+          @if (o.estado === 'lista') {
+            ¡Tu pedido está listo para recoger!
+          } @else {
+            Tu pedido va en «{{ etiquetaEtapa[etapa(o.estado)] }}»
+          }
+        </strong>
+        <small>{{ o.cafeteria }} · {{ o.puntoEntrega }} · {{ o.recogidaEn | date: 'HH:mm' }}</small>
+      </span>
+      <span class="in-activo-ver">Ver <app-icon nombre="flecha-der" /></span>
+    </a>
+  }
+
+  <!-- Promociones -->
+  @if (promociones().length) {
+    <section class="in-sec" aria-labelledby="in-promos" aria-roledescription="carrusel">
+      <h2 id="in-promos" class="sr-only">Promociones</h2>
+      <div class="in-carrusel-marco">
+        <div class="in-carrusel" #carrusel (scroll)="alDeslizar()">
+          @for (promo of promociones(); track promo.idPromocion; let i = $index) {
+            <a
+              class="in-promo"
+              [routerLink]="enlacePromo(promo)"
+              [queryParams]="parametrosPromo(promo)"
+              [attr.aria-label]="promo.titulo + '. ' + promo.subtitulo"
+              aria-roledescription="diapositiva"
+            >
+              @if (promo.imagenUrl) {
+                <img [src]="promo.imagenUrl" alt="" [attr.loading]="i === 0 ? 'eager' : 'lazy'" width="500" height="210" />
+              }
+              <span class="in-promo-texto">
+                <span class="cb-badge cb-badge--promo">{{ promo.etiqueta }}</span>
+                <strong>{{ promo.titulo }}</strong>
+                <small>{{ promo.subtitulo }}</small>
+              </span>
+            </a>
+          }
+        </div>
+        <button type="button" class="cb-btn cb-btn--icon in-flecha izq" aria-label="Promoción anterior" (click)="mover(-1)">
+          <app-icon nombre="flecha-izq" />
+        </button>
+        <button type="button" class="cb-btn cb-btn--icon in-flecha der" aria-label="Siguiente promoción" (click)="mover(1)">
+          <app-icon nombre="flecha-der" />
+        </button>
+      </div>
+      <div class="in-puntos">
+        @for (promo of promociones(); track promo.idPromocion; let i = $index) {
+          <button
+            type="button"
+            class="in-punto"
+            [class.activo]="diapositiva() === i"
+            [attr.aria-label]="'Ir a la promoción ' + (i + 1) + ' de ' + promociones().length"
+            [attr.aria-current]="diapositiva() === i"
+            (click)="irA(i)"
+          ></button>
+        }
+      </div>
+    </section>
+  }
+
+  @if (error(); as e) {
+    <div class="cb-alert-error" role="alert">
+      <span>{{ e }}</span>
+      <button type="button" class="cb-btn cb-btn--small" (click)="cargar(true)">Reintentar</button>
+    </div>
+  }
+
+  <!-- Categorías -->
+  @if (categorias().length) {
+    <section class="in-sec" aria-labelledby="in-categorias">
+      <header class="cb-seccion-head">
+        <h2 id="in-categorias">Categorías</h2>
+        <a class="cb-link" routerLink="/buscar">Ver todo <app-icon nombre="flecha-der" /></a>
+      </header>
+      <ul class="in-categorias">
+        @for (cat of categorias(); track cat.nombre) {
+          <li>
+            <a class="in-categoria" routerLink="/buscar" [queryParams]="{ categoria: cat.nombre }">
+              <span class="in-categoria-foto">
+                @if (cat.foto) {
+                  <img [src]="cat.foto" alt="" loading="lazy" width="72" height="72" />
+                }
+              </span>
+              <span>{{ cat.nombre }}</span>
+            </a>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <!-- Cafeterías -->
+  <section class="in-sec" aria-labelledby="in-cafeterias" [attr.aria-busy]="cargando()">
+    <header class="cb-seccion-head">
+      <h2 id="in-cafeterias">Cafeterías</h2>
+      @if (cafeterias().length) {
+        <span class="in-conteo">{{ cafeterias().length }} cerca de ti</span>
+      }
+    </header>
+    <div class="in-fila">
+      @if (cargando() && !cafeterias().length) {
+        @for (i of esqueletos; track i) {
+          <div class="in-esqueleto cb-card">
+            <div class="cb-skeleton" style="aspect-ratio: 16 / 9; border-radius: 0"></div>
+            <div class="in-esqueleto-cuerpo">
+              <div class="cb-skeleton" style="height: 0.9rem; width: 60%"></div>
+              <div class="cb-skeleton" style="height: 0.8rem; width: 80%"></div>
+            </div>
+          </div>
+        }
+      } @else {
+        @for (c of cafeterias(); track c.idCafeteria) {
+          <app-cafeteria-card
+            [cafeteria]="c"
+          />
+        } @empty {
+          @if (!error()) {
+            <p class="in-vacio-texto">Por ahora no hay cafeterías disponibles.</p>
+          }
+        }
+      }
+    </div>
+  </section>
+
+  <!-- Populares -->
+  <section class="in-sec" aria-labelledby="in-populares" [attr.aria-busy]="cargando()">
+    <header class="cb-seccion-head">
+      <h2 id="in-populares">Lo más pedido</h2>
+      <a class="cb-link" routerLink="/buscar">Ver más <app-icon nombre="flecha-der" /></a>
+    </header>
+    <div class="in-grid">
+      @if (cargando() && !populares().length) {
+        @for (i of esqueletos; track i) {
+          <div class="in-esqueleto cb-card">
+            <div class="cb-skeleton" style="aspect-ratio: 4 / 3; border-radius: 0"></div>
+            <div class="in-esqueleto-cuerpo">
+              <div class="cb-skeleton" style="height: 0.9rem; width: 70%"></div>
+              <div class="cb-skeleton" style="height: 1.2rem; width: 35%"></div>
+            </div>
+          </div>
+        }
+      } @else {
+        @for (p of populares(); track p.idProducto) {
+          <app-platillo-card [platillo]="p" />
+        } @empty {
+          @if (!error()) {
+            <p class="in-vacio-texto">Todavía no hay platillos destacados.</p>
+          }
+        }
+      }
+    </div>
+  </section>
+</div>

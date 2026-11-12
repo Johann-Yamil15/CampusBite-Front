@@ -21,6 +21,8 @@ import { errorInterceptor } from '@core/interceptors/error.interceptor';
 import { loadingInterceptor } from '@core/interceptors/loading.interceptor';
 import { provideAuth } from '@features/auth';
 import { provideCafeterias } from '@features/cafeterias';
+import { provideCatalogo } from '@features/catalogo';
+import { provideOrdenes } from '@features/ordenes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -40,6 +42,9 @@ export const appConfig: ApplicationConfig = {
     provideAuth(),
     // CL-Sprint3 20/10/2026: cafeterías las usan el panel del admin y el alumno (elegir cafetería)
     provideCafeterias(),
+    // CL-Sprint5 11/11/2026: el carrito (global), el alumno y el tablero del negocio comparten catálogo y órdenes
+    provideCatalogo(),
+    provideOrdenes(),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',

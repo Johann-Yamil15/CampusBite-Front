@@ -1,0 +1,241 @@
+// CL-Sprint5 11/11/2026: tienda de una cafetería (etapa 3). Cabecera estilo perfil, como el Panel de Negocio:
+// portada, logo que se monta sobre ella, nombre y datos. Todo con tokens (sin texto sobre la foto: el nombre
+// va debajo de la portada, en --cb-ink sobre --cb-surface, así se lee en los dos temas).
+@use 'breakpoints' as *;
+
+.ti-volver {
+  margin-bottom: var(--cb-space-md);
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-height: 44px;
+    color: var(--cb-text-muted);
+    font-size: var(--cb-text-sm);
+    font-weight: 700;
+    text-decoration: none;
+
+    --icon-size: 1rem;
+
+    &:hover {
+      color: var(--cb-primary);
+    }
+
+    &:focus-visible {
+      outline: none;
+      border-radius: var(--cb-radius-sm);
+      box-shadow: var(--cb-focus-ring);
+    }
+  }
+}
+
+.ti {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cb-space-xl);
+}
+
+// ---------- Cabecera ----------
+.ti-cabeza {
+  padding: 0;
+  overflow: hidden;
+}
+
+.ti-portada {
+  aspect-ratio: 16 / 7;
+
+  @media (min-width: $cb-bp-desktop) {
+    aspect-ratio: 16 / 5;
+  }
+}
+
+.ti-portada-esq {
+  aspect-ratio: 16 / 5;
+  border-radius: 0;
+}
+
+.ti-identidad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--cb-space-md);
+  padding: 0 var(--cb-space-lg) var(--cb-space-md);
+}
+
+.ti-logo {
+  flex-shrink: 0;
+  width: 5.5rem;
+  height: 5.5rem;
+  margin-top: -2.75rem;
+  border: 4px solid var(--cb-surface);
+  border-radius: var(--cb-radius-pill);
+  object-fit: cover;
+  background: var(--cb-surface);
+  box-shadow: var(--cb-shadow-md);
+  position: relative;
+
+  @media (min-width: $cb-bp-desktop) {
+    width: 7rem;
+    height: 7rem;
+    margin-top: -3.5rem;
+  }
+}
+
+.ti-titulo {
+  flex: 1;
+  min-width: 12rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-top: var(--cb-space-sm);
+
+  h1 {
+    margin: 0;
+    font-size: var(--cb-text-2xl);
+    font-weight: 800;
+    letter-spacing: var(--cb-tracking-tight);
+    line-height: var(--cb-leading-tight);
+    color: var(--cb-ink);
+
+    @media (min-width: $cb-bp-desktop) {
+      font-size: var(--cb-text-3xl);
+    }
+  }
+}
+
+.ti-acciones {
+  display: flex;
+  gap: var(--cb-space-sm);
+}
+
+.ti-datos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--cb-space-md);
+  margin: 0;
+  padding: var(--cb-space-md) var(--cb-space-lg) var(--cb-space-lg);
+  border-top: 1px solid var(--cb-line-soft);
+
+  @media (min-width: $cb-bp-tablet) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  dt {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: var(--cb-text-xs);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--cb-text-muted);
+
+    --icon-size: 0.95rem;
+  }
+
+  dd {
+    margin: 0.3rem 0 0;
+    color: var(--cb-ink);
+    font-weight: 600;
+  }
+}
+
+.ti-metodos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.ti-cerrada {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--cb-line);
+  border-radius: var(--cb-radius-lg);
+  background: var(--cb-surface-low);
+  color: var(--cb-ink-soft);
+
+  --icon-size: 1.25rem;
+}
+
+// ---------- Menú ----------
+// Los filtros se quedan pegados bajo la barra superior al desplazarse
+.ti-filtros {
+  position: sticky;
+  top: 64px;
+  z-index: 5;
+  margin-block: calc(-1 * var(--cb-space-sm));
+  padding-block: var(--cb-space-sm);
+  background: var(--cb-bg);
+}
+
+.ti-seccion {
+  min-width: 0;
+  scroll-margin-top: 8rem;
+}
+
+.ti-conteo {
+  font-size: var(--cb-text-sm);
+  color: var(--cb-text-muted);
+}
+
+.ti-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--cb-space-sm);
+
+  @media (min-width: $cb-bp-tablet) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--cb-space-md);
+  }
+
+  @media (min-width: $cb-bp-desktop) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+// El ícono del estado vacío es app-icon (no un svg suelto como en .vacio)
+.vacio app-icon {
+  --icon-size: 2.75rem;
+  color: var(--cb-primary-container);
+}
+
+
+// CL-Sprint5 11/11/2026 (etapa 9): franja de promociones del local. Se desliza de lado en teléfono.
+.ti-promos {
+  display: flex;
+  gap: var(--cb-space-sm);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-block: 2px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.ti-promo {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  max-width: 20rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--cb-primary-container);
+  border-radius: var(--cb-radius-lg);
+  background: var(--cb-brand-soft);
+
+  strong {
+    display: block;
+    color: var(--cb-ink);
+  }
+
+  p {
+    margin: 0.15rem 0 0;
+    font-size: var(--cb-text-sm);
+    color: var(--cb-ink-soft);
+  }
+}

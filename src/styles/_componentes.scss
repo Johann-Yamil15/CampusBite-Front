@@ -1,0 +1,391 @@
+// CL-Sprint5 11/11/2026: piezas base del sistema de diseño unificado (alumno + negocio). Viven como clases
+// globales por la misma razón que el resto de styles.scss: el presupuesto de estilos es por componente y
+// estas piezas se repiten en todas las pantallas. Todo sale de los tokens (_tokens.scss), nada de colores
+// sueltos, para que funcionen igual en claro y en oscuro. Catálogo vivo: /sistema-diseno (solo en desarrollo).
+@use 'breakpoints' as *;
+
+// ---------- Botones: variantes que faltaban ----------
+
+// Botón sin relleno, para acciones terciarias ("Ver todo", "Cancelar" dentro de una tarjeta)
+.cb-btn--ghost {
+  background: transparent;
+  color: var(--cb-primary);
+  &:hover:not(:disabled) {
+    background: var(--cb-brand-soft);
+  }
+}
+
+// Botón grande: la acción final de una pantalla (pagar, confirmar pedido)
+.cb-btn--lg {
+  min-height: 52px;
+  padding: 0.85rem 1.5rem;
+  font-size: var(--cb-text-md);
+  border-radius: var(--cb-radius);
+}
+
+// Ocupa todo el ancho (no confundir con .cb-btn--block, que es el de login/registro)
+.cb-btn--full {
+  width: 100%;
+}
+
+// Botón redondo de solo ícono: SIEMPRE con aria-label o .sr-only. 44px = objetivo táctil mínimo.
+.cb-btn--icon {
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: var(--cb-radius-pill);
+  border-color: var(--cb-line-soft);
+  background: var(--cb-surface);
+  color: var(--cb-ink-soft);
+  &:hover:not(:disabled) {
+    background: var(--cb-surface-high);
+    color: var(--cb-ink);
+  }
+}
+
+// Sombra de la acción principal, solo para el CTA flotante o el final de un flujo
+.cb-btn--elevado {
+  box-shadow: 0 10px 22px -10px var(--cb-action-shadow);
+}
+
+// ---------- Insignias ----------
+// <span class="cb-badge cb-badge--promo">-20%</span>. Texto corto; si comunican estado, no dependen solo
+// del color: el texto lo dice.
+.cb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--cb-radius-pill);
+  font-size: var(--cb-text-xs);
+  font-weight: 800;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  background: var(--cb-surface-high);
+  color: var(--cb-ink-soft);
+
+  app-icon {
+    --icon-size: 0.875rem;
+  }
+}
+
+.cb-badge--promo {
+  background: var(--cb-promo);
+  color: var(--cb-on-promo);
+}
+
+.cb-badge--marca {
+  background: var(--cb-action);
+  color: var(--cb-on-action);
+}
+
+.cb-badge--ok {
+  background: var(--cb-success-soft);
+  color: var(--cb-success);
+}
+
+.cb-badge--alerta {
+  background: var(--cb-danger-soft);
+  color: var(--cb-danger);
+}
+
+// Sobre una foto: fondo sólido para que se lea encima de cualquier imagen
+.cb-badge--foto {
+  background: rgba(20, 12, 8, 0.72);
+  color: var(--cb-on-image);
+  backdrop-filter: blur(4px);
+}
+
+// ---------- Chips de filtro ----------
+// <button class="cb-chip" [attr.aria-pressed]="activo">Bebidas</button>. El estado lo lleva aria-pressed
+// (lo anuncia el lector de pantalla) y el estilo se cuelga de él, así no hay dos fuentes de verdad.
+.cb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 40px;
+  padding: 0 0.95rem;
+  border: 1px solid var(--cb-line-soft);
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-surface);
+  color: var(--cb-ink-soft);
+  font: inherit;
+  font-size: var(--cb-text-sm);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--cb-dur-state),
+    border-color var(--cb-dur-state),
+    color var(--cb-dur-state);
+
+  app-icon {
+    --icon-size: 1rem;
+  }
+
+  &:hover {
+    border-color: var(--cb-line);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--cb-focus-ring);
+  }
+
+  &[aria-pressed='true'] {
+    border-color: transparent;
+    background: var(--cb-ink);
+    color: var(--cb-bg);
+  }
+}
+
+// Fila de chips que se desliza de lado en teléfono (sin barra visible) y se acomoda en varias líneas arriba
+.cb-chips {
+  display: flex;
+  gap: var(--cb-space-sm);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-block: 2px; // deja ver el anillo de foco
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: $cb-bp-desktop) {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+}
+
+// ---------- Tarjetas ----------
+
+// Tarjeta que se toca entera (platillo, cafetería): sube un poco al pasar el mouse
+.cb-card--interactiva {
+  transition:
+    transform var(--cb-dur-state) var(--cb-ease-out),
+    box-shadow var(--cb-dur-state) var(--cb-ease-out);
+
+  @media (hover: hover) {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--cb-shadow-md);
+    }
+  }
+}
+
+// Contenedor de foto con proporción fija: reserva el espacio (sin saltos al cargar) y muestra un fondo
+// mientras llega la imagen. <div class="cb-media cb-media--4x3"><img …></div>
+.cb-media {
+  position: relative;
+  overflow: hidden;
+  background: var(--cb-skeleton);
+  aspect-ratio: 4 / 3;
+
+  > img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.cb-media--16x9 {
+  aspect-ratio: 16 / 9;
+}
+.cb-media--1x1 {
+  aspect-ratio: 1;
+}
+
+// Velo para escribir sobre la foto
+.cb-media--velo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--cb-image-scrim);
+  pointer-events: none;
+}
+
+// ---------- Encabezado de sección ----------
+// <header class="cb-seccion-head"><h2>Populares</h2><a class="cb-link">Ver todo</a></header>
+.cb-seccion-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--cb-space-md);
+  margin-bottom: var(--cb-space-md);
+
+  h2,
+  h3 {
+    margin: 0;
+    font-size: var(--cb-text-xl);
+    font-weight: 800;
+    letter-spacing: var(--cb-tracking-tight);
+    color: var(--cb-ink);
+  }
+}
+
+.cb-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  border: 0;
+  padding: 0.25rem 0;
+  background: none;
+  color: var(--cb-primary);
+  font: inherit;
+  font-size: var(--cb-text-sm);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  &:focus-visible {
+    outline: none;
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-focus-ring);
+  }
+}
+
+// ---------- Datos chicos ----------
+
+// Precio: cifras de ancho fijo para que no "bailen" al cambiar la cantidad
+.cb-precio {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--cb-ink);
+}
+
+.cb-precio-antes {
+  font-size: var(--cb-text-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--cb-text-muted);
+  text-decoration: line-through;
+}
+
+// Metadatos en línea (rating · 10 min · Edificio A), separados por un punto
+.cb-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.6rem;
+  margin: 0;
+  font-size: var(--cb-text-sm);
+  color: var(--cb-text-muted);
+
+  > * {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  > * + *::before {
+    content: '·';
+    margin-right: 0.35rem;
+    color: var(--cb-line);
+  }
+
+  app-icon {
+    --icon-size: 0.95rem;
+  }
+}
+
+// Estado abierto/cerrado de una cafetería: punto + texto (no solo color)
+.cb-estado-local {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--cb-text-sm);
+  font-weight: 700;
+  color: var(--cb-success);
+
+  &::before {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  &.cerrado {
+    color: var(--cb-text-muted);
+  }
+}
+
+.cb-avatar {
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--cb-radius-pill);
+  object-fit: cover;
+  background: var(--cb-surface-high);
+}
+
+// ---------- Esqueleto de carga ----------
+// Bloque gris con brillo mientras llegan los datos. Se le da tamaño desde fuera:
+// <div class="cb-skeleton" style="height: 1rem; width: 60%"></div>. Va dentro de un contenedor con
+// aria-busy="true" para que el lector de pantalla sepa que está cargando.
+.cb-skeleton {
+  display: block;
+  border-radius: var(--cb-radius-sm);
+  background: linear-gradient(
+      90deg,
+      var(--cb-skeleton) 0%,
+      var(--cb-skeleton-shine) 50%,
+      var(--cb-skeleton) 100%
+    )
+    0 0 / 200% 100%;
+  animation: cb-brillo 1.3s ease-in-out infinite;
+}
+
+@keyframes cb-brillo {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+// ---------- Contenedor de página ----------
+.cb-contenedor {
+  width: 100%;
+  max-width: var(--cb-content-max);
+  margin-inline: auto;
+  padding-inline: var(--cb-gutter);
+}
+
+// ---------- Movimiento ----------
+
+// Rebote corto al cambiar un número (contador del carrito, cantidad). Se reactiva quitando y poniendo
+// la clase o cambiando el @key del elemento.
+.cb-rebote {
+  animation: cb-rebote var(--cb-dur-enter) var(--cb-ease-spring);
+}
+
+@keyframes cb-rebote {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cb-card--interactiva,
+  .cb-chip,
+  .cb-btn {
+    transition: none;
+  }
+  .cb-skeleton,
+  .cb-rebote {
+    animation: none;
+  }
+  .cb-btn:active:not(:disabled) {
+    transform: none;
+  }
+}

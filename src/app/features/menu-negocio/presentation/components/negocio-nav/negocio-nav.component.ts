@@ -2,6 +2,8 @@
 // JY-Sprint4 05/11/2026: Pedidos, Promociones, Estadísticas y Horario ya tienen pantalla (cascarón visual),
 // así que dejan de ser "Pronto" y navegan de verdad. "Perfil del negocio" vive en Inicio y Configuración
 // sigue sin historia.
+// CL-Sprint5 11/11/2026 (etapa 9): Configuración ya existe (datos del negocio y métodos de pago), así que deja
+// de ser "Pronto". Pedidos muestra cuántos pedidos nuevos esperan.
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
@@ -35,7 +37,7 @@ const NAV: NavItem[] = [
   { icon: 'promociones', label: 'Promociones', kind: 'link', link: '/mi-negocio/promociones' },
   { icon: 'estadisticas', label: 'Estadísticas', kind: 'link', link: '/mi-negocio/estadisticas' },
   { icon: 'horario', label: 'Horario', kind: 'link', link: '/mi-negocio/horario' },
-  { icon: 'configuracion', label: 'Configuración', kind: 'soon' },
+  { icon: 'configuracion', label: 'Configuración', kind: 'link', link: '/mi-negocio/configuracion' },
 ];
 
 @Component({
@@ -48,6 +50,8 @@ const NAV: NavItem[] = [
 export class NegocioNavComponent {
   /** La cafetería (o `null` mientras carga) para la tarjeta de abajo. */
   readonly cafeteria = input<Cafeteria | null>(null);
+  /** CL-Sprint5 11/11/2026 (etapa 9): pedidos nuevos (insignia de "Pedidos"); 0 = sin insignia. */
+  readonly pedidosNuevos = input(0);
   /** "Menú": el panel lleva a la galería de platillos. */
   readonly goToMenu = output<void>();
   readonly logout = output<void>();

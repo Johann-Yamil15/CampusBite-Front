@@ -22,6 +22,10 @@
           >
             <ng-container *ngTemplateOutlet="icon; context: { $implicit: item.icon }" />
             <span class="label">{{ item.label }}</span>
+            <!-- CL-Sprint5 11/11/2026 (etapa 9): pedidos nuevos esperando -->
+            @if (item.icon === 'pedidos' && pedidosNuevos()) {
+              <span class="nav-badge">{{ pedidosNuevos() }}<span class="sr-only"> pedidos nuevos</span></span>
+            }
           </a>
         }
         @case ('menu') {

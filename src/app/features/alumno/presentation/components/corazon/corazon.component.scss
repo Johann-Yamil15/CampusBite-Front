@@ -1,0 +1,121 @@
+// CL-Sprint5 11/11/2026 (etapa 7): corazón de favoritos. El rojo es --cb-danger-action (el mismo del
+// corazón de la etapa 3) y en la variante sobre foto el fondo es la superficie, para leerse en cualquier foto.
+:host {
+  display: inline-flex;
+}
+
+.cz {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-surface);
+  color: var(--cb-ink-soft);
+  box-shadow: var(--cb-shadow-sm);
+  cursor: pointer;
+  transition:
+    color var(--cb-dur-state) var(--cb-ease-out),
+    transform var(--cb-dur-press) var(--cb-ease-out);
+
+  --icon-size: 1.25rem;
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--cb-focus-ring);
+  }
+
+  &.activo {
+    color: var(--cb-danger-action);
+  }
+
+  // Destello: un anillo que se abre y se desvanece al guardar
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 2px solid var(--cb-danger-action);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &.late {
+    app-icon {
+      animation: cz-late var(--cb-dur-enter) var(--cb-ease-spring);
+    }
+
+    &::after {
+      animation: cz-destello var(--cb-dur-enter) var(--cb-ease-out);
+    }
+  }
+}
+
+// Variante con texto (tienda): usa .cb-btn--secondary y solo cambia el color al estar guardada
+.cz--etiqueta {
+  display: inline-flex;
+  gap: 0.4rem;
+  width: auto;
+  height: auto;
+  padding: 0 1rem;
+  box-shadow: none;
+
+  --icon-size: 1.1rem;
+
+  &.activo {
+    border-color: var(--cb-danger-line);
+    color: var(--cb-danger);
+
+    app-icon {
+      color: var(--cb-danger-action);
+    }
+  }
+
+  &::after {
+    display: none;
+  }
+}
+
+@keyframes cz-late {
+  0% {
+    transform: scale(1);
+  }
+
+  40% {
+    transform: scale(1.35);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes cz-destello {
+  from {
+    opacity: 0.7;
+    transform: scale(0.8);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cz.late app-icon,
+  .cz.late::after {
+    animation: none;
+  }
+
+  .cz:active {
+    transform: none;
+  }
+}

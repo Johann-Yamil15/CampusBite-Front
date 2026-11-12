@@ -1,0 +1,220 @@
+// CL-Sprint5 11/11/2026: tarjeta de platillo. Todo con tokens: el nombre es --cb-ink sobre --cb-surface en
+// los dos temas (el inicio anterior tenía texto oscuro fijo sobre la tarjeta oscura).
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.pc {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.pc-foto {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: inset var(--cb-focus-ring);
+  }
+
+  img {
+    transition: transform var(--cb-dur-enter) var(--cb-ease-out);
+  }
+
+  @media (hover: hover) {
+    &:hover img {
+      transform: scale(1.04);
+    }
+  }
+}
+
+.pc-oferta {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+}
+
+.pc-cuerpo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.75rem 0.85rem 0.85rem;
+}
+
+.pc-nombre {
+  margin: 0;
+  font-size: var(--cb-text-md);
+  font-weight: 800;
+  line-height: var(--cb-leading-tight);
+}
+
+.pc-nombre-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--cb-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--cb-primary);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-radius: var(--cb-radius-sm);
+    box-shadow: var(--cb-focus-ring);
+  }
+}
+
+.pc-meta {
+  font-size: var(--cb-text-xs);
+}
+
+.pc-cafeteria {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--cb-text-xs);
+  color: var(--cb-text-muted);
+
+  --icon-size: 0.85rem;
+}
+
+.pc-pie {
+  display: flex;
+  flex-wrap: wrap; // CL-Sprint5 (etapa 7): en tarjetas angostas el botón o el aviso bajan de línea
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cb-space-sm);
+  margin-top: auto;
+  padding-top: 0.35rem;
+}
+
+.pc-precios,
+.pd-precios {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.4rem;
+  font-size: var(--cb-text-lg);
+}
+
+// "+" redondo de la acción principal: 44px de toque
+.pc-agregar {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-action);
+  color: var(--cb-on-action);
+  box-shadow: 0 8px 18px -8px var(--cb-action-shadow);
+  cursor: pointer;
+  transition:
+    background var(--cb-dur-state),
+    transform var(--cb-dur-press) var(--cb-ease-out);
+
+  --icon-size: 1.25rem;
+
+  &:hover {
+    background: var(--cb-action-hover);
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--cb-focus-ring);
+  }
+}
+
+.pc-no-disponible {
+  font-size: var(--cb-text-xs);
+  font-weight: 700;
+  color: var(--cb-text-muted);
+}
+
+.pc-cerrada .pc-foto img {
+  filter: grayscale(0.7);
+  opacity: 0.75;
+}
+
+// ---------- Detalle ----------
+.pd {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cb-space-md);
+}
+
+.pd-foto {
+  border-radius: var(--cb-radius-lg);
+}
+
+.pd-desc {
+  margin: 0;
+  color: var(--cb-text-muted);
+
+  strong {
+    color: var(--cb-ink);
+  }
+}
+
+.pd-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cb-space-md);
+}
+
+.pd-aviso {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: var(--cb-radius);
+  background: var(--cb-surface-low);
+  color: var(--cb-ink-soft);
+  font-size: var(--cb-text-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pc-foto img,
+  .pc-agregar {
+    transition: none;
+  }
+}
+
+// CL-Sprint5 11/11/2026 (etapa 7): corazón sobre la esquina de la foto (fuera del botón de la foto, para no
+// anidar botones) y botón "Agregar" con texto de Favoritos.
+.pc-fav {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+}
+
+.pc-agregar-texto {
+  flex: 1 0 auto;
+  justify-content: center;
+
+  --icon-size: 1rem;
+}
