@@ -1,235 +1,221 @@
-<!-- JY-Sprint4 05/11/2026: cascarón visual. Editar perfil y cambiar contraseña validan y aplican el cambio
-     en pantalla; "Cerrar sesión" cierra la sesión de verdad. Falta persistir en el back. -->
-<section class="pg" aria-labelledby="perfil-title">
-  <header class="pg-head">
-    <div>
-      <h1 id="perfil-title">Mi perfil</h1>
-      <p class="pg-sub">Tus datos, tus avisos y tu sesión.</p>
-    </div>
-  </header>
+<!-- CL-Sprint5 11/11/2026 (etapa 8): perfil del alumno -->
+<section class="pf" aria-labelledby="pf-titulo">
+  <h1 id="pf-titulo" class="sr-only">Mi perfil</h1>
 
-  <article class="cb-card identidad">
-    <img [src]="foto" alt="" width="84" height="84" />
-    <div class="identidad-datos">
-      <h2>{{ nombre() }}</h2>
-      <p class="correo">{{ correo() }}</p>
-      @if (telefono()) {
-        <p class="correo">{{ telefono() }}</p>
-      }
-      <p class="etiquetas">
-        <span class="chip estado-listo">{{ rol() }}</span>
-        <span class="chip estado-recibido">Matrícula {{ matricula }}</span>
-      </p>
+  @if (error() && !perfil()) {
+    <div class="vacio" role="alert">
+      <app-icon nombre="alerta" />
+      <h2>No pudimos cargar tu perfil</h2>
+      <p>{{ error() }}</p>
+      <button type="button" class="cb-btn cb-btn--primary" (click)="cargar()"><app-icon nombre="recargar" />Reintentar</button>
     </div>
-    <button type="button" class="cb-btn cb-btn--secondary" (click)="abrirEditar()">
-      Editar perfil
-    </button>
-  </article>
-
-  <div class="cols">
-    <div class="col">
-      <article class="cb-card">
-        <h2 class="cb-card-title">Mi actividad</h2>
-        <div class="metricas">
-          <a class="metrica" routerLink="/pedidos">
-            <strong>{{ pedidosTotales() }}</strong>
-            <span>Pedidos hechos</span>
-          </a>
-          <a class="metrica" routerLink="/pedidos">
-            <strong>{{ pedidosEnCurso() }}</strong>
-            <span>En curso ahora</span>
-          </a>
-          <a class="metrica" routerLink="/favoritos">
-            <strong>3</strong>
-            <span>Favoritos</span>
-          </a>
+  } @else if (!perfil()) {
+    <div class="pf-cargando" role="status" aria-label="Cargando tu perfil">
+      <div class="cb-card pf-id" aria-hidden="true">
+        <div class="cb-skeleton pf-esq-avatar"></div>
+        <div class="pf-esq-txt">
+          <div class="cb-skeleton" style="height: 1.4rem; width: 55%"></div>
+          <div class="cb-skeleton" style="height: 0.9rem; width: 40%"></div>
         </div>
-      </article>
-
-      <article class="cb-card">
-        <h2 class="cb-card-title">Avisos</h2>
-        <ul class="opciones">
-          <li class="cb-switch-row opcion">
-            <label for="avisos-pedido">
-              <strong>Estado de mis pedidos</strong>
-              <small>Te avisamos cuando tu pedido esté listo para recoger.</small>
-            </label>
-            <input
-              id="avisos-pedido"
-              type="checkbox"
-              class="cb-switch"
-              [checked]="avisosPedido()"
-              (change)="alternarAviso('avisosPedido')"
-            />
-          </li>
-          <li class="cb-switch-row opcion">
-            <label for="avisos-promos">
-              <strong>Promociones</strong>
-              <small>Ofertas de las cafeterías que sigues.</small>
-            </label>
-            <input
-              id="avisos-promos"
-              type="checkbox"
-              class="cb-switch"
-              [checked]="avisosPromos()"
-              (change)="alternarAviso('avisosPromos')"
-            />
-          </li>
-        </ul>
-      </article>
+      </div>
+      @for (s of esqueletos; track s) {
+        <div class="cb-card cb-skeleton pf-esq-tarjeta" aria-hidden="true"></div>
+      }
     </div>
+  } @else {
+    <!-- Encabezado -->
+    <header class="cb-card pf-id">
+      <span class="pf-avatar" aria-hidden="true">{{ iniciales() }}</span>
+      <div class="pf-id-txt">
+        <p class="pf-nombre">{{ nombre() }}</p>
+        <p class="pf-correo">{{ correo() }}</p>
+        <p class="pf-chips">
+          <span class="cb-badge cb-badge--marca">Alumno</span>
+          @if (perfil()!.datos.matricula; as m) {
+            <span class="cb-badge">Matrícula {{ m }}</span>
+          }
+          @if (perfil()!.datos.telefono; as t) {
+            <span class="cb-badge">Tel. {{ t }}</span>
+          }
+        </p>
+      </div>
+      <button type="button" class="cb-btn cb-btn--secondary pf-editar" (click)="dialogo.set('datos')">
+        <app-icon nombre="lapiz" />Editar datos
+      </button>
+    </header>
 
-    <div class="col">
-      <article class="cb-card">
-        <h2 class="cb-card-title">Cuenta y seguridad</h2>
-        <ul class="accesos">
-          <li>
-            <button type="button" (click)="abrirPassword()">
-              <span>
-                <strong>Cambiar contraseña</strong>
-                <small>Última vez: hace 3 meses</small>
-              </span>
-              <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-              </svg>
-            </button>
-          </li>
-          <li>
-            <a routerLink="/pedidos">
-              <span>
-                <strong>Historial de pedidos</strong>
-                <small>Todo lo que has pedido</small>
-              </span>
-              <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-              </svg>
+    <div class="pf-cols">
+      <div class="pf-col">
+        <!-- Actividad -->
+        <section class="cb-card pf-card" aria-labelledby="pf-actividad">
+          <h2 id="pf-actividad">Tu actividad</h2>
+          <dl class="pf-stats">
+            <div>
+              <dt>Pedidos hechos</dt>
+              <dd>{{ resumen().pedidosTotales }}</dd>
+            </div>
+            <div>
+              <dt>Gastado en {{ mesActual }}</dt>
+              <dd>{{ resumen().gastadoMes | currency: 'MXN' : 'symbol-narrow' : '1.0-0' }}</dd>
+            </div>
+            <div>
+              <dt>Más visitada</dt>
+              <dd class="pf-stat-texto">
+                @if (resumen().cafeteriaFrecuente; as c) {
+                  <a [routerLink]="['/cafeterias', c.idCafeteria]">{{ c.nombre }}</a>
+                  <small>{{ c.pedidos }} {{ c.pedidos === 1 ? 'pedido' : 'pedidos' }}</small>
+                } @else {
+                  <span class="pf-tenue">Aún ninguna</span>
+                }
+              </dd>
+            </div>
+          </dl>
+          <nav class="pf-accesos" aria-label="Accesos rápidos">
+            <a class="pf-acceso" routerLink="/pedidos">
+              <app-icon nombre="pedidos" />
+              <span><strong>Mis pedidos</strong><small>{{ activos() ? activos() + ' en curso' : 'Ninguno en curso' }}</small></span>
+              <app-icon nombre="flecha-der" class="pf-flecha" />
             </a>
-          </li>
-        </ul>
+            <a class="pf-acceso" routerLink="/favoritos">
+              <app-icon nombre="corazon" />
+              <span><strong>Favoritos</strong><small>{{ totalFavoritos() }} guardados</small></span>
+              <app-icon nombre="flecha-der" class="pf-flecha" />
+            </a>
+          </nav>
+        </section>
 
-        <button type="button" class="cb-btn cb-btn--danger salir" (click)="dialogo.set('salir')">
-          Cerrar sesión
-        </button>
-      </article>
+        <!-- Preferencias de pedido -->
+        <section class="cb-card pf-card" aria-labelledby="pf-preferencias">
+          <h2 id="pf-preferencias">Preferencias de pedido</h2>
+          <p class="pf-ayuda">Las usamos para llenar tu pedido más rápido. Siempre puedes cambiarlas al pagar.</p>
+
+          <label class="cb-field">
+            <span>Punto de recogida frecuente</span>
+            <select
+              [value]="preferencias().idCafeteriaFrecuente ?? ''"
+              [disabled]="guardando() === 'idCafeteriaFrecuente'"
+              (change)="elegirPunto($event)"
+            >
+              <option value="">Sin preferencia</option>
+              @for (c of cafeterias(); track c.idCafeteria) {
+                <option [value]="c.idCafeteria" [selected]="c.idCafeteria === preferencias().idCafeteriaFrecuente">
+                  {{ c.cafeteria }} · {{ c.puntoEntrega }}
+                </option>
+              }
+            </select>
+          </label>
+
+          <fieldset class="pf-metodos">
+            <legend>Método de pago preferido</legend>
+            <div class="pf-opciones" role="radiogroup" aria-label="Método de pago preferido">
+              @for (m of metodos; track m) {
+                <button
+                  type="button"
+                  role="radio"
+                  class="pf-opcion"
+                  [attr.aria-checked]="preferencias().metodoPago === m"
+                  [disabled]="guardando() === 'metodoPago'"
+                  (click)="elegirMetodo(m)"
+                >
+                  <app-icon [nombre]="infoMetodo[m].icono" />{{ infoMetodo[m].etiqueta }}
+                </button>
+              }
+              <button
+                type="button"
+                role="radio"
+                class="pf-opcion"
+                [attr.aria-checked]="!preferencias().metodoPago"
+                [disabled]="guardando() === 'metodoPago'"
+                (click)="elegirMetodo(null)"
+              >
+                Sin preferencia
+              </button>
+            </div>
+            <p class="pf-ayuda pf-seguro"><app-icon nombre="candado" />Solo guardamos el método, nunca datos de tarjetas.</p>
+          </fieldset>
+        </section>
+      </div>
+
+      <div class="pf-col">
+        <!-- Notificaciones -->
+        <section class="cb-card pf-card" aria-labelledby="pf-avisos">
+          <h2 id="pf-avisos">Notificaciones</h2>
+          <ul class="pf-lista">
+            <li class="cb-switch-row">
+              <label for="aviso-listo">
+                <strong>Pedido listo para recoger</strong>
+                <small>Te avisamos en cuanto la cafetería lo termine.</small>
+              </label>
+              <input
+                id="aviso-listo"
+                type="checkbox"
+                role="switch"
+                class="cb-switch"
+                [checked]="preferencias().avisoPedidoListo"
+                [disabled]="guardando() === 'avisoPedidoListo'"
+                (change)="alternarAviso('avisoPedidoListo', $event)"
+              />
+            </li>
+            <li class="cb-switch-row">
+              <label for="aviso-promos">
+                <strong>Promociones</strong>
+                <small>Combos y descuentos de tus cafeterías.</small>
+              </label>
+              <input
+                id="aviso-promos"
+                type="checkbox"
+                role="switch"
+                class="cb-switch"
+                [checked]="preferencias().avisoPromociones"
+                [disabled]="guardando() === 'avisoPromociones'"
+                (change)="alternarAviso('avisoPromociones', $event)"
+              />
+            </li>
+          </ul>
+        </section>
+
+        <!-- Apariencia -->
+        <section class="cb-card pf-card" aria-labelledby="pf-apariencia">
+          <h2 id="pf-apariencia">Apariencia</h2>
+          <div class="pf-opciones pf-temas" role="radiogroup" aria-labelledby="pf-apariencia">
+            @for (t of temas; track t.valor) {
+              <button
+                type="button"
+                role="radio"
+                class="pf-opcion"
+                [attr.aria-checked]="temaActual() === t.valor"
+                (click)="elegirTema(t.valor)"
+              >
+                <app-icon [nombre]="t.icono" />{{ t.etiqueta }}
+              </button>
+            }
+          </div>
+          <p class="pf-ayuda">Se guarda en este navegador.</p>
+        </section>
+
+        <!-- Cuenta -->
+        <section class="cb-card pf-card" aria-labelledby="pf-cuenta">
+          <h2 id="pf-cuenta">Cuenta</h2>
+          <div class="pf-cuenta">
+            <button type="button" class="pf-acceso" (click)="dialogo.set('password')">
+              <app-icon nombre="candado" />
+              <span><strong>Cambiar contraseña</strong><small>Te pedimos la actual para confirmar que eres tú.</small></span>
+              <app-icon nombre="flecha-der" class="pf-flecha" />
+            </button>
+            <button type="button" class="pf-acceso pf-salir" (click)="salir()">
+              <app-icon nombre="salir" />
+              <span><strong>Cerrar sesión</strong><small>Tu carrito se vaciará.</small></span>
+            </button>
+          </div>
+        </section>
+      </div>
     </div>
-  </div>
+  }
 </section>
 
-@switch (dialogo()) {
-  @case ('editar') {
-    <app-modal title="Editar perfil" subtitle="Así te verán las cafeterías" (closed)="cerrar()">
-      <div class="cb-form">
-        <label class="cb-field" [class.invalido]="!nombreValido()">
-          <span>Nombre completo</span>
-          <input
-            type="text"
-            maxlength="80"
-            data-modal-focus
-            [value]="formNombre()"
-            (input)="campo('formNombre', $event)"
-          />
-          @if (!nombreValido()) {
-            <small>Escribe al menos 3 letras.</small>
-          }
-        </label>
-
-        <label class="cb-field">
-          <span>Correo institucional</span>
-          <input type="email" [value]="correo()" disabled />
-          <small>El correo de la UTTT no se puede cambiar.</small>
-        </label>
-
-        <label class="cb-field">
-          <span>Teléfono <small>(opcional)</small></span>
-          <input
-            type="tel"
-            maxlength="20"
-            placeholder="55 1234 5678"
-            [value]="formTelefono()"
-            (input)="campo('formTelefono', $event)"
-          />
-        </label>
-      </div>
-
-      <div modalActions>
-        <button type="button" class="cb-btn cb-btn--secondary" (click)="cerrar()">Cancelar</button>
-        <button
-          type="button"
-          class="cb-btn cb-btn--primary"
-          [disabled]="!nombreValido()"
-          (click)="guardarPerfil()"
-        >
-          Guardar cambios
-        </button>
-      </div>
-    </app-modal>
-  }
-
-  @case ('password') {
-    <app-modal title="Cambiar contraseña" size="sm" (closed)="cerrar()">
-      <div class="cb-form">
-        <label class="cb-field">
-          <span>Contraseña actual</span>
-          <input
-            type="password"
-            autocomplete="current-password"
-            data-modal-focus
-            [value]="actual()"
-            (input)="campo('actual', $event)"
-          />
-        </label>
-
-        <label class="cb-field" [class.invalido]="!!nueva() && !nuevaValida()">
-          <span>Nueva contraseña</span>
-          <input
-            type="password"
-            autocomplete="new-password"
-            [value]="nueva()"
-            (input)="campo('nueva', $event)"
-          />
-          <small>Mínimo 8 caracteres, con una mayúscula y un número.</small>
-        </label>
-
-        <label class="cb-field" [class.invalido]="!!repetida() && !coinciden()">
-          <span>Repite la nueva contraseña</span>
-          <input
-            type="password"
-            autocomplete="new-password"
-            [value]="repetida()"
-            (input)="campo('repetida', $event)"
-          />
-          @if (!!repetida() && !coinciden()) {
-            <small>Las dos contraseñas no son iguales.</small>
-          }
-        </label>
-      </div>
-
-      <div modalActions>
-        <button type="button" class="cb-btn cb-btn--secondary" (click)="cerrar()">Cancelar</button>
-        <button
-          type="button"
-          class="cb-btn cb-btn--primary"
-          [disabled]="!passwordValido()"
-          (click)="guardarPassword()"
-        >
-          Cambiar contraseña
-        </button>
-      </div>
-    </app-modal>
-  }
-
-  @case ('salir') {
-    <app-modal title="¿Cerrar sesión?" size="sm" (closed)="cerrar()">
-      <p class="modal-texto">
-        Tendrás que volver a entrar con tu correo institucional. Tu carrito se vacía al salir.
-      </p>
-
-      <div modalActions>
-        <button type="button" class="cb-btn cb-btn--secondary" (click)="cerrar()">Quedarme</button>
-        <button type="button" class="cb-btn cb-btn--danger" data-modal-focus (click)="salir()">
-          Sí, salir
-        </button>
-      </div>
-    </app-modal>
-  }
+@if (dialogo() === 'datos') {
+  <app-editar-datos (cerrado)="dialogo.set(null)" />
+}
+@if (dialogo() === 'password') {
+  <app-cambiar-password (cerrado)="dialogo.set(null)" />
 }
