@@ -13,7 +13,7 @@ que quedan **fuera del alcance** de ese trabajo. Cada una dice de quién es y qu
 
 ## Backend
 
-El detalle de contratos irá en `BACKEND_SPECIFICATION.md` (Fase 3). Resumen de lo que el front ya necesita:
+El detalle de contratos está en `BACKEND_SPECIFICATION.md` (secciones 4, 6 y 7). Resumen de lo que el front ya necesita:
 
 | # | Pendiente |
 |---|---|
