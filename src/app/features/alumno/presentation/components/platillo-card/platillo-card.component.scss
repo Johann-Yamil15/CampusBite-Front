@@ -99,6 +99,7 @@
 
 .pc-pie {
   display: flex;
+  flex-wrap: wrap; // CL-Sprint5 (etapa 7): en tarjetas angostas el botón o el aviso bajan de línea
   align-items: center;
   justify-content: space-between;
   gap: var(--cb-space-sm);
@@ -212,5 +213,8 @@
 }
 
 .pc-agregar-texto {
+  flex: 1 0 auto;
+  justify-content: center;
+
   --icon-size: 1rem;
 }
