@@ -1,0 +1,137 @@
+<!-- CL-Sprint5 11/11/2026 (etapa 7): Favoritos con pestañas Platillos / Cafeterías -->
+<section class="pg fv" aria-labelledby="favoritos-title">
+  <header class="pg-head">
+    <div>
+      <h1 id="favoritos-title">Favoritos</h1>
+      <p class="pg-sub">Lo que más te gusta, a un toque de pedirlo.</p>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="Favoritos">
+    <button
+      type="button"
+      role="tab"
+      id="tab-platillo"
+      class="tab"
+      aria-controls="panel-favoritos"
+      [class.active]="pestana() === 'platillo'"
+      [attr.aria-selected]="pestana() === 'platillo'"
+      [attr.tabindex]="pestana() === 'platillo' ? 0 : -1"
+      (click)="verPestana('platillo')"
+      (keydown)="teclaPestana($event)"
+    >
+      Platillos
+      <span class="tab-count">{{ platillos().length }}</span>
+    </button>
+    <button
+      type="button"
+      role="tab"
+      id="tab-cafeteria"
+      class="tab"
+      aria-controls="panel-favoritos"
+      [class.active]="pestana() === 'cafeteria'"
+      [attr.aria-selected]="pestana() === 'cafeteria'"
+      [attr.tabindex]="pestana() === 'cafeteria' ? 0 : -1"
+      (click)="verPestana('cafeteria')"
+      (keydown)="teclaPestana($event)"
+    >
+      Cafeterías
+      <span class="tab-count">{{ cafeterias().length }}</span>
+    </button>
+  </div>
+
+  <div id="panel-favoritos" role="tabpanel" [attr.aria-labelledby]="'tab-' + pestana()" [attr.aria-busy]="cargando()">
+    @if (error(); as e) {
+      <div class="fv-error cb-card" role="alert">
+        <app-icon nombre="alerta" />
+        <div>
+          <strong>No pudimos cargar tus favoritos</strong>
+          <p>{{ e }}</p>
+        </div>
+        <button type="button" class="cb-btn cb-btn--secondary cb-btn--small" (click)="cargar()">
+          <app-icon nombre="recargar" />Reintentar
+        </button>
+      </div>
+    } @else if (cargando()) {
+      <ul class="fv-grid" [class.fv-grid--cafeterias]="pestana() === 'cafeteria'" aria-label="Cargando tus favoritos">
+        @for (s of esqueletos; track s) {
+          <li class="cb-card fv-esqueleto" aria-hidden="true">
+            <div class="cb-skeleton fv-esq-foto"></div>
+            <div class="fv-esq-txt">
+              <div class="cb-skeleton" style="height: 1rem; width: 70%"></div>
+              <div class="cb-skeleton" style="height: 0.8rem; width: 45%"></div>
+            </div>
+          </li>
+        }
+      </ul>
+    } @else if (pestana() === 'platillo') {
+      <ul class="fv-grid">
+        @for (fila of platillos(); track fila.favorito.idProducto) {
+          <li>
+            @if (fila.enMenu; as p) {
+              <app-platillo-card [platillo]="p" [cerrada]="!p.cafeteriaAbierta" [agregarConTexto]="true" />
+            } @else {
+              @let f = fila.favorito;
+              <!-- La cafetería ya lo quitó de su menú -->
+              <article class="cb-card fv-retirado">
+                <div class="cb-media fv-retirado-foto">
+                  <img [src]="f.imagenUrl ?? sinImagen" alt="" loading="lazy" width="320" height="240" />
+                  <span class="cb-badge cb-badge--foto fv-retirado-badge">Ya no disponible</span>
+                </div>
+                <app-corazon class="fv-fav" tipo="platillo" [id]="f.idProducto" [nombre]="f.producto" />
+                <div class="fv-retirado-cuerpo">
+                  <h3>{{ f.producto }}</h3>
+                  <p class="fv-retirado-caf"><app-icon nombre="tienda" />{{ f.cafeteria }}</p>
+                  <p class="fv-retirado-nota">
+                    Ya no está en su menú. La última vez costaba {{ f.precio | currency: 'MXN' : 'symbol-narrow' }}.
+                  </p>
+                  <a class="cb-btn cb-btn--secondary cb-btn--small" [routerLink]="['/cafeterias', f.idCafeteria]">
+                    Ver qué hay hoy
+                  </a>
+                </div>
+              </article>
+            }
+          </li>
+        } @empty {
+          <li class="vacio">
+            <app-icon nombre="corazon" />
+            <h2>Aún no tienes platillos favoritos</h2>
+            <p>Toca el corazón de un platillo para pedirlo de nuevo en un toque.</p>
+            <a class="cb-btn cb-btn--primary" routerLink="/buscar">Explorar platillos</a>
+          </li>
+        }
+      </ul>
+    } @else {
+      <ul class="fv-grid fv-grid--cafeterias">
+        @for (fila of cafeterias(); track fila.favorita.idCafeteria) {
+          <li>
+            @if (fila.enMenu; as c) {
+              <app-cafeteria-card [cafeteria]="c" />
+            } @else {
+              @let f = fila.favorita;
+              <!-- Ya no recibe pedidos en CampusBite -->
+              <article class="cb-card fv-retirado">
+                <div class="cb-media cb-media--16x9 fv-retirado-foto">
+                  <img [src]="f.foto" alt="" loading="lazy" width="320" height="180" />
+                  <span class="cb-badge cb-badge--foto fv-retirado-badge">No disponible</span>
+                </div>
+                <app-corazon class="fv-fav" tipo="cafeteria" [id]="f.idCafeteria" [nombre]="f.nombre" />
+                <div class="fv-retirado-cuerpo">
+                  <h3>{{ f.nombre }}</h3>
+                  <p class="fv-retirado-nota">Por ahora no recibe pedidos en CampusBite.</p>
+                </div>
+              </article>
+            }
+          </li>
+        } @empty {
+          <li class="vacio">
+            <app-icon nombre="tienda" />
+            <h2>Aún no tienes cafeterías favoritas</h2>
+            <p>Guarda las cafeterías a las que siempre vuelves para encontrarlas rápido.</p>
+            <a class="cb-btn cb-btn--primary" routerLink="/">Explorar cafeterías</a>
+          </li>
+        }
+      </ul>
+    }
+  </div>
+</section>

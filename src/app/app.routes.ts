@@ -1,5 +1,11 @@
+import { isDevMode } from '@angular/core';
 import { Routes } from '@angular/router';
-import { authGuard, roleGuard } from '@features/auth';
+import {
+  authGuard,
+  cafeteriaDelEncargadoResolver,
+  negocioHomeGuard,
+  roleGuard,
+} from '@features/auth';
 
 /**
  * Rutas raíz: solo montan features (cada una define sus rutas en `<feature>.routes.ts`).
@@ -11,16 +17,34 @@ export const routes: Routes = [
   // Alias cortos que ya usa la app (logout, enlaces de las pantallas)
   { path: 'login', pathMatch: 'full', redirectTo: 'auth/login' },
   { path: 'register', pathMatch: 'full', redirectTo: 'auth/register' },
-  // JJ-Sprint3 21/10/2026: cascarón visual (HU futura les da funcionalidad). Traen su propia navegación
-  // inferior completa, por eso van fuera del MainLayout (que tiene su propia barra superior) y no dentro.
-  { path: '', canActivate: [authGuard], loadChildren: () => import('@features/home/home.routes') },
+  // CL-Sprint4 28/10/2026: HU-07B. negocioHomeGuard lleva al encargado a su panel /mi-negocio
+  // CL-Sprint5 11/11/2026: "/" es el inicio del alumno (antes la maqueta de features/home, ya retirada) y
+  // la feature alumno trae todas sus pantallas bajo su layout: /, /buscar, /pedidos, /pedidos/:id,
+  // /favoritos y /perfil (/inicio redirige a /). Va antes del MainLayout para que "/" sea suyo.
+  {
+    path: '',
+    canActivate: [authGuard, negocioHomeGuard],
+    loadChildren: () => import('@features/alumno/alumno.routes'),
+  },
+  // CL-Sprint5 11/11/2026: cafeteriaDelEncargadoResolver (auth) manda aquí cuando no encuentra la cafetería
+  // del encargado. Antes era la maqueta del perfil de negocio con datos fijos; ahora un aviso honesto con
+  // reintentar y cerrar sesión. No redirige a /mi-negocio: el resolver volvería a fallar y haría un ciclo.
   {
     path: 'negocio',
     canActivate: [authGuard],
+    title: 'Tu negocio · CampusBite',
     loadComponent: () =>
-      import('@features/cafeterias/presentation/pages/perfil-negocio/perfil-negocio.page').then(
-        (m) => m.PerfilNegocioPage,
-      ),
+      import('@shell/sin-negocio/sin-negocio.page').then((m) => m.SinNegocioPage),
+  },
+  // CL-Sprint4 28/10/2026: HU-07B. Panel del negocio, solo para AdminCafeteria. Trae su propia
+  // navegación (sidebar del Panel de Negocio), por eso va fuera del MainLayout. roleGuard ya exige
+  // sesión. El id de la cafetería no va en la URL: lo resuelve cafeteriaDelEncargadoResolver y
+  // llega al panel como input `id`.
+  {
+    path: 'mi-negocio',
+    canActivate: [roleGuard('AdminCafeteria')],
+    resolve: { id: cafeteriaDelEncargadoResolver },
+    loadChildren: () => import('@features/menu-negocio/menu-negocio.routes'),
   },
   {
     path: '',
@@ -39,6 +63,14 @@ export const routes: Routes = [
         loadChildren: () => import('@features/admin/admin.routes'),
       },
     ],
+  },
+  // CL-Sprint5 11/11/2026: catálogo vivo del sistema de diseño, solo en desarrollo (en producción no existe)
+  {
+    path: 'sistema-diseno',
+    canMatch: [() => isDevMode()],
+    title: 'Sistema de diseño · CampusBite',
+    loadComponent: () =>
+      import('@shell/sistema-diseno/sistema-diseno.page').then((m) => m.SistemaDisenoPage),
   },
   {
     path: '**',

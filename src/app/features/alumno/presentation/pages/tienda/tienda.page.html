@@ -1,0 +1,153 @@
+<!-- CL-Sprint5 11/11/2026: tienda de una cafetería (etapa 3) -->
+<nav class="ti-volver" aria-label="Migas de pan">
+  <a routerLink="/"><app-icon nombre="flecha-izq" />Inicio</a>
+</nav>
+
+@if (cafeteria(); as c) {
+  <article class="ti" aria-labelledby="ti-nombre">
+    <!-- Portada estilo perfil -->
+    <header class="ti-cabeza cb-card">
+      <div class="ti-portada cb-media cb-media--velo">
+        @if (c.portadaUrl) {
+          <img [src]="c.portadaUrl" alt="" width="800" height="300" />
+        }
+      </div>
+
+      <div class="ti-identidad">
+        @if (c.logoUrl) {
+          <img class="ti-logo" [src]="c.logoUrl" alt="" width="96" height="96" />
+        }
+        <div class="ti-titulo">
+          <h1 id="ti-nombre">{{ c.cafeteria }}</h1>
+          <p class="cb-meta">
+            @if (c.calificacion) {
+              <app-calificacion [valor]="c.calificacion" [resenas]="c.resenas" />
+            }
+            @if (c.minutosEstimados) {
+              <span><app-icon nombre="reloj" />~{{ c.minutosEstimados }} min</span>
+            }
+            <span>{{ c.esDelCampus ? 'Del campus' : 'Cerca del campus' }}</span>
+          </p>
+        </div>
+
+        <div class="ti-acciones">
+          <app-corazon tipo="cafeteria" variante="etiqueta" [id]="c.idCafeteria" [nombre]="c.cafeteria" />
+          <button type="button" class="cb-btn cb-btn--icon" aria-label="Compartir esta cafetería" (click)="compartir()">
+            <app-icon nombre="copiar" />
+          </button>
+        </div>
+      </div>
+
+      <dl class="ti-datos">
+        <div>
+          <dt><app-icon nombre="reloj" />Hoy</dt>
+          <dd>
+            <span class="cb-estado-local" [class.cerrado]="!c.abierta">
+              @if (c.abierta) {
+                Abierta{{ c.cierraA ? ' hasta ' + c.cierraA : '' }}
+              } @else {
+                Cerrada ahora
+              }
+            </span>
+          </dd>
+        </div>
+        <div>
+          <dt><app-icon nombre="ubicacion" />Recoges en</dt>
+          <dd>{{ c.puntoEntrega }}</dd>
+        </div>
+        <div>
+          <dt><app-icon nombre="tarjeta" />Pagas con</dt>
+          <dd class="ti-metodos">
+            @for (m of c.metodosPago; track m) {
+              <span class="cb-badge"><app-icon [nombre]="metodo[m].icono" />{{ metodo[m].etiqueta }}</span>
+            }
+          </dd>
+        </div>
+      </dl>
+    </header>
+
+    <!-- CL-Sprint5 11/11/2026 (etapa 9): promociones activas del local (las publica el encargado) -->
+    @if (promociones().length) {
+      <section class="ti-promos" aria-label="Promociones de {{ c.cafeteria }}">
+        @for (p of promociones(); track p.idPromocion) {
+          <article class="ti-promo">
+            <span class="cb-badge cb-badge--promo">{{ p.etiqueta }}</span>
+            <div>
+              <strong>{{ p.titulo }}</strong>
+              <p>{{ p.subtitulo }}</p>
+            </div>
+          </article>
+        }
+      </section>
+    }
+
+    @if (!c.abierta) {
+      <p class="ti-cerrada" role="status">
+        <app-icon nombre="info" />
+        {{ c.cafeteria }} está cerrada ahora. Puedes ver su menú, pero no hacer pedidos hasta que abra.
+      </p>
+    }
+
+    <!-- Menú por categoría -->
+    @if (categorias().length > 1) {
+      <div class="ti-filtros cb-chips" role="group" aria-label="Secciones del menú">
+        <button type="button" class="cb-chip" [attr.aria-pressed]="filtro() === null" (click)="verCategoria(null)">Todo</button>
+        @for (cat of categorias(); track cat) {
+          <button type="button" class="cb-chip" [attr.aria-pressed]="filtro() === cat" (click)="verCategoria(cat)">
+            @if (cat === 'Promociones') {
+              <app-icon nombre="etiqueta" />
+            }
+            {{ cat }}
+          </button>
+        }
+      </div>
+    }
+
+    @for (s of secciones(); track s.categoria) {
+      <section class="ti-seccion" [attr.aria-labelledby]="'ti-sec-' + $index">
+        <header class="cb-seccion-head">
+          <h2 [id]="'ti-sec-' + $index">{{ s.categoria }}</h2>
+          <span class="ti-conteo">{{ s.platillos.length }} {{ s.platillos.length === 1 ? 'platillo' : 'platillos' }}</span>
+        </header>
+        <div class="ti-grid">
+          @for (p of s.platillos; track p.idProducto) {
+            <app-platillo-card [platillo]="p" [mostrarCafeteria]="false" [cerrada]="!c.abierta" />
+          }
+        </div>
+      </section>
+    } @empty {
+      <div class="vacio">
+        <app-icon nombre="tienda" />
+        <h2>Esta cafetería aún no publica su menú</h2>
+        <p>Vuelve más tarde o mira otras cafeterías del campus.</p>
+        <a class="cb-btn cb-btn--primary" routerLink="/">Ver cafeterías</a>
+      </div>
+    }
+  </article>
+} @else if (noEncontrada()) {
+  <div class="vacio">
+    <app-icon nombre="tienda" />
+    <h2>No encontramos esta cafetería</h2>
+    <p>Puede que ya no esté activa o que el enlace esté mal.</p>
+    <a class="cb-btn cb-btn--primary" routerLink="/">Ver cafeterías</a>
+  </div>
+} @else if (errorCarga(); as e) {
+  <div class="cb-alert-error" role="alert">
+    <span>{{ e }}</span>
+    <button type="button" class="cb-btn cb-btn--small" (click)="cargar()">Reintentar</button>
+  </div>
+} @else {
+  <!-- Cargando: la silueta de la tienda -->
+  <div class="ti" aria-busy="true" aria-label="Cargando la cafetería">
+    <div class="ti-cabeza cb-card">
+      <div class="cb-skeleton ti-portada-esq"></div>
+      <div class="ti-identidad">
+        <div class="cb-skeleton" style="width: 6rem; height: 6rem; border-radius: 50%"></div>
+        <div class="ti-titulo">
+          <div class="cb-skeleton" style="height: 1.6rem; width: 14rem"></div>
+          <div class="cb-skeleton" style="height: 0.9rem; width: 10rem"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

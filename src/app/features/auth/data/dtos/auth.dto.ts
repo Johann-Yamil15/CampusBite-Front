@@ -65,6 +65,8 @@ export interface AuthResponseDto {
   token: string;
   /** Fecha ISO-8601 en UTC. */
   expiraEn: string;
+  /** CL-Sprint4 28/10/2026: HU-07B. Cafetería del encargado. Opcional: el backend aún no lo manda. */
+  idCafeteria?: string | null;
 }
 
 /** Respuesta de `GET api/Auth/me` (claims del JWT). */
@@ -72,4 +74,6 @@ export interface MeResponseDto {
   id: string;
   correo: string;
   rol: RolDto;
+  /** CL-Sprint4 28/10/2026: HU-07B. Cafetería del encargado. Opcional: el backend aún no lo manda. */
+  idCafeteria?: string | null;
 }

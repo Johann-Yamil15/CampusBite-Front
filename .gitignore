@@ -62,3 +62,6 @@ __screenshots__/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# graphify: grafo de conocimiento local, no se versiona
+graphify-out/

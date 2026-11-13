@@ -1,0 +1,157 @@
+<!-- CL-Sprint5 11/11/2026: layout del alumno (etapa 2). El mismo <nav> se dibuja como sidebar (escritorio),
+     riel (tableta) o barra inferior (teléfono) solo con CSS: una sola lista de enlaces, un solo orden de foco. -->
+<a class="al-saltar" href="#contenido">Saltar al contenido</a>
+
+<div class="al">
+  <aside class="al-side">
+    <a routerLink="/" class="al-marca" aria-label="CampusBite, ir al inicio">
+      <img src="assets/images/logo-campusbite.png" alt="" width="40" height="40" />
+      <span class="al-marca-texto">Campus<strong>Bite</strong></span>
+    </a>
+
+    <nav class="al-nav" aria-label="Secciones">
+      @for (item of nav; track item.enlace) {
+        <a
+          class="al-nav-item"
+          [routerLink]="item.enlace"
+          routerLinkActive="activo"
+          [routerLinkActiveOptions]="{ exact: !!item.exacto }"
+          #rla="routerLinkActive"
+          [attr.aria-current]="rla.isActive ? 'page' : null"
+        >
+          <span class="al-nav-icono">
+            <app-icon [nombre]="rla.isActive && item.icono === 'corazon' ? 'corazon-lleno' : item.icono" />
+          </span>
+          <span class="al-nav-texto">
+            {{ item.etiqueta }}
+            @if (item.enlace === '/pedidos' && enCurso()) {
+              <span class="sr-only">({{ enCurso() }} en curso)</span>
+            }
+          </span>
+          <!-- Sobre el ícono en teléfono y tableta; píldora al final de la fila en escritorio -->
+          @if (item.enlace === '/pedidos' && enCurso()) {
+            <span class="al-insignia al-nav-insignia" aria-hidden="true">{{ enCurso() }}</span>
+          }
+        </a>
+      }
+    </nav>
+
+    <!-- Solo escritorio: quién tiene la sesión y salida directa -->
+    <div class="al-side-usuario">
+      <span class="al-avatar" aria-hidden="true">{{ iniciales() }}</span>
+      <span class="al-side-usuario-texto">
+        <strong>{{ nombre() }}</strong>
+        <small>{{ correo() }}</small>
+      </span>
+      <button type="button" class="cb-btn cb-btn--icon" aria-label="Cerrar sesión" (click)="pedirSalida()">
+        <app-icon nombre="salir" />
+      </button>
+    </div>
+  </aside>
+
+  <div class="al-cuerpo">
+    <header class="al-top">
+      <!-- Teléfono: logo y saludo; el buscador vive en la pestaña Buscar -->
+      <a routerLink="/" class="al-top-marca" aria-label="CampusBite, ir al inicio">
+        <img src="assets/images/logo-campusbite.png" alt="" width="36" height="36" />
+        <span class="al-saludo">
+          <small>¡Hola!</small>
+          <strong>{{ primerNombre() }}</strong>
+        </span>
+      </a>
+
+      <form class="al-buscador" role="search" (submit)="buscar($event)">
+        <app-icon nombre="buscar" />
+        <input name="q" type="search" placeholder="Busca chilaquiles, café, bowls…" aria-label="Buscar platillos o cafeterías" />
+        <button type="submit" class="sr-only">Buscar</button>
+      </form>
+
+      <div class="al-acciones">
+        <button
+          type="button"
+          class="cb-btn cb-btn--icon al-carrito"
+          [attr.aria-label]="'Abrir carrito, ' + carrito.totalItems() + (carrito.totalItems() === 1 ? ' producto' : ' productos')"
+          (click)="abrirCarrito()"
+        >
+          <app-icon nombre="bolsa" />
+          @if (!carrito.isEmpty()) {
+            <!-- @for con track del total: el contador rebota cada vez que cambia -->
+            @for (n of [carrito.totalItems()]; track n) {
+              <span class="al-insignia cb-rebote" aria-hidden="true">{{ n }}</span>
+            }
+          }
+        </button>
+
+        <div class="al-menu" #menuUsuario>
+          <button
+            type="button"
+            class="al-usuario"
+            aria-haspopup="menu"
+            [attr.aria-expanded]="menuAbierto()"
+            aria-controls="al-menu-usuario"
+            (click)="alternarMenu($event)"
+          >
+            <span class="al-avatar" aria-hidden="true">{{ iniciales() }}</span>
+            <span class="al-usuario-nombre">{{ nombre() }}</span>
+            <app-icon nombre="flecha-abajo" class="al-usuario-flecha" />
+            <span class="sr-only">Menú de {{ nombre() }}</span>
+          </button>
+
+          @if (menuAbierto()) {
+            <div id="al-menu-usuario" class="al-menu-lista" role="menu" aria-label="Mi cuenta">
+              <p class="al-menu-cabeza">
+                <strong>{{ nombre() }}</strong>
+                <small>{{ correo() }}</small>
+              </p>
+              <a role="menuitem" routerLink="/perfil"><app-icon nombre="perfil" />Mi perfil</a>
+              <a role="menuitem" routerLink="/pedidos"><app-icon nombre="pedidos" />Mis pedidos</a>
+              <a role="menuitem" routerLink="/favoritos"><app-icon nombre="corazon" />Favoritos</a>
+              <button type="button" role="menuitem" class="al-menu-salir" (click)="pedirSalida()">
+                <app-icon nombre="salir" />Cerrar sesión
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </header>
+
+    <main id="contenido" class="al-contenido" [class.con-barra]="!carrito.isEmpty()" tabindex="-1">
+      <router-outlet />
+    </main>
+  </div>
+</div>
+
+<!-- CL-Sprint5 11/11/2026 (etapa 3): con algo en el carrito, una barra fija lo resume y lo abre -->
+@if (!carrito.isEmpty() && !carritoAbierto()) {
+  <button type="button" class="al-barra-carrito" (click)="abrirCarrito()">
+    @for (n of [carrito.totalItems()]; track n) {
+      <span class="al-barra-n cb-rebote">{{ n }}</span>
+    }
+    <span class="al-barra-texto">
+      <strong>Ver carrito</strong>
+      <small>{{ carrito.cafeteria() }}</small>
+    </span>
+    <span class="al-barra-total">{{ carrito.totalPrecio() | currency: 'MXN' : 'symbol-narrow' }}</span>
+  </button>
+}
+
+<!-- El carrito solo existe para el alumno; se abre desde la barra superior -->
+<app-carrito-drawer />
+@if (checkoutAbierto()) {
+  <app-checkout />
+}
+
+@if (confirmandoSalida()) {
+  <app-modal title="¿Cerrar sesión?" size="sm" (closed)="confirmandoSalida.set(false)">
+    <p class="al-modal-texto">
+      Tendrás que volver a entrar con tu correo para hacer pedidos.
+      @if (!carrito.isEmpty()) {
+        <strong>Tu carrito se vaciará.</strong>
+      }
+    </p>
+    <div modalActions>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="confirmandoSalida.set(false)">Cancelar</button>
+      <button type="button" class="cb-btn cb-btn--primary" data-modal-focus (click)="salir()">Cerrar sesión</button>
+    </div>
+  </app-modal>
+}

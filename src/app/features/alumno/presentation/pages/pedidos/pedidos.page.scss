@@ -1,0 +1,86 @@
+// CL-Sprint5 11/11/2026 (etapa 6): Mis pedidos. Una columna en teléfono, dos desde escritorio.
+// El mobiliario común (.pg, .tabs, .chip, .vacio) está en styles.scss.
+@use 'breakpoints' as *;
+
+.mp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cb-space-md);
+}
+
+#panel-pedidos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cb-space-md);
+}
+
+.mp-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--cb-space-md);
+
+  @media (min-width: $cb-bp-desktop) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  > .vacio {
+    grid-column: 1 / -1;
+  }
+}
+
+.vacio app-icon {
+  --icon-size: 2.75rem;
+  color: var(--cb-primary-container);
+}
+
+.mp-esqueleto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cb-space-sm);
+  padding: var(--cb-space-md);
+}
+
+.mp-esq-top {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.mp-esq-txt {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+}
+
+.mp-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--cb-space-sm) var(--cb-space-md);
+  padding: var(--cb-space-md);
+  border-color: var(--cb-danger-line);
+
+  > app-icon {
+    color: var(--cb-danger);
+
+    --icon-size: 1.5rem;
+  }
+
+  > div {
+    flex: 1;
+    min-width: 12rem;
+  }
+
+  strong {
+    color: var(--cb-ink);
+  }
+
+  p {
+    margin: 0.15rem 0 0;
+    font-size: var(--cb-text-sm);
+    color: var(--cb-text-muted);
+  }
+}

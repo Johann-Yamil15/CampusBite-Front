@@ -1,0 +1,44 @@
+<!-- CL-Sprint4 28/10/2026: HU-07B. Datos del negocio (pestaña Información) -->
+@let c = cafeteria();
+<section class="info" aria-labelledby="info-title">
+  <h2 id="info-title">Información del negocio</h2>
+
+  @if (!c.active) {
+    <p class="warning">
+      Tu cafetería está dada de baja: los alumnos no ven tu menú ni pueden hacer pedidos.
+    </p>
+  }
+
+  <dl class="facts">
+    <div>
+      <dt>Ubicación</dt>
+      <dd>{{ c.location }}</dd>
+    </div>
+    <div>
+      <dt>Punto de entrega</dt>
+      <dd>{{ c.pickupPoint }}</dd>
+    </div>
+    <div>
+      <dt>Campus</dt>
+      <dd>{{ c.onCampus ? 'Dentro del campus' : 'Fuera del campus' }}</dd>
+    </div>
+    <div>
+      <dt>Estado</dt>
+      <dd>{{ c.active ? 'Activa' : 'Dada de baja' }}</dd>
+    </div>
+    <div>
+      <dt>Métodos de pago</dt>
+      <dd>
+        <ul class="methods">
+          @for (method of c.paymentMethods; track method) {
+            <li>{{ method }}</li>
+          }
+        </ul>
+      </dd>
+    </div>
+    <div>
+      <dt>En CampusBite desde</dt>
+      <dd>{{ c.createdAt | date: 'dd/MM/yyyy' }}</dd>
+    </div>
+  </dl>
+</section>

@@ -1,0 +1,127 @@
+<!-- CL-Sprint4 28/10/2026: HU-07B. Tarjeta de platillo del panel del encargado -->
+@let p = product();
+<article class="product-card" [class.inactive]="!p.available" [attr.aria-busy]="pending()">
+  <div class="media">
+    <img
+      [src]="imageOf(p)"
+      [alt]="p.imageUrl ? p.name : ''"
+      loading="lazy"
+      width="400"
+      height="300"
+      (error)="onImageError(p)"
+    />
+  </div>
+
+  <div class="body">
+    <p class="category" [class.category-empty]="!p.categoryName">
+      {{ p.categoryName ?? 'Sin categoría' }}
+    </p>
+
+    <div class="title-row">
+      <h3 class="name">{{ p.name }}</h3>
+
+      <div class="menu">
+        <button
+          type="button"
+          class="menu-trigger"
+          aria-haspopup="menu"
+          [attr.aria-expanded]="menuOpen()"
+          [attr.aria-controls]="'menu-' + p.id"
+          [disabled]="pending()"
+          (click)="toggleMenu()"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="5" r="1.8" />
+            <circle cx="12" cy="12" r="1.8" />
+            <circle cx="12" cy="19" r="1.8" />
+          </svg>
+          <span class="sr-only">Opciones de {{ p.name }}</span>
+        </button>
+        @if (menuOpen()) {
+          <ul
+            class="menu-list"
+            role="menu"
+            [id]="'menu-' + p.id"
+            [attr.aria-label]="'Opciones de ' + p.name"
+          >
+            <li role="none">
+              <button type="button" role="menuitem" (click)="choose('edit')">
+                <svg
+                  aria-hidden="true"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"
+                  />
+                </svg>
+                Editar
+              </button>
+            </li>
+            <li role="none">
+              <button type="button" role="menuitem" (click)="choose('changeImage')">
+                <svg
+                  aria-hidden="true"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A1.5 1.5 0 0021.75 19.5V4.5A1.5 1.5 0 0020.25 3H3.75A1.5 1.5 0 002.25 4.5v15A1.5 1.5 0 003.75 21zM14.25 8.25h.008v.008h-.008V8.25z"
+                  />
+                </svg>
+                Cambiar imagen
+              </button>
+            </li>
+            <li role="none">
+              <button type="button" role="menuitem" class="danger" (click)="choose('remove')">
+                <svg
+                  aria-hidden="true"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                  />
+                </svg>
+                Eliminar
+              </button>
+            </li>
+          </ul>
+        }
+      </div>
+    </div>
+
+    @if (p.description) {
+      <p class="description">{{ p.description }}</p>
+    }
+
+    <div class="footer-row">
+      <p class="price">{{ p.price | currency: 'MXN' : 'symbol-narrow' }}</p>
+      <button
+        type="button"
+        role="switch"
+        class="availability"
+        [class.on]="p.available"
+        [attr.aria-checked]="p.available"
+        [disabled]="pending()"
+        (click)="onToggle()"
+      >
+        <span class="dot" aria-hidden="true"></span>
+        {{ p.available ? 'Disponible' : 'No disponible'
+        }}<span class="sr-only">: {{ p.name }}</span>
+      </button>
+    </div>
+  </div>
+</article>

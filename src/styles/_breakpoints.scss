@@ -1,0 +1,6 @@
+// CL-Sprint5 11/11/2026: breakpoints del sistema de diseño. Mobile-first: el estilo base es de teléfono
+// (390px) y se amplía con `@media (min-width: $cb-bp-…)`. Solo variables: no genera CSS, así que un
+// componente puede hacer `@use 'breakpoints' as *;` sin costo.
+$cb-bp-tablet: 600px; // tableta (768px cae aquí)
+$cb-bp-desktop: 960px; // el mismo corte que ya usa el Panel de Negocio para su sidebar
+$cb-bp-wide: 1280px;
