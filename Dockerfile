@@ -14,7 +14,12 @@ FROM nginxinc/nginx-unprivileged:1.29-alpine AS runtime
 
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --chmod=755 docker/40-runtime-config.sh /docker-entrypoint.d/40-runtime-config.sh
-COPY --from=build --chown=nginx:nginx /app/dist/campusbite-front/browser /usr/share/nginx/html
+# JJ-Sprint5 13/11/2026: la app queda de root (nginx solo la lee; Sonar S6504). Solo config/ es de nginx:
+# ahí 40-runtime-config.sh escribe runtime-config.json al arrancar (corre como el usuario nginx, uid 101)
+COPY --from=build /app/dist/campusbite-front/browser /usr/share/nginx/html
+USER root
+RUN mkdir -p /usr/share/nginx/html/config && chown 101:101 /usr/share/nginx/html/config
+USER 101
 
 # Valores por defecto; se sobreescriben con -e / docker compose (.env)
 ENV API_URL=/api \
