@@ -1,5 +1,7 @@
 # JJ-Sprint5 13/11/2026: SonarCloud con cobertura de Vitest. El análisis automático no trae cobertura
 # (por eso salía "–"). La configuración del análisis está en sonar-project.properties.
+# Seguridad de la cadena de suministro: acciones fijadas por SHA completo, npm ci sin scripts de instalación
+# y sin npx (corre el ng del package-lock).
 name: SonarCloud
 
 on:
@@ -20,23 +22,23 @@ jobs:
       TZ: America/Mexico_City    # hora del campus; el runner viene en UTC y las pruebas de horas pico la usan
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0          # Sonar necesita el historial para saber qué código es nuevo
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: npm
 
       - name: Instalar dependencias
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Pruebas con cobertura
-        run: npx ng test --watch=false --coverage --coverage-reporters=lcov --coverage-reporters=text-summary
+        run: npm run test:ci -- --coverage --coverage-reporters=lcov --coverage-reporters=text-summary
 
       - name: Análisis SonarCloud
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25 # v5.3.1
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
