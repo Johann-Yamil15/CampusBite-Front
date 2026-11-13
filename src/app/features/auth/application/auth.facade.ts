@@ -143,7 +143,8 @@ export class AuthFacade {
   logout(): void {
     this.tokens.clear();
     this._user.set(null);
-    this.router.navigate(['/login']);
+    // JJ-Sprint5 13/11/2026: la navegación no se espera a propósito (Sonar S9383)
+    void this.router.navigate(['/login']);
   }
 
   /**
