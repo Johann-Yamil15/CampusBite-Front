@@ -1,7 +1,6 @@
 // JY-Sprint4 05/11/2026: HU futura (cascarón visual). Tablero de pedidos del negocio: tres columnas
 // (Nuevos · En preparación · Listos) y una pestaña de cerrados.
-// CL-Sprint5 11/11/2026: las órdenes salen de PedidosCafeteriaFacade (feature ordenes, hoy con repositorio
-// mock) con los estados reales de la BD: "Nuevos" = pendiente y confirmada.
+// CL-Sprint5 11/11/2026: las órdenes salen de PedidosCafeteriaFacade (feature ordenes, api/cafeterias/{id}/ordenes) con los estados reales de la BD: "Nuevos" = pendiente y confirmada.
 // CL-Sprint5 11/11/2026 (etapa 9): rediseño con el sistema de diseño.
 //   - Pestañas Nuevos / En preparación / Listos / Cerrados (en la URL: ?ver=); en escritorio las tres
 //     activas se ven como columnas a la vez.

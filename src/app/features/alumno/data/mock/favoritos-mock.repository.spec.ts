@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { Observable, firstValueFrom } from 'rxjs';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@core/mock/demo-db';
+import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@features/catalogo/data/mock/catalogo.mock-data';
 import { TokenStorageService } from '@core/services/token-storage.service';
 import { CLAVE_FAVORITOS, FavoritosMockRepository } from './favoritos-mock.repository';
 

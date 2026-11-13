@@ -2,6 +2,7 @@ import {
   Credentials,
   RegisterCafeteriaData,
   RegisterData,
+  RegistroPendiente,
   Session,
   User,
 } from '@features/auth/domain/models/user.model';
@@ -10,13 +11,20 @@ import {
   LoginRequestDto,
   MeResponseDto,
   RegistroCafeteriaRequestDto,
+  RegistroPendienteDto,
   RegistroRequestDto,
   RestablecerPasswordRequestDto,
 } from '@features/auth/data/dtos/auth.dto';
 
 export const AuthMapper = {
   toUser(dto: MeResponseDto): User {
-    return { id: dto.id, email: dto.correo, role: dto.rol, ...cafeteriaOf(dto.idCafeteria) };
+    return {
+      id: dto.id,
+      email: dto.correo,
+      role: dto.rol,
+      name: dto.nombre,
+      ...cafeteriaOf(dto.idCafeteria),
+    };
   },
 
   toSession(dto: AuthResponseDto): Session {
@@ -25,11 +33,17 @@ export const AuthMapper = {
         id: dto.usuarioId,
         email: dto.correo,
         role: dto.rol,
+        name: dto.nombre,
         ...cafeteriaOf(dto.idCafeteria),
       },
       accessToken: dto.token,
       expiresAt: new Date(dto.expiraEn),
     };
+  },
+
+  // CL-Sprint5 13/11/2026: el registro deja la cuenta pendiente de verificar el correo
+  toRegistroPendiente(dto: RegistroPendienteDto): RegistroPendiente {
+    return { email: dto.correo, emailSent: dto.correoEnviado, message: dto.mensaje };
   },
 
   toLoginRequest(credentials: Credentials): LoginRequestDto {
@@ -67,7 +81,7 @@ export const AuthMapper = {
   },
 };
 
-// CL-Sprint4 28/10/2026: HU-07B. Solo agrega cafeteriaId si el backend lo mandó (si no, el campo no existe)
+// CL-Sprint4 28/10/2026: HU-07B. Solo el encargado tiene cafetería (null para Alumno y AdminSistema)
 function cafeteriaOf(idCafeteria: string | null | undefined): Pick<User, 'cafeteriaId'> {
   return idCafeteria ? { cafeteriaId: idCafeteria } : {};
 }

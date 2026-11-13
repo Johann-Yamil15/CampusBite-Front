@@ -3,12 +3,13 @@ import { vi } from 'vitest';
 import { provideRouter } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@core/mock/demo-db';
-import { provideCatalogo } from '@features/catalogo';
-import { MisPedidosFacade, provideOrdenes } from '@features/ordenes';
+import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@features/catalogo/data/mock/catalogo.mock-data';
+import { MisPedidosFacade } from '@features/ordenes';
 import { CarritoStore } from '@features/alumno/application/carrito.store';
 import { CarritoUiService } from '@features/alumno/presentation/carrito-ui.service';
 import { VolverAPedirComponent } from './volver-a-pedir.component';
+import { provideCatalogoMock } from '@features/catalogo/data/mock/catalogo-mock.providers';
+import { provideOrdenesMock } from '@features/ordenes/data/mock/ordenes-mock.providers';
 
 const ENTREGADA = '24110038-0000-4000-8000-000000000000'; // Sabor: hamburguesa + malteada retirada
 const CANCELADA = '24110035-0000-4000-8000-000000000000'; // Express: latte
@@ -30,7 +31,7 @@ describe('VolverAPedirComponent', () => {
   async function abrir(idOrden: string) {
     await TestBed.configureTestingModule({
       imports: [VolverAPedirComponent],
-      providers: [provideRouter([]), provideOrdenes(), provideCatalogo(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
+      providers: [provideRouter([]), provideOrdenesMock(), provideCatalogoMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
     }).compileComponents();
     const pedidos = TestBed.inject(MisPedidosFacade);
     await firstValueFrom(pedidos.cargar(true));

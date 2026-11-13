@@ -3,9 +3,10 @@ import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { provideCatalogo } from '@features/catalogo';
-import { MisPedidosFacade, provideOrdenes } from '@features/ordenes';
+import { MisPedidosFacade } from '@features/ordenes';
 import { PedidosPage } from './pedidos.page';
+import { provideCatalogoMock } from '@features/catalogo/data/mock/catalogo-mock.providers';
+import { provideOrdenesMock } from '@features/ordenes/data/mock/ordenes-mock.providers';
 
 /** CL-Sprint5 11/11/2026 (etapa 6): Mis pedidos con pestañas, vacío y error. */
 describe('PedidosPage', () => {
@@ -23,7 +24,7 @@ describe('PedidosPage', () => {
   async function abrir(ver?: string, antes?: (f: MisPedidosFacade) => void) {
     await TestBed.configureTestingModule({
       imports: [PedidosPage],
-      providers: [provideRouter([]), provideOrdenes(), provideCatalogo(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
+      providers: [provideRouter([]), provideOrdenesMock(), provideCatalogoMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
     }).compileComponents();
     antes?.(TestBed.inject(MisPedidosFacade));
     fixture = TestBed.createComponent(PedidosPage);

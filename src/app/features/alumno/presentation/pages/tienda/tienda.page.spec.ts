@@ -2,10 +2,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { provideRouter } from '@angular/router';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { DEMO_CAFETERIA } from '@core/mock/demo-db';
-import { provideCatalogo } from '@features/catalogo';
-import { provideFavoritos } from '@features/alumno/alumno.providers';
+import { DEMO_CAFETERIA } from '@features/catalogo/data/mock/catalogo.mock-data';
 import { TiendaPage } from './tienda.page';
+import { provideCatalogoMock } from '@features/catalogo/data/mock/catalogo-mock.providers';
+import { provideFavoritosMock } from '@features/alumno/data/mock/alumno-mock.providers';
 
 /** CL-Sprint5 11/11/2026: tienda con el catálogo mock (sin latencia). */
 describe('TiendaPage', () => {
@@ -25,8 +25,8 @@ describe('TiendaPage', () => {
       imports: [TiendaPage],
       providers: [
         provideRouter([]),
-        provideCatalogo(),
-        provideFavoritos(),
+        provideCatalogoMock(),
+        provideFavoritosMock(),
         { provide: MOCK_LATENCIA_MS, useValue: 0 },
       ],
     }).compileComponents();

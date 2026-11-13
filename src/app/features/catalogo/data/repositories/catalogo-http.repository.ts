@@ -8,7 +8,8 @@ import { CatalogoMapper } from '@features/catalogo/data/mappers/catalogo.mapper'
 
 /**
  * CL-Sprint5 11/11/2026: `api/menu` (sp_menu_cafeteria). Antes era MenuService en shared/menu (FB-Sprint4).
- * Pendiente del back: el controller aún no existe (ver BACKEND_SPECIFICATION.md).
+ * CL-Sprint5 13/11/2026: conectado (MenuController del back). GET api/menu/buscar no se usa: el buscador
+ * filtra en el front con el menú ya cargado.
  */
 @Injectable()
 export class CatalogoHttpRepository extends CatalogoRepository {

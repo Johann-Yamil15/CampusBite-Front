@@ -9,6 +9,7 @@ import {
   Credentials,
   RegisterCafeteriaData,
   RegisterData,
+  RegistroPendiente,
   Session,
   USER_ROLES,
   User,
@@ -37,11 +38,15 @@ export class AuthFacade {
 
   private readonly _user = signal<User | null>(null);
 
+  constructor() {
+    olvidarCafeteriaAdivinada();
+  }
+
   /** `true` mientras haya un JWT guardado y no vencido. Reacciona a login/registro/logout. */
   readonly isAuthenticated = computed(() => isJwtActive(this.tokens.token()));
 
   /**
-   * Usuario de la sesión actual. Se llena con `login()`, `registro()` o `loadCurrentUser()`;
+   * Usuario de la sesión actual. Se llena con `login()`, `verificarCorreo()` o `loadCurrentUser()`;
    * vale `null` si no hay sesión (p. ej. tras recargar, hasta llamar a `loadCurrentUser()`).
    */
   readonly user = computed(() => (this.isAuthenticated() ? this._user() : null));
@@ -78,26 +83,39 @@ export class AuthFacade {
   }
 
   /**
-   * Registra un alumno (`POST api/Auth/registro`) y deja la sesión iniciada con el token devuelto.
-   * Reglas del backend: nombre 2–80, contraseña 8–72, teléfono 10–15 dígitos (opcional),
-   * matrícula máx. 20 (opcional).
-   * @param data Datos del alumno.
-   * @returns La sesión creada. Falla con `ApiError` (409 = correo o matrícula ya registrados,
+   * Registra un alumno (`POST api/Auth/registro`).
+   * CL-Sprint5 13/11/2026: ya NO inicia sesión: el back manda un correo de verificación y la sesión empieza
+   * al abrir su enlace (`verificarCorreo`). Reglas del backend: nombre 2–80, contraseña 8–72, teléfono 10–15
+   * dígitos (opcional), matrícula máx. 20 (opcional).
+   * @returns La cuenta pendiente de verificar. Falla con `ApiError` (409 = correo o matrícula ya registrados,
    *   400 = datos que no cumplen el formato; ver `errors` para el detalle por campo).
    */
-  registro(data: RegisterData): Observable<Session> {
-    return this.trackSession(this.repo.registro(data));
+  registro(data: RegisterData): Observable<RegistroPendiente> {
+    return this.track(this.repo.registro(data));
   }
 
   /**
    * JJ-Sprint3 21/10/2026: TEC-11. Autorregistra un negocio (`POST api/Auth/registro-cafeteria`): crea la
-   * cafetería (activa de inmediato) y a su primer encargado, con sesión iniciada como `AdminCafeteria`.
-   * @param data Datos del encargado y de la cafetería.
-   * @returns La sesión creada. Falla con `ApiError` (409 = correo o nombre de cafetería ya registrados,
-   *   400 = datos que no cumplen el formato; ver `errors` para el detalle por campo).
+   * cafetería y a su primer encargado (`AdminCafeteria`).
+   * CL-Sprint5 13/11/2026: igual que `registro`, queda pendiente de verificar el correo (sin sesión).
+   * @returns La cuenta pendiente de verificar. Falla con `ApiError` (409 = correo o nombre de cafetería ya
+   *   registrados, 400 = datos que no cumplen el formato; ver `errors` para el detalle por campo).
    */
-  registroCafeteria(data: RegisterCafeteriaData): Observable<Session> {
-    return this.trackSession(this.repo.registroCafeteria(data));
+  registroCafeteria(data: RegisterCafeteriaData): Observable<RegistroPendiente> {
+    return this.track(this.repo.registroCafeteria(data));
+  }
+
+  /**
+   * CL-Sprint5 13/11/2026: valida el token del enlace del correo (`POST api/Auth/verificar-correo`) y, si
+   * sirve, deja la sesión iniciada como el login. 400 si el enlace no sirve o ya venció.
+   */
+  verificarCorreo(token: string): Observable<Session> {
+    return this.trackSession(this.repo.verificarCorreo(token));
+  }
+
+  /** CL-Sprint5 13/11/2026: pide otro correo de verificación. Completa siempre (no revela si existe). */
+  reenviarVerificacion(correo: string): Observable<void> {
+    return this.track(this.repo.reenviarVerificacion(correo));
   }
 
   /**
@@ -106,14 +124,7 @@ export class AuthFacade {
    * @returns Completa sin valor. Falla con `ApiError` (400 = datos con formato inválido).
    */
   restablecerPassword(correo: string, nuevaPassword: string): Observable<void> {
-    return defer(() => {
-      this.isLoading.set(true);
-      this.error.set(null);
-      return this.repo.restablecerPassword(correo, nuevaPassword).pipe(
-        tap({ error: (err: ApiError) => this.error.set(firstErrorMessage(err)) }),
-        finalize(() => this.isLoading.set(false)),
-      );
-    });
+    return this.track(this.repo.restablecerPassword(correo, nuevaPassword));
   }
 
   /**
@@ -154,14 +165,16 @@ export class AuthFacade {
 
   // JJ-Sprint2 11/10/2026: une HU-01A y HU-01B; actualiza isLoading/error y guarda la sesión al responder
   private trackSession(request$: Observable<Session>): Observable<Session> {
+    return this.track(request$.pipe(tap((session) => this.startSession(session))));
+  }
+
+  // CL-Sprint5 13/11/2026: isLoading/error de cualquier petición de la pantalla (sin tocar la sesión)
+  private track<T>(request$: Observable<T>): Observable<T> {
     return defer(() => {
       this.isLoading.set(true);
       this.error.set(null);
       return request$.pipe(
-        tap({
-          next: (session) => this.startSession(session),
-          error: (err: ApiError) => this.error.set(firstErrorMessage(err)),
-        }),
+        tap({ error: (err: ApiError) => this.error.set(firstErrorMessage(err)) }),
         finalize(() => this.isLoading.set(false)),
       );
     });
@@ -177,4 +190,19 @@ export class AuthFacade {
 function firstErrorMessage(err: ApiError): string {
   const firstFieldError = Object.values(err.errors ?? {}).flat()[0];
   return firstFieldError ?? err.message;
+}
+
+/**
+ * CL-Sprint5 13/11/2026: borra lo que guardaba el respaldo TEMPORAL de Sprint4 (resolverCafeteriaDelEncargado,
+ * ya retirado): la cafetería "adivinada" del encargado en `cb.cafeteria_encargado.<sub>`. Ahora llega en el
+ * login y en /me. Se puede quitar cuando ya nadie tenga esas claves.
+ */
+function olvidarCafeteriaAdivinada(): void {
+  try {
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith('cb.cafeteria_encargado.'))
+      .forEach((k) => localStorage.removeItem(k));
+  } catch {
+    // Storage bloqueado: no hay nada que limpiar
+  }
 }

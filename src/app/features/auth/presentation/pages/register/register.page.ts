@@ -3,8 +3,9 @@
 // una cafetería completa (encargado + cafetería) reutilizando PAYMENT_METHODS/CAFETERIA_LIMITS de @features/cafeterias
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { AuthFacade } from '@features/auth/application/auth.facade';
+import { RegistroPendiente } from '@features/auth/domain/models/user.model';
 import { CAFETERIA_LIMITS, PAYMENT_METHODS, PaymentMethod } from '@features/cafeterias';
 
 type AccountType = 'alumno' | 'cafeteria';
@@ -19,12 +20,14 @@ type AccountType = 'alumno' | 'cafeteria';
 export class RegisterPage {
   private readonly fb = inject(FormBuilder);
   protected readonly authFacade = inject(AuthFacade);
-  private readonly router = inject(Router);
 
   protected readonly isPasswordVisible = signal(false);
   protected readonly accountType = signal<AccountType>('alumno');
   protected readonly limits = CAFETERIA_LIMITS;
   protected readonly paymentMethods = PAYMENT_METHODS;
+  /** CL-Sprint5 13/11/2026: cuenta creada y pendiente de verificar (se muestra "Revisa tu correo"). */
+  protected readonly pendiente = signal<RegistroPendiente | null>(null);
+  protected readonly reenviado = signal(false);
 
   // JJ-Sprint2 11/10/2026: mismas reglas que RegistroRequestDto del backend (nombre 2-80, correo máx. 120, contraseña 8-72)
   // JJ-Sprint2 11/10/2026: matrícula (máx. 20) y teléfono (10-15 dígitos o +) opcionales; términos obligatorios al crear cuenta
@@ -98,7 +101,8 @@ export class RegisterPage {
     const { nombre, correo, matricula, telefono, password } = this.registerForm.getRawValue();
 
     if (!cafeteriaMode) {
-      // JJ-Sprint2 11/10/2026: registra al alumno; el backend devuelve el token y la sesión queda iniciada
+      // JJ-Sprint2 11/10/2026: registra al alumno
+      // CL-Sprint5 13/11/2026: sin sesión; la cuenta se activa con el enlace del correo
       this.authFacade
         .registro({
           name: nombre.trim(),
@@ -108,7 +112,7 @@ export class RegisterPage {
           phone: telefono.trim() || undefined,
         })
         .subscribe({
-          next: () => void this.router.navigateByUrl('/'),
+          next: (p) => this.pendiente.set(p),
           error: () => {
             // El mensaje ya queda en authFacade.error()
           },
@@ -119,7 +123,8 @@ export class RegisterPage {
     const cafeteria = this.cafeteriaForm.getRawValue();
     const paymentMethods = PAYMENT_METHODS.filter((m) => cafeteria.metodosPago[m]);
 
-    // JJ-Sprint3 21/10/2026: autorregistra el negocio; queda activo de inmediato y con sesión como AdminCafeteria
+    // JJ-Sprint3 21/10/2026: autorregistra el negocio (activo de inmediato)
+    // CL-Sprint5 13/11/2026: sin sesión; el encargado entra tras verificar su correo
     this.authFacade
       .registroCafeteria({
         ownerName: nombre.trim(),
@@ -133,10 +138,21 @@ export class RegisterPage {
         paymentMethods: paymentMethods as PaymentMethod[],
       })
       .subscribe({
-        next: () => void this.router.navigateByUrl('/'),
+        next: (p) => this.pendiente.set(p),
         error: () => {
           // El mensaje ya queda en authFacade.error()
         },
       });
+  }
+
+  /** CL-Sprint5 13/11/2026: pide otro correo de verificación (el back responde igual exista o no). */
+  protected reenviar(correo: string): void {
+    this.reenviado.set(false);
+    this.authFacade.reenviarVerificacion(correo).subscribe({
+      next: () => this.reenviado.set(true),
+      error: () => {
+        // El mensaje ya queda en authFacade.error() (p. ej. 429 demasiados intentos)
+      },
+    });
   }
 }

@@ -1,8 +1,8 @@
 /**
- * CL-Sprint5 11/11/2026: contrato PROPUESTO de api/ordenes (aún no existe en el back). Sigue las convenciones
- * de la API actual: camelCase, nombres en español, enums como texto PascalCase (System.Text.Json con
- * JsonStringEnumConverter) y paginación { items, total, pagina, tamanoPagina }. Queda documentado en
- * BACKEND_SPECIFICATION.md; ajustar aquí si el back lo publica distinto.
+ * CL-Sprint5 11/11/2026: contrato de api/ordenes. Sigue las convenciones de la API: camelCase, nombres en
+ * español, enums como texto PascalCase (System.Text.Json con JsonStringEnumConverter) y paginación
+ * { items, total, pagina, tamanoPagina }.
+ * CL-Sprint5 13/11/2026: verificado contra OrdenDtos.cs del back (PR #38).
  */
 
 export type EstadoOrdenDto =
@@ -36,13 +36,14 @@ export interface OrdenDto {
   estado: EstadoOrdenDto;
   recogidaEn: string;
   creadoEn: string;
-  codigoRecogida: string;
+  /** CL-Sprint5 13/11/2026: solo le llega al alumno dueño; la cafetería lo recibe en null (lo teclea). */
+  codigoRecogida: string | null;
   total: number;
   metodo: MetodoPagoDto;
   estadoPago: EstadoPagoDto;
   notas: string | null;
-  /** CL-Sprint5 11/11/2026 (etapa 9): opcional en el contrato; null si no se canceló. */
-  motivoCancelacion?: string | null;
+  /** CL-Sprint5 11/11/2026 (etapa 9): null si no se canceló. */
+  motivoCancelacion: string | null;
   lineas: LineaOrdenDto[];
 }
 
@@ -52,6 +53,15 @@ export interface CrearOrdenRequestDto {
   metodo: MetodoPagoDto;
   items: { idProducto: string; cantidad: number }[];
   notas?: string;
+}
+
+/** CL-Sprint5 13/11/2026: enum MotivoReporte del back. */
+export type MotivoReporteDto = 'FaltoArticulo' | 'ProductoEquivocado' | 'Calidad' | 'Cobro' | 'Otro';
+
+/** Body de POST api/ordenes/{id}/reportes. `detalle` es obligatorio (≥ 10) solo con Otro. */
+export interface CrearReporteRequestDto {
+  motivo: MotivoReporteDto;
+  detalle: string | null;
 }
 
 export interface PaginaDto<T> {

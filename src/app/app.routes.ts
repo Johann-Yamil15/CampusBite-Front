@@ -17,6 +17,9 @@ export const routes: Routes = [
   // Alias cortos que ya usa la app (logout, enlaces de las pantallas)
   { path: 'login', pathMatch: 'full', redirectTo: 'auth/login' },
   { path: 'register', pathMatch: 'full', redirectTo: 'auth/register' },
+  // CL-Sprint5 13/11/2026: el correo de verificación enlaza a <front>/verificar-correo?token=... (el
+  // redirect conserva el query param)
+  { path: 'verificar-correo', pathMatch: 'full', redirectTo: 'auth/verificar-correo' },
   // CL-Sprint4 28/10/2026: HU-07B. negocioHomeGuard lleva al encargado a su panel /mi-negocio
   // CL-Sprint5 11/11/2026: "/" es el inicio del alumno (antes la maqueta de features/home, ya retirada) y
   // la feature alumno trae todas sus pantallas bajo su layout: /, /buscar, /pedidos, /pedidos/:id,
