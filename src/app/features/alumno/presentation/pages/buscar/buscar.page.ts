@@ -61,7 +61,7 @@ interface Pildora {
 
 /** Número de un query param, o null si no viene o no es número. */
 function numero(valor: string | undefined): number | null {
-  const n = valor ? Number(valor) : NaN;
+  const n = valor ? Number(valor) : Number.NaN;
   return Number.isFinite(n) ? n : null;
 }
 
