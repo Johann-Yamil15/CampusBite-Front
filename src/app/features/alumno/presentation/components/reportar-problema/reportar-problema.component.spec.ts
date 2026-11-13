@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { MisPedidosFacade, provideOrdenes } from '@features/ordenes';
+import { MisPedidosFacade } from '@features/ordenes';
 import { ReportarProblemaComponent } from './reportar-problema.component';
+import { provideOrdenesMock } from '@features/ordenes/data/mock/ordenes-mock.providers';
 
 const ENTREGADA = '24110038-0000-4000-8000-000000000000';
 
@@ -14,7 +15,7 @@ describe('ReportarProblemaComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [ReportarProblemaComponent],
-      providers: [provideOrdenes(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
+      providers: [provideOrdenesMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
     }).compileComponents();
     const pedidos = TestBed.inject(MisPedidosFacade);
     await firstValueFrom(pedidos.cargar(true));

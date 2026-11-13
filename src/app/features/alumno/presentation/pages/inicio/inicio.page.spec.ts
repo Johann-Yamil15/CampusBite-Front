@@ -5,10 +5,11 @@ import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
 import { AuthFacade } from '@features/auth';
-import { provideCatalogo } from '@features/catalogo';
-import { MisPedidosFacade, provideOrdenes } from '@features/ordenes';
-import { provideFavoritos, providePerfil } from '@features/alumno/alumno.providers';
+import { MisPedidosFacade } from '@features/ordenes';
 import { InicioPage } from './inicio.page';
+import { provideCatalogoMock } from '@features/catalogo/data/mock/catalogo-mock.providers';
+import { provideOrdenesMock } from '@features/ordenes/data/mock/ordenes-mock.providers';
+import { provideFavoritosMock, providePerfilMock } from '@features/alumno/data/mock/alumno-mock.providers';
 
 /** CL-Sprint5 11/11/2026: el inicio arma sus secciones con el catálogo mock (sin latencia). */
 describe('InicioPage', () => {
@@ -28,14 +29,14 @@ describe('InicioPage', () => {
       imports: [InicioPage],
       providers: [
         provideRouter([]),
-        provideCatalogo(),
-        provideOrdenes(),
-        provideFavoritos(),
-        providePerfil(),
+        provideCatalogoMock(),
+        provideOrdenesMock(),
+        provideFavoritosMock(),
+        providePerfilMock(),
         { provide: MOCK_LATENCIA_MS, useValue: 0 },
         {
           provide: AuthFacade,
-          useValue: { user: signal({ email: 'juan.perez@uttt.edu.mx' }), loadCurrentUser: () => of(null) },
+          useValue: { user: signal({ email: 'juan.perez@uttt.edu.mx', name: 'Juan Pérez' }), loadCurrentUser: () => of(null) },
         },
       ],
     }).compileComponents();
@@ -54,7 +55,8 @@ describe('InicioPage', () => {
 
   it('muestra promociones, categorías, cafeterías y populares', () => {
     // 3 de la plataforma + 2 activas del encargado de Cafetería Central (etapa 9)
-    expect(el.querySelectorAll('.in-promo').length).toBe(5);
+    // CL-Sprint5 13/11/2026: las 3 de prueba (las del negocio ya no se mezclan en el mock)
+    expect(el.querySelectorAll('.in-promo').length).toBe(3);
     expect(el.querySelectorAll('.in-categoria').length).toBeGreaterThan(0);
     expect(el.querySelectorAll('app-cafeteria-card').length).toBe(6);
     expect(el.querySelectorAll('app-platillo-card').length).toBeGreaterThan(0);

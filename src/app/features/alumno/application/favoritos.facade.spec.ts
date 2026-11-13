@@ -2,10 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { Subject, firstValueFrom, throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@core/mock/demo-db';
-import { provideFavoritos } from '@features/alumno/alumno.providers';
+import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@features/catalogo/data/mock/catalogo.mock-data';
 import { FavoritosRepository } from '@features/alumno/domain/repositories/favoritos.repository';
 import { FavoritosFacade } from './favoritos.facade';
+import { provideFavoritosMock } from '@features/alumno/data/mock/alumno-mock.providers';
 
 /** CL-Sprint5 11/11/2026 (etapa 7): corazón inmediato, reversión si falla y "Deshacer" a su lugar. */
 describe('FavoritosFacade', () => {
@@ -14,7 +14,7 @@ describe('FavoritosFacade', () => {
 
   beforeEach(async () => {
     localStorage.clear();
-    TestBed.configureTestingModule({ providers: [provideFavoritos(), { provide: MOCK_LATENCIA_MS, useValue: 0 }] });
+    TestBed.configureTestingModule({ providers: [provideFavoritosMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }] });
     facade = TestBed.inject(FavoritosFacade);
     repo = TestBed.inject(FavoritosRepository);
     await firstValueFrom(facade.cargar());

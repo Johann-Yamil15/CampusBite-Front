@@ -27,7 +27,7 @@ export default [
   },
   {
     path: '',
-    // CL-Sprint5 11/11/2026 (etapa 9): horario y promociones (mock compartido con el catálogo del alumno)
+    // CL-Sprint5 11/11/2026 (etapa 9): horario y promociones (api/cafeterias/{id}/horario y .../promociones)
     providers: [provideNegocio()],
     loadComponent: () =>
       import('@features/menu-negocio/presentation/layout/negocio-layout.component').then(

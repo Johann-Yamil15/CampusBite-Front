@@ -1,0 +1,77 @@
+<!-- CL-Sprint5 13/11/2026: misma cáscara que login/registro (.login-layout/.login-card en styles.scss) -->
+<div class="login-layout">
+  <main class="login-card">
+    <section class="form-section">
+      <div class="brand-lockup">
+        <img src="assets/images/logo-campusbite.png" alt="" width="40" height="40" />
+        <span class="brand-name">Campus<strong>Bite</strong></span>
+      </div>
+
+      @switch (estado()) {
+        @case ('verificando') {
+          <div class="done-state" role="status">
+            <h1 class="title">Verificando tu correo…</h1>
+            <p class="subtitle">Un momento, estamos activando tu cuenta.</p>
+          </div>
+        }
+        @case ('reenviado') {
+          <div class="done-state" role="status">
+            <svg class="done-icon" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <h1 class="title">Revisa tu correo</h1>
+            <p class="subtitle">Si la cuenta existe y falta verificarla, te enviamos un enlace nuevo.</p>
+            <a routerLink="/auth/login" class="cb-btn cb-btn--primary cb-btn--block">Ir a iniciar sesión</a>
+          </div>
+        }
+        @case ('fallo') {
+          <h1 class="title">No pudimos verificar tu correo</h1>
+          <div class="cb-alert-error" role="alert">{{ motivo() }}</div>
+          <p class="subtitle">Escribe tu correo y te mandamos un enlace nuevo.</p>
+
+          <form [formGroup]="form" (ngSubmit)="reenviar()">
+            <div class="form-group">
+              <label for="correo">Correo</label>
+              <div class="input-with-icon">
+                <svg class="icon-left" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>
+                <input id="correo" type="email" formControlName="correo" placeholder="tu.correo@universidad.edu" autocomplete="email" />
+              </div>
+              @if (form.controls.correo.touched && form.controls.correo.invalid) {
+                <small class="error-text">Ingresa un correo válido.</small>
+              }
+            </div>
+
+            @if (authFacade.error()) {
+              <div class="cb-alert-error" role="alert">{{ authFacade.error() }}</div>
+            }
+
+            <button type="submit" class="cb-btn cb-btn--primary cb-btn--block" [disabled]="authFacade.isLoading()">
+              @if (authFacade.isLoading()) { Enviando… } @else { Enviar otro enlace }
+            </button>
+          </form>
+        }
+      }
+
+      <div class="register-prompt">
+        <span>¿Ya verificaste tu cuenta?</span>
+        <a routerLink="/auth/login" class="register-link">Inicia sesión</a>
+      </div>
+    </section>
+
+    <section class="info-section">
+      <div class="info-header">
+        <div class="app-logo-small">
+          <img src="assets/images/logo-campusbite.png" alt="" width="44" height="44" />
+        </div>
+      </div>
+
+      <div class="info-body">
+        <h2 class="info-title">Un paso más<br /><span>y listo.</span></h2>
+      </div>
+
+      <div class="info-footer">
+        <div class="university-data">
+          <strong>Tu comunidad universitaria</strong>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

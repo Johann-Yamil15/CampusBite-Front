@@ -9,7 +9,7 @@ import {
   DEMO_PRODUCTO as P,
   DEMO_PRODUCTOS,
   fotoDemo,
-} from '@core/mock/demo-db';
+} from '@features/catalogo/data/mock/catalogo.mock-data';
 import {
   EstadoOrden,
   EstadoPago,

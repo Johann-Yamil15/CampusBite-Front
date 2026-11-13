@@ -19,7 +19,10 @@ export class AppConfigService {
   });
 
   get apiUrl(): string {
-    return this.config().apiUrl.replace(/\/+$/, '');
+    // JJ-Sprint5 13/11/2026: sin regex (Sonar: /\/+$/ es super-lineal por backtracking)
+    let url = this.config().apiUrl;
+    while (url.endsWith('/')) url = url.slice(0, -1);
+    return url;
   }
 
   get logLevel(): LogLevel {

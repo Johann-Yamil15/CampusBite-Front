@@ -1,5 +1,5 @@
 // JY-Sprint4 05/11/2026: HU futura (cascarón visual). Perfil del alumno: datos, preferencias y accesos.
-// CL-Sprint5 11/11/2026 (etapa 8): rediseño con datos de PerfilFacade (mock persistente por usuario).
+// CL-Sprint5 11/11/2026 (etapa 8): rediseño con datos de PerfilFacade (api/alumnos/me/...).
 //   - Encabezado con iniciales, nombre y correo: el mismo nombre del layout (ya no "alumno" en minúsculas).
 //   - Editar datos y cambiar contraseña en formularios validados (app-editar-datos, app-cambiar-password).
 //   - Preferencias de pedido (punto frecuente y método preferido; el checkout arranca con ellas), avisos y

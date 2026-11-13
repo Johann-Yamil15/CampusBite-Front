@@ -17,15 +17,16 @@ jobs:
     name: 🔨 Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # JJ-Sprint5 13/11/2026: acciones fijadas por SHA completo y npm ci sin scripts de instalación (Sonar)
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: 🟢 Setup Node ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
 
-      - run: npm ci
+      - run: npm ci --ignore-scripts
       - run: npm run build -- --configuration production
 
       # JJ-Sprint1 02/10/2026: genera runtime-config.json con la URL del API (variable de repo API_URL)
@@ -41,7 +42,7 @@ jobs:
           printf '{ "apiUrl": "%s", "logLevel": "error" }\n' "$API_URL" > "$BUILD_FOLDER/config/runtime-config.json"
           cat "$BUILD_FOLDER/config/runtime-config.json"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: frontend-build
           path: ${{ env.BUILD_FOLDER }}
@@ -51,13 +52,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           name: frontend-build
           path: ${{ env.BUILD_FOLDER }}
 
       - name: 🚀 Deploy a Azure App Service
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@02a81bead70021f5284939794bcec79c271ab383 # v3.0.8
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}

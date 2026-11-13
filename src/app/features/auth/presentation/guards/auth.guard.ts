@@ -1,8 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, RedirectCommand, ResolveFn, Router } from '@angular/router';
-import { catchError, map, of, switchMap } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 import { AuthFacade } from '@features/auth/application/auth.facade';
-import { resolverCafeteriaDelEncargado } from '@features/auth/application/resolver-cafeteria-del-encargado';
 import { UserRole } from '@features/auth/domain/models/user.model';
 
 /**
@@ -45,32 +44,20 @@ export const negocioHomeGuard: CanActivateFn = () =>
 
 /**
  * CL-Sprint4 28/10/2026: HU-07B. Resolver de `/mi-negocio`: da al panel el id de la cafetería del
- * encargado sin ponerlo en la URL. Usa `user.cafeteriaId`, o el de /me tras recargar; si no viene
- * (hoy el backend aún no manda `idCafeteria`), lo busca con resolverCafeteriaDelEncargado
- * (TEMPORAL). Si tampoco así aparece, o hay error, lleva a `/negocio` como último recurso.
+ * encargado sin ponerlo en la URL. Usa `user.cafeteriaId` o, tras recargar, el de /me.
+ * CL-Sprint5 13/11/2026: login y /me ya traen `idCafeteria`; se retiró la búsqueda TEMPORAL
+ * (resolverCafeteriaDelEncargado). Si aun así no viene, o hay error, lleva a `/negocio`.
  */
 export const cafeteriaDelEncargadoResolver: ResolveFn<string> = () => {
   const auth = inject(AuthFacade);
   const fallback = new RedirectCommand(inject(Router).parseUrl('/negocio'));
 
   const user = auth.user();
-  if (user?.cafeteriaId) return user.cafeteriaId;
-
-  // TEMPORAL: borrar cuando el backend devuelva idCafeteria en login y /me.
-  // Se crea aquí y no en el switchMap: necesita inject.
-  const resolver$ = resolverCafeteriaDelEncargado();
+  if (user) return user.cafeteriaId ?? fallback;
 
   // Tras recargar la página `user` es null hasta consultar /me
-  const known$ = user
-    ? of(user.cafeteriaId)
-    : auth.loadCurrentUser().pipe(
-        map((u) => u.cafeteriaId),
-        catchError(() => of(undefined)),
-      );
-
-  return known$.pipe(
-    switchMap((cafeteriaId) => (cafeteriaId ? of(cafeteriaId) : resolver$)),
-    map((cafeteriaId) => cafeteriaId ?? fallback),
+  return auth.loadCurrentUser().pipe(
+    map((u) => u.cafeteriaId ?? fallback),
     catchError(() => of(fallback)),
   );
 };

@@ -26,7 +26,7 @@
   @if (etapa() === 'listo') {
     <p class="pc-codigo">
       <app-icon nombre="campana" />
-      <span>Tu código: <strong [attr.aria-label]="o.codigoRecogida.split('').join(' ')">{{ codigo() }}</strong></span>
+      <span>Tu código: <strong [attr.aria-label]="(o.codigoRecogida ?? '').split('').join(' ')">{{ codigo() }}</strong></span>
     </p>
   }
 

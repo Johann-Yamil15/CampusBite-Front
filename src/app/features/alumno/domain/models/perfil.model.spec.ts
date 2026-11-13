@@ -1,6 +1,5 @@
 import {
   iniciales,
-  nombreDesdeCorreo,
   nombreVisible,
   normalizarDatos,
   resumenHistorial,
@@ -10,10 +9,11 @@ import {
 
 /** CL-Sprint5 11/11/2026 (etapa 8): reglas del perfil del alumno. */
 describe('perfil.model', () => {
-  it('el nombre visible es el escrito o, si no, el del correo con mayúsculas', () => {
-    expect(nombreDesdeCorreo('alumno@ejemplo.test')).toBe('Alumno');
-    expect(nombreVisible(null, 'juan.perez@uttt.edu.mx')).toBe('Juan Perez');
-    expect(nombreVisible('  Juan Pérez ', 'x@y.z')).toBe('Juan Pérez');
+  // CL-Sprint5 13/11/2026: el nombre sale del back (perfil y, mientras carga, la sesión), no del correo
+  it('el nombre visible es el del perfil, si no el de la sesión, y si no "Alumno"', () => {
+    expect(nombreVisible('  Juan Pérez ', 'Juan')).toBe('Juan Pérez');
+    expect(nombreVisible(null, 'Ana Ruiz')).toBe('Ana Ruiz');
+    expect(nombreVisible('', undefined)).toBe('Alumno');
     expect(iniciales('Juan Carlos Pérez')).toBe('JP');
     expect(iniciales('alumno')).toBe('A');
   });

@@ -5,8 +5,8 @@ import {
 } from '@features/alumno/domain/models/favorito.model';
 
 /**
- * CL-Sprint5 11/11/2026: contrato de los favoritos del alumno. No hay tabla ni endpoint todavía (ver
- * BACKEND_SPECIFICATION.md); se enlaza en alumno.providers.ts con el mock.
+ * CL-Sprint5 11/11/2026: contrato de los favoritos del alumno. Se enlaza en alumno.providers.ts con
+ * FavoritosHttpRepository (CL-Sprint5 13/11/2026).
  * CL-Sprint5 11/11/2026 (etapa 7): también platillos. Agregar y quitar son idempotentes.
  *
  * Errores (ApiError): 401 sin sesión, 404 la cafetería o el producto no existe.
