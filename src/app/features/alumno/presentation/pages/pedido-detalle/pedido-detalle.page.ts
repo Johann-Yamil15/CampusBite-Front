@@ -1,6 +1,6 @@
 // JY-Sprint4 05/11/2026: HU-08 (cascarón visual). Detalle de un pedido: avance del estado, artículos, pago
 // y punto de entrega.
-// CL-Sprint5 11/11/2026: lee y cancela con MisPedidosFacade (feature ordenes, hoy con repositorio mock). La
+// CL-Sprint5 11/11/2026: lee y cancela con MisPedidosFacade (feature ordenes, api/ordenes). La
 // URL lleva el id de la orden (/pedidos/:id) en vez del folio, porque la BD no tiene folio; el folio que se
 // muestra se deriva del id. Cancelar respeta la regla de sp_cancelar_orden (solo pendiente o confirmada).
 // CL-Sprint5 11/11/2026 (etapa 6): rediseño con el sistema de diseño.

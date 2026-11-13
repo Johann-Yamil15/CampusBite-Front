@@ -30,7 +30,8 @@ export class PedidoCardComponent {
   protected readonly detalle = computed(() => detalleEtapa(this.orden()));
   protected readonly resumen = computed(() => resumenLineas(this.orden()));
   protected readonly codigo = computed(() => {
-    const c = this.orden().codigoRecogida;
+    // El alumno dueño siempre lo recibe; el tipo admite null porque la cafetería no lo recibe
+    const c = this.orden().codigoRecogida ?? '';
     return `${c.slice(0, 3)} ${c.slice(3)}`;
   });
 }

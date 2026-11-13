@@ -6,11 +6,10 @@ import {
 } from '@features/menu-negocio/domain/models/negocio.model';
 
 /**
- * CL-Sprint5 11/11/2026 (etapa 9): horario y promociones del negocio. No existen en el back (propuestos en
- * BACKEND_SPECIFICATION.md); se enlaza en menu-negocio.routes.ts con el mock, que comparte datos con el
- * catálogo del alumno.
+ * CL-Sprint5 11/11/2026 (etapa 9): horario y promociones del negocio. Se enlaza en negocio.providers.ts con
+ * NegocioHttpRepository (CL-Sprint5 13/11/2026).
  *
- * Errores (ApiError): 403 no es su cafetería, 404 no existe, 422 datos inválidos.
+ * Errores (ApiError): 400 datos inválidos (con `detail` en español), 403 no es su cafetería, 404 no existe.
  */
 export abstract class NegocioRepository {
   abstract horario(idCafeteria: string): Observable<HorarioNegocio>;

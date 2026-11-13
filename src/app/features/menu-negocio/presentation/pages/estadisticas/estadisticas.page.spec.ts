@@ -2,8 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { provideOrdenes } from '@features/ordenes';
 import { EstadisticasPage } from './estadisticas.page';
+import { provideOrdenesMock } from '@features/ordenes/data/mock/ordenes-mock.providers';
 
 /** CL-Sprint5 11/11/2026 (etapa 9): estadísticas con los pedidos simulados del tablero (5 nov). */
 describe('EstadisticasPage', () => {
@@ -15,7 +15,7 @@ describe('EstadisticasPage', () => {
     vi.setSystemTime(new Date(2026, 10, 11, 12, 0));
     await TestBed.configureTestingModule({
       imports: [EstadisticasPage],
-      providers: [provideRouter([]), provideOrdenes(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
+      providers: [provideRouter([]), provideOrdenesMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
     }).compileComponents();
     fixture = TestBed.createComponent(EstadisticasPage);
     el = fixture.nativeElement;

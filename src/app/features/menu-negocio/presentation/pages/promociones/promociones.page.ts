@@ -1,6 +1,6 @@
 // JY-Sprint4 05/11/2026: HU futura (cascarón visual). Promociones del negocio: crear, editar, activar/pausar
 // y eliminar.
-// CL-Sprint5 11/11/2026 (etapa 9): se guardan con NegocioFacade (mock compartido con el alumno): las activas y
+// CL-Sprint5 11/11/2026 (etapa 9): se guardan con NegocioFacade (api/cafeterias/{id}/promociones): las activas y
 // vigentes salen en el carrusel del inicio y en la tienda de la cafetería. Validaciones por campo (dominio),
 // estado de vigencia ("Visible para alumnos", "Programada", "Vencida", "En pausa"), carga, error y avisos.
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';

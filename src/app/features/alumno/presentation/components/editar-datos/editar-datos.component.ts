@@ -1,6 +1,6 @@
 // CL-Sprint5 11/11/2026 (etapa 8): "Editar datos" del Perfil. Nombre (obligatorio), matrícula y teléfono
 // (opcionales), con las reglas del registro. Los errores se muestran al salir del campo o al intentar guardar,
-// no mientras se escribe por primera vez. Guarda con PerfilFacade (mock por ahora).
+// no mientras se escribe por primera vez. Guarda con PerfilFacade (PUT api/alumnos/me/perfil).
 import { ChangeDetectionStrategy, Component, computed, inject, output, signal } from '@angular/core';
 import { ApiError } from '@core/http/api-error';
 import { ModalComponent } from '@shared/ui/modal/modal.component';

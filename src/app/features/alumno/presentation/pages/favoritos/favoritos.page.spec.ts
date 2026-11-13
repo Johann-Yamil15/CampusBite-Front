@@ -3,12 +3,12 @@ import { provideRouter } from '@angular/router';
 import { throwError } from 'rxjs';
 import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@core/mock/demo-db';
-import { provideCatalogo } from '@features/catalogo';
-import { provideFavoritos } from '@features/alumno/alumno.providers';
+import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@features/catalogo/data/mock/catalogo.mock-data';
 import { FavoritosFacade } from '@features/alumno/application/favoritos.facade';
 import { CarritoStore } from '@features/alumno/application/carrito.store';
 import { FavoritosPage } from './favoritos.page';
+import { provideCatalogoMock } from '@features/catalogo/data/mock/catalogo-mock.providers';
+import { provideFavoritosMock } from '@features/alumno/data/mock/alumno-mock.providers';
 
 /** CL-Sprint5 11/11/2026 (etapa 7): Favoritos con pestañas, disponibilidad, vacío y error. */
 describe('FavoritosPage', () => {
@@ -26,7 +26,7 @@ describe('FavoritosPage', () => {
   async function abrir(ver?: string, antes?: (f: FavoritosFacade) => void) {
     await TestBed.configureTestingModule({
       imports: [FavoritosPage],
-      providers: [provideRouter([]), provideCatalogo(), provideFavoritos(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
+      providers: [provideRouter([]), provideCatalogoMock(), provideFavoritosMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
     }).compileComponents();
     antes?.(TestBed.inject(FavoritosFacade));
     fixture = TestBed.createComponent(FavoritosPage);

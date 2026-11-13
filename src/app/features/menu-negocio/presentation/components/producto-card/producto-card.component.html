@@ -44,7 +44,7 @@
             [id]="'menu-' + p.id"
             [attr.aria-label]="'Opciones de ' + p.name"
           >
-            <li role="none">
+            <li role="presentation">
               <button type="button" role="menuitem" (click)="choose('edit')">
                 <svg
                   aria-hidden="true"
@@ -62,7 +62,7 @@
                 Editar
               </button>
             </li>
-            <li role="none">
+            <li role="presentation">
               <button type="button" role="menuitem" (click)="choose('changeImage')">
                 <svg
                   aria-hidden="true"
@@ -80,7 +80,7 @@
                 Cambiar imagen
               </button>
             </li>
-            <li role="none">
+            <li role="presentation">
               <button type="button" role="menuitem" class="danger" (click)="choose('remove')">
                 <svg
                   aria-hidden="true"

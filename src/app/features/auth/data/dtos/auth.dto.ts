@@ -57,23 +57,48 @@ export interface RestablecerPasswordRequestDto {
   nuevaPassword: string;
 }
 
-/** Respuesta de `POST api/Auth/login` (200) y `POST api/Auth/registro` (201). */
+/** Respuesta de `POST api/Auth/login` y `POST api/Auth/verificar-correo` (200). */
 export interface AuthResponseDto {
   usuarioId: string;
   correo: string;
   rol: RolDto;
+  /** CL-Sprint5 13/11/2026: nombre del usuario (sale del token). */
+  nombre: string;
+  /** CL-Sprint4 28/10/2026: HU-07B. Cafetería del encargado; null para Alumno y AdminSistema. */
+  idCafeteria: string | null;
   token: string;
   /** Fecha ISO-8601 en UTC. */
   expiraEn: string;
-  /** CL-Sprint4 28/10/2026: HU-07B. Cafetería del encargado. Opcional: el backend aún no lo manda. */
-  idCafeteria?: string | null;
 }
 
-/** Respuesta de `GET api/Auth/me` (claims del JWT). */
+/**
+ * Respuesta de `GET api/Auth/me` (claims del JWT: el nombre no cambia hasta volver a iniciar sesión).
+ * CL-Sprint5 13/11/2026: + nombre e idCafeteria.
+ */
 export interface MeResponseDto {
   id: string;
   correo: string;
   rol: RolDto;
-  /** CL-Sprint4 28/10/2026: HU-07B. Cafetería del encargado. Opcional: el backend aún no lo manda. */
-  idCafeteria?: string | null;
+  nombre: string;
+  idCafeteria: string | null;
+}
+
+/**
+ * CL-Sprint5 13/11/2026: respuesta (201) de `POST api/Auth/registro` y `registro-cafeteria`. Ya no inician
+ * sesión: mandan un correo de verificación. Si `correoEnviado` es false, la cuenta sí se creó.
+ */
+export interface RegistroPendienteDto {
+  correo: string;
+  correoEnviado: boolean;
+  mensaje: string;
+}
+
+/** Body de `POST api/Auth/verificar-correo` (el token del enlace del correo). */
+export interface VerificarCorreoRequestDto {
+  token: string;
+}
+
+/** Body de `POST api/Auth/reenviar-verificacion` (202 siempre, exista o no la cuenta). */
+export interface ReenviarVerificacionRequestDto {
+  correo: string;
 }

@@ -39,8 +39,7 @@ export const CatalogoMapper = {
       portadaUrl: dto.portadaUrl ?? null,
       calificacion: dto.calificacion ?? null,
       resenas: dto.resenas ?? null,
-      // sp_menu_cafeteria solo devuelve cafeterías activas: sin el dato, se asume abierta
-      abierta: dto.abierta ?? true,
+      abierta: dto.abierta,
       cierraA: dto.cierraA ?? null,
       minutosEstimados: dto.minutosEstimados ?? null,
     };

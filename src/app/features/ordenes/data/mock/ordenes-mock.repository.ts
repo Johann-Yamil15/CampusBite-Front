@@ -1,13 +1,12 @@
-import { DestroyRef, Injectable, InjectionToken, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { MockBackend, MockHttpError } from '@core/mock/mock-backend';
-import { DemoNegocioStore, aMinutos } from '@core/mock/demo-negocio.store';
 import {
   DEMO_ALUMNO,
   DEMO_CAFETERIAS,
   DEMO_CAFETERIA_ENCARGADO,
   DEMO_PRODUCTOS,
-} from '@core/mock/demo-db';
+} from '@features/catalogo/data/mock/catalogo.mock-data';
 import { OrdenesRepository } from '@features/ordenes/domain/repositories/ordenes.repository';
 import {
   EstadoAvanceCafeteria,
@@ -28,28 +27,11 @@ import {
 import { RegistroOrdenMock, estadoPagoDe, lineaDemo, ordenesDemo } from './ordenes.mock-data';
 
 /**
- * CL-Sprint5 11/11/2026 (etapa 6): tiempos de la "cocina simulada". Sin back no hay quién mueva las órdenes
- * nuevas del alumno mientras él mira su pedido, así que el mock hace lo que haría la cafetería: confirma el
- * pago de una transferencia, la pasa a preparación y la deja lista. Nunca la entrega (eso pide el código en
- * el mostrador, desde el tablero). Si el tablero la mueve antes, la cocina sigue desde ese estado. Las
- * órdenes de ejemplo no se mueven solas. `null` la apaga.
- */
-export interface TiemposCocinaMock {
-  confirmarPagoMs: number;
-  prepararMs: number;
-  terminarMs: number;
-}
-
-export const MOCK_COCINA = new InjectionToken<TiemposCocinaMock | null>('MOCK_COCINA', {
-  providedIn: 'root',
-  factory: () => ({ confirmarPagoMs: 20_000, prepararMs: 15_000, terminarMs: 40_000 }),
-});
-
-/**
  * CL-Sprint5 11/11/2026: órdenes simuladas mientras el back no tiene OrdenesController. Aplica las mismas
  * reglas que los SP de la BD (sp_crear_orden, sp_cancelar_orden, sp_cambiar_estado_orden,
- * sp_entregar_orden y el trigger de transiciones) y responde con sus mismos mensajes, así la UI se prueba
- * contra los errores reales. Para conectar el back se cambia `useClass` en ordenes.providers.ts.
+ * sp_entregar_orden y el trigger de transiciones) y responde con sus mismos mensajes.
+ * CL-Sprint5 13/11/2026: solo para pruebas (la app usa el back); se enlaza con provideOrdenesMock(). Se quitó
+ * la "cocina simulada" (MOCK_COCINA): las órdenes las mueve el encargado desde el tablero.
  *
  * El alumno con sesión es siempre el alumno de la demo, y el tablero de cualquier cafetería incluye las de
  * la cafetería demo del encargado (el mock no conoce la cafetería real del encargado).
@@ -58,22 +40,8 @@ export const MOCK_COCINA = new InjectionToken<TiemposCocinaMock | null>('MOCK_CO
 export class OrdenesMockRepository extends OrdenesRepository {
   private readonly backend = inject(MockBackend);
   private readonly registros: RegistroOrdenMock[] = ordenesDemo();
-  private readonly cocina = inject(MOCK_COCINA);
-  private readonly negocio = inject(DemoNegocioStore);
-  /**
-   * CL-Sprint5 11/11/2026 (etapa 9): cuándo pidió el tablero del negocio sus órdenes por última vez. Mientras
-   * el encargado tenga el tablero abierto (lo refresca cada pocos segundos) la cocina simulada no mueve
-   * nada: las transiciones las hace él.
-   */
-  private ultimoTablero = 0;
-  private readonly timers = new Set<ReturnType<typeof setTimeout>>();
   /** Órdenes que ya tienen un reporte (uno por orden). */
   private readonly reportadas = new Set<string>();
-
-  constructor() {
-    super();
-    inject(DestroyRef).onDestroy(() => this.timers.forEach((t) => clearTimeout(t)));
-  }
 
   // ---------- Alumno ----------
 
@@ -81,8 +49,8 @@ export class OrdenesMockRepository extends OrdenesRepository {
     return this.backend.responder(() => {
       const c = DEMO_CAFETERIAS.find((x) => x.id === nueva.idCafeteria);
       if (!c) throw new MockHttpError(400, 'La cafetería no existe o no está activa');
-      // CL-Sprint5 11/11/2026 (etapa 9): respeta el horario y el "cerrar por hoy" del negocio
-      const hoy = this.negocio.estadoHoy(c.id);
+      // CL-Sprint5 11/11/2026 (etapa 9): respeta si está abierta y su hora de cierre (fijas en los datos)
+      const hoy = { abierta: c.abierta, cierraA: c.cierraA };
       if (!hoy.abierta) throw new MockHttpError(400, 'La cafetería está cerrada en este momento');
       if (!c.metodosPago.includes(nueva.metodo)) {
         throw new MockHttpError(400, `La cafetería no acepta el método de pago ${nueva.metodo}`);
@@ -134,7 +102,6 @@ export class OrdenesMockRepository extends OrdenesRepository {
       };
       const registro = { idAlumno: DEMO_ALUMNO.id, orden };
       this.registros.unshift(registro);
-      this.programarCocina(registro);
       return paraAlumno(orden);
     });
   }
@@ -160,7 +127,7 @@ export class OrdenesMockRepository extends OrdenesRepository {
         throw new MockHttpError(400, 'La orden ya está en preparación y no se puede cancelar');
       }
       this.mover(r, 'cancelada');
-      r.orden = { ...r.orden, motivoCancelacion: 'Lo cancelaste tú' };
+      r.orden = { ...r.orden, motivoCancelacion: 'Cancelado por el alumno' };
       return paraAlumno(r.orden);
     });
   }
@@ -170,7 +137,7 @@ export class OrdenesMockRepository extends OrdenesRepository {
       const r = this.buscar(idOrden);
       if (r.idAlumno !== DEMO_ALUMNO.id) throw new MockHttpError(404, 'La orden no existe');
       if (!reporteValido(reporte)) {
-        throw new MockHttpError(422, 'Cuéntanos qué pasó (al menos 10 caracteres, máximo 300)');
+        throw new MockHttpError(400, 'Cuéntanos qué pasó (al menos 10 caracteres, máximo 300)');
       }
       if (this.reportadas.has(idOrden)) {
         throw new MockHttpError(409, 'Ya reportaste un problema con este pedido; lo estamos revisando');
@@ -183,7 +150,6 @@ export class OrdenesMockRepository extends OrdenesRepository {
   // ---------- Cafetería ----------
 
   ordenesCafeteria(idCafeteria: string): Observable<Orden[]> {
-    this.ultimoTablero = Date.now();
     return this.backend.responder(() =>
       this.registros
         .filter(
@@ -191,7 +157,7 @@ export class OrdenesMockRepository extends OrdenesRepository {
             r.orden.idCafeteria === idCafeteria ||
             r.orden.idCafeteria === DEMO_CAFETERIA_ENCARGADO,
         )
-        .map((r) => structuredClone(r.orden))
+        .map((r) => paraCafeteria(r.orden))
         .sort((a, b) => a.recogidaEn.localeCompare(b.recogidaEn)),
     );
   }
@@ -203,7 +169,7 @@ export class OrdenesMockRepository extends OrdenesRepository {
         throw new MockHttpError(400, 'La orden está esperando la confirmación del pago');
       }
       this.mover(r, estado);
-      return structuredClone(r.orden);
+      return paraCafeteria(r.orden);
     });
   }
 
@@ -215,7 +181,7 @@ export class OrdenesMockRepository extends OrdenesRepository {
         throw new MockHttpError(400, 'Código de recogida incorrecto');
       }
       this.mover(r, 'entregada');
-      return structuredClone(r.orden);
+      return paraCafeteria(r.orden);
     });
   }
 
@@ -225,7 +191,7 @@ export class OrdenesMockRepository extends OrdenesRepository {
       if (!motivo.trim()) throw new MockHttpError(400, 'Indica el motivo del rechazo');
       this.mover(r, 'cancelada');
       r.orden = { ...r.orden, motivoCancelacion: motivo.trim() };
-      return structuredClone(r.orden);
+      return paraCafeteria(r.orden);
     });
   }
 
@@ -236,36 +202,11 @@ export class OrdenesMockRepository extends OrdenesRepository {
         throw new MockHttpError(400, 'El pago de esta orden ya estaba confirmado');
       }
       this.mover(r, 'confirmada');
-      return structuredClone(r.orden);
+      return paraCafeteria(r.orden);
     });
   }
 
   // ---------- Internos ----------
-
-  /** Avanza sola una orden nueva, paso a paso, como lo haría la cafetería (ver MOCK_COCINA). */
-  private programarCocina(r: RegistroOrdenMock): void {
-    const t = this.cocina;
-    if (!t) return;
-    const pasos: [EstadoOrden, EstadoOrden, number][] = [
-      ['pendiente', 'confirmada', t.confirmarPagoMs],
-      ['confirmada', 'en_preparacion', t.prepararMs],
-      ['en_preparacion', 'lista', t.terminarMs],
-    ];
-    const siguiente = (): void => {
-      const paso = pasos.find(([de]) => de === r.orden.estado);
-      if (!paso) return; // lista, entregada o cancelada: ya no le toca a la cocina
-      const timer = setTimeout(() => {
-        this.timers.delete(timer);
-        // Con el tablero abierto manda el encargado: la cocina espera otra vuelta sin mover nada
-        const tableroAbierto = Date.now() - this.ultimoTablero < TABLERO_ACTIVO_MS;
-        // Si el tablero ya la movió, se sigue desde donde quedó
-        if (!tableroAbierto && r.orden.estado === paso[0]) this.mover(r, paso[1]);
-        siguiente();
-      }, paso[2]);
-      this.timers.add(timer);
-    };
-    siguiente();
-  }
 
   private buscar(idOrden: string): RegistroOrdenMock {
     const r = this.registros.find((x) => x.orden.idOrden === idOrden);
@@ -289,16 +230,24 @@ export class OrdenesMockRepository extends OrdenesRepository {
   }
 }
 
-/** Cuánto se considera "abierto" el tablero después de su última consulta (refresca cada 10 s). */
-const TABLERO_ACTIVO_MS = 30_000;
-
 /** El alumno no recibe sus propios datos de alumno (eso es para la cafetería). */
 function paraAlumno(orden: Orden): Orden {
   return { ...structuredClone(orden), alumno: null };
+}
+
+/** CL-Sprint5 13/11/2026: como el back, el tablero no recibe el código (el encargado lo teclea). */
+function paraCafeteria(orden: Orden): Orden {
+  return { ...structuredClone(orden), codigoRecogida: null };
 }
 
 /** 6 dígitos con aleatoriedad criptográfica, como sp_crear_orden. */
 function codigoAleatorio(): string {
   const [n] = crypto.getRandomValues(new Uint32Array(1));
   return String(n % 10 ** LONGITUD_CODIGO_RECOGIDA).padStart(LONGITUD_CODIGO_RECOGIDA, '0');
+}
+
+/** "HH:mm" → minutos desde la medianoche. */
+function aMinutos(hora: string): number {
+  const [h, m] = hora.split(':').map(Number);
+  return h * 60 + m;
 }

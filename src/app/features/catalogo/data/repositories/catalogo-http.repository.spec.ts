@@ -11,8 +11,27 @@ const DTO: MenuCafeteriaDto = {
   puntoEntrega: 'Edificio A',
   metodosPago: ['Efectivo', 'Tarjeta'],
   productos: [
-    { idProducto: 'p1', producto: 'Latte', categoria: 'Bebidas', descripcion: null, precio: 38, imagenUrl: null },
+    {
+      idProducto: 'p1',
+      producto: 'Latte',
+      categoria: 'Bebidas',
+      descripcion: null,
+      precio: 38,
+      imagenUrl: null,
+      calificacion: null,
+      minutosPreparacion: 4,
+      precioAnterior: null,
+      popular: true,
+      dietas: ['Vegetariano', 'SinGluten'],
+    },
   ],
+  logoUrl: null,
+  portadaUrl: null,
+  calificacion: null,
+  resenas: null,
+  abierta: false,
+  cierraA: null,
+  minutosEstimados: 10,
 };
 
 /** CL-Sprint5 11/11/2026: rutas y mapeo de api/menu (antes las cubría shared/menu/menu.spec.ts de FB). */

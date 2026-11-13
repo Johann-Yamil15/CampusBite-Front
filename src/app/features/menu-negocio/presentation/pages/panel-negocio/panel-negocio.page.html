@@ -166,8 +166,11 @@
         }
 
         <!-- "Cambiar imagen": un solo input de archivo oculto para todas las tarjetas -->
+        <!-- JJ-Sprint5 13/11/2026: id + label asociado (Sonar, accesibilidad) -->
+        <label for="panel-imagen-producto" class="sr-only">Nueva imagen del producto</label>
         <input
           #imageInput
+          id="panel-imagen-producto"
           class="sr-only"
           type="file"
           tabindex="-1"

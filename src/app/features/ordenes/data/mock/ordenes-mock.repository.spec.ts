@@ -2,10 +2,9 @@ import { TestBed } from '@angular/core/testing';
 import { Observable, firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { DemoNegocioStore } from '@core/mock/demo-negocio.store';
-import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@core/mock/demo-db';
+import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@features/catalogo/data/mock/catalogo.mock-data';
 import { Orden } from '@features/ordenes/domain/models/orden.model';
-import { MOCK_COCINA, OrdenesMockRepository } from './ordenes-mock.repository';
+import { OrdenesMockRepository } from './ordenes-mock.repository';
 
 /** ISO con offset dentro de `minutos`. */
 const dentroDe = (minutos: number) => new Date(Date.now() + minutos * 60_000).toISOString();
@@ -13,8 +12,8 @@ const dentroDe = (minutos: number) => new Date(Date.now() + minutos * 60_000).to
 /** CL-Sprint5 11/11/2026: el mock aplica las mismas reglas que los SP de órdenes de la BD. */
 describe('OrdenesMockRepository', () => {
 
-  // CL-Sprint5 11/11/2026 (etapa 9): el abierto/cerrado sale del horario del negocio; se fija el reloj en un
-  // miércoles a mediodía para que la prueba no dependa de la hora en que corre.
+  // CL-Sprint5 11/11/2026 (etapa 9): se fija el reloj en un miércoles a mediodía para que la prueba no
+  // dependa de la hora en que corre.
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(2026, 10, 11, 12, 0));
@@ -32,7 +31,6 @@ describe('OrdenesMockRepository', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: MOCK_LATENCIA_MS, useValue: 0 },
-        { provide: MOCK_COCINA, useValue: null },
         OrdenesMockRepository,
       ],
     });
@@ -125,7 +123,9 @@ describe('OrdenesMockRepository', () => {
       expect(await falla(repo.entregar(lista.idOrden, '000000'))).toMatchObject({
         message: 'Código de recogida incorrecto',
       });
-      const entregada = await valor(repo.entregar(lista.idOrden, lista.codigoRecogida));
+      // El código lo tiene el alumno: el tablero lo recibe en null
+      const codigo = (await valor(repo.obtener(lista.idOrden))).codigoRecogida!;
+      const entregada = await valor(repo.entregar(lista.idOrden, codigo));
       expect(entregada.estado).toBe('entregada');
       expect(entregada.estadoPago).toBe('pagado');
 
@@ -158,67 +158,38 @@ describe('OrdenesMockRepository', () => {
     });
   });
 
-  // CL-Sprint5 11/11/2026 (etapa 9): el pedido respeta el horario del negocio
-  it('no deja pedir si la cafetería cerró por hoy o después de su cierre', async () => {
-    const pedir = (recogidaEn: string) =>
+  // CL-Sprint5 11/11/2026 (etapa 9): el pedido respeta si la cafetería está abierta y su hora de cierre
+  it('no deja pedir en una cafetería cerrada ni después de su cierre', async () => {
+    const pedir = (idCafeteria: string, recogidaEn: string) =>
       repo.crear({
-        idCafeteria: DEMO_CAFETERIA.central,
+        idCafeteria,
         recogidaEn,
         metodo: 'efectivo',
         items: [{ idProducto: DEMO_PRODUCTO.sandwich, cantidad: 1 }],
       });
-    expect(await falla(pedir(new Date(2026, 10, 11, 17, 30).toISOString()))).toMatchObject({
-      message: 'La cafetería cierra a las 17:00; elige una hora antes',
+    expect(
+      await falla(pedir(DEMO_CAFETERIA.central, new Date(2026, 10, 11, 17, 30).toISOString())),
+    ).toMatchObject({ message: 'La cafetería cierra a las 17:00; elige una hora antes' });
+    expect(await falla(pedir(DEMO_CAFETERIA.express, dentroDe(30)))).toMatchObject({
+      message: 'La cafetería está cerrada en este momento',
     });
-    TestBed.inject(DemoNegocioStore).cerrarHoy(DEMO_CAFETERIA.central);
-    expect(await falla(pedir(dentroDe(30)))).toMatchObject({ message: 'La cafetería está cerrada en este momento' });
-    TestBed.inject(DemoNegocioStore).reabrir(DEMO_CAFETERIA.central);
+  });
+
+  // CL-Sprint5 13/11/2026: como el back, el tablero no recibe el código de recogida
+  it('el tablero recibe al alumno pero no el código de recogida', async () => {
+    const tablero = await valor(repo.ordenesCafeteria(DEMO_CAFETERIA.central));
+    expect(tablero.length).toBeGreaterThan(0);
+    expect(tablero.every((o) => o.codigoRecogida === null && o.alumno !== null)).toBe(true);
   });
 
   // CL-Sprint5 11/11/2026 (etapa 6)
-  describe('reportes y cocina simulada', () => {
+  describe('reportes', () => {
     it('reportar responde un folio, una sola vez por orden', async () => {
       const id = (await valor(repo.misOrdenes()))[0].idOrden;
-      expect(await falla(repo.reportar(id, { motivo: 'otro', detalle: 'mal' }))).toMatchObject({ status: 422 });
+      expect(await falla(repo.reportar(id, { motivo: 'otro', detalle: 'mal' }))).toMatchObject({ status: 400 });
       const r = await valor(repo.reportar(id, { motivo: 'falto_articulo', detalle: '' }));
       expect(r.folio).toMatch(/^R-\d{6}$/);
       expect(await falla(repo.reportar(id, { motivo: 'cobro', detalle: '' }))).toMatchObject({ status: 409 });
-    });
-
-    it('la cocina avanza una orden nueva hasta "lista" y nunca la entrega', async () => {
-      vi.useFakeTimers();
-      vi.setSystemTime(new Date(2026, 10, 11, 12, 0));
-      try {
-        TestBed.resetTestingModule();
-        TestBed.configureTestingModule({
-          providers: [
-            { provide: MOCK_LATENCIA_MS, useValue: 0 },
-            { provide: MOCK_COCINA, useValue: { confirmarPagoMs: 1000, prepararMs: 1000, terminarMs: 1000 } },
-            OrdenesMockRepository,
-          ],
-        });
-        repo = TestBed.inject(OrdenesMockRepository);
-        const orden = await valor(
-          repo.crear({
-            idCafeteria: DEMO_CAFETERIA.central,
-            recogidaEn: dentroDe(30),
-            metodo: 'transferencia',
-            items: [{ idProducto: DEMO_PRODUCTO.sandwich, cantidad: 1 }],
-          }),
-        );
-        const estado = async () => (await valor(repo.obtener(orden.idOrden))).estado;
-        expect(await estado()).toBe('pendiente');
-        vi.advanceTimersByTime(1000);
-        expect(await estado()).toBe('confirmada');
-        vi.advanceTimersByTime(1000);
-        expect(await estado()).toBe('en_preparacion');
-        vi.advanceTimersByTime(1000);
-        expect(await estado()).toBe('lista');
-        vi.advanceTimersByTime(60_000);
-        expect(await estado()).toBe('lista');
-      } finally {
-        vi.useRealTimers();
-      }
     });
   });
 });

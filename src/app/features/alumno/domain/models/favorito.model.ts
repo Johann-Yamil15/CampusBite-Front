@@ -2,8 +2,10 @@
 export interface CafeteriaFavorita {
   idCafeteria: string;
   nombre: string;
+  /** CL-Sprint5 13/11/2026: vacía mientras el back no tenga portadas. */
   foto: string;
-  calificacion: number;
+  /** null mientras no haya reseñas. */
+  calificacion: number | null;
   puntoEntrega: string;
   esDelCampus: boolean;
   abierta: boolean;

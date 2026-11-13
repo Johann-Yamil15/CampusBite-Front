@@ -8,7 +8,7 @@
 export type MetodoPagoPreferido = 'efectivo' | 'tarjeta' | 'transferencia';
 
 export interface DatosPersonales {
-  /** `null` mientras el alumno no lo escriba (el back aún no lo manda en /me): se usa el del correo. */
+  /** El back siempre lo manda (2..80); `null` solo en un formulario vacío. */
   nombre: string | null;
   matricula: string | null;
   telefono: string | null;
@@ -53,22 +53,15 @@ export const LIMITES_PERFIL = {
 // ---------- Nombre ----------
 
 /**
- * Nombre para saludar mientras el back no manda el nombre en /me (pendiente B1): se arma con la parte del
- * correo antes de la @ ("juan.perez" → "Juan Perez"). Antes vivía en presentation/nombre.ts.
+ * El nombre que se muestra en toda la app. CL-Sprint5 13/11/2026: ya no se arma con el correo; sale del back:
+ * primero el del perfil (se refresca con la respuesta de PUT api/alumnos/me/perfil) y, mientras carga, el de
+ * la sesión (login o /me, que lo leen del token y no cambian hasta volver a iniciar sesión).
  */
-export function nombreDesdeCorreo(correo: string | null | undefined): string {
-  const local = correo?.split('@')[0]?.trim();
-  if (!local) return 'Alumno';
-  return local
-    .split(/[._-]+/)
-    .filter(Boolean)
-    .map((p) => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
-    .join(' ');
-}
-
-/** El nombre que se muestra en toda la app: el que escribió el alumno o, si no, el del correo. */
-export function nombreVisible(nombre: string | null | undefined, correo: string | null | undefined): string {
-  return nombre?.trim() || nombreDesdeCorreo(correo);
+export function nombreVisible(
+  nombrePerfil: string | null | undefined,
+  nombreSesion: string | null | undefined,
+): string {
+  return nombrePerfil?.trim() || nombreSesion?.trim() || 'Alumno';
 }
 
 /** "Juan Pérez" → "JP"; "Alumno" → "A". */

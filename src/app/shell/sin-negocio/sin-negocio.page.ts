@@ -1,5 +1,6 @@
 // CL-Sprint5 11/11/2026: /negocio. A esta ruta manda cafeteriaDelEncargadoResolver (feature auth) cuando no
-// encuentra la cafetería del encargado (hoy el back no manda idCafeteria en login ni en /me, pendiente B1).
+// encuentra la cafetería del encargado (CL-Sprint5 13/11/2026: login y /me ya traen idCafeteria; queda para
+// un encargado sin cafetería o un /me que falla).
 // Antes aquí había una maqueta de un perfil de negocio con datos inventados, que hacía creer que el panel
 // había cargado. Ahora se dice la verdad y se ofrece reintentar o salir.
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';

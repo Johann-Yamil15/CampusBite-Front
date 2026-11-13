@@ -3,9 +3,10 @@ import { provideRouter } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@core/mock/demo-db';
-import { MisPedidosFacade, PedidosCafeteriaFacade, provideOrdenes } from '@features/ordenes';
+import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@features/catalogo/data/mock/catalogo.mock-data';
+import { MisPedidosFacade, PedidosCafeteriaFacade } from '@features/ordenes';
 import { PedidosNegocioPage } from './pedidos-negocio.page';
+import { provideOrdenesMock } from '@features/ordenes/data/mock/ordenes-mock.providers';
 
 /**
  * JY-Sprint4 05/11/2026: cómo avanza un pedido de columna y que rechazar exija motivo.
@@ -22,7 +23,7 @@ describe('PedidosNegocioPage', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [PedidosNegocioPage],
-      providers: [provideRouter([]), provideOrdenes(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
+      providers: [provideRouter([]), provideOrdenesMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
     }).compileComponents();
   });
 

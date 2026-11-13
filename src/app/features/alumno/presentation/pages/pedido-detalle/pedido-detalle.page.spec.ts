@@ -3,10 +3,11 @@ import { provideRouter } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@core/mock/demo-db';
-import { provideCatalogo } from '@features/catalogo';
-import { MisPedidosFacade, PedidosCafeteriaFacade, provideOrdenes } from '@features/ordenes';
+import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@features/catalogo/data/mock/catalogo.mock-data';
+import { MisPedidosFacade, PedidosCafeteriaFacade } from '@features/ordenes';
 import { PedidoDetallePage, REFRESCO_DETALLE_MS } from './pedido-detalle.page';
+import { provideCatalogoMock } from '@features/catalogo/data/mock/catalogo-mock.providers';
+import { provideOrdenesMock } from '@features/ordenes/data/mock/ordenes-mock.providers';
 
 const LISTA = '24110041-0000-4000-8000-000000000000';
 const EN_PREPARACION = '24110042-0000-4000-8000-000000000000';
@@ -27,7 +28,7 @@ describe('PedidoDetallePage', () => {
   async function configurar() {
     await TestBed.configureTestingModule({
       imports: [PedidoDetallePage],
-      providers: [provideRouter([]), provideOrdenes(), provideCatalogo(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
+      providers: [provideRouter([]), provideOrdenesMock(), provideCatalogoMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
     }).compileComponents();
   }
 

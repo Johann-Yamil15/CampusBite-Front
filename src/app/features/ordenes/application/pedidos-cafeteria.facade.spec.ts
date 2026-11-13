@@ -2,10 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@core/mock/demo-db';
-import { provideOrdenes } from '@features/ordenes/ordenes.providers';
+import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@features/catalogo/data/mock/catalogo.mock-data';
 import { MisPedidosFacade } from './mis-pedidos.facade';
 import { PedidosCafeteriaFacade } from './pedidos-cafeteria.facade';
+import { provideOrdenesMock } from '@features/ordenes/data/mock/ordenes-mock.providers';
 
 /** CL-Sprint5 11/11/2026 (etapa 9): el tablero detecta los pedidos que llegan con él abierto. */
 describe('PedidosCafeteriaFacade', () => {
@@ -13,7 +13,7 @@ describe('PedidosCafeteriaFacade', () => {
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date(2026, 10, 11, 12, 0));
     localStorage.clear();
-    TestBed.configureTestingModule({ providers: [provideOrdenes(), { provide: MOCK_LATENCIA_MS, useValue: 0 }] });
+    TestBed.configureTestingModule({ providers: [provideOrdenesMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }] });
   });
   afterEach(() => {
     vi.useRealTimers();
