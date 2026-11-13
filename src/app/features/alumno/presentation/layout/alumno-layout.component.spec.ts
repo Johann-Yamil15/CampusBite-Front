@@ -5,18 +5,17 @@ import { of } from 'rxjs';
 import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
 import { AuthFacade } from '@features/auth';
-import { provideCatalogo } from '@features/catalogo';
-import { provideOrdenes } from '@features/ordenes';
-import { provideFavoritos, providePerfil } from '@features/alumno/alumno.providers';
-import { nombreDesdeCorreo } from '@features/alumno/presentation/nombre';
 import { AlumnoLayoutComponent } from './alumno-layout.component';
+import { provideCatalogoMock } from '@features/catalogo/data/mock/catalogo-mock.providers';
+import { provideOrdenesMock } from '@features/ordenes/data/mock/ordenes-mock.providers';
+import { provideFavoritosMock, providePerfilMock } from '@features/alumno/data/mock/alumno-mock.providers';
 
 /** CL-Sprint5 11/11/2026: navegación del alumno, menú de usuario, cerrar sesión y carrito. */
 describe('AlumnoLayoutComponent', () => {
   let fixture: ComponentFixture<AlumnoLayoutComponent>;
   let el: HTMLElement;
   const auth = {
-    user: signal({ id: 'u1', email: 'juan.perez@uttt.edu.mx', role: 'Alumno' }),
+    user: signal({ id: 'u1', email: 'juan.perez@uttt.edu.mx', role: 'Alumno', name: 'Juan Pérez' }),
     logout: vi.fn(),
     loadCurrentUser: vi.fn(() => of(null)),
   };
@@ -27,10 +26,10 @@ describe('AlumnoLayoutComponent', () => {
       imports: [AlumnoLayoutComponent],
       providers: [
         provideRouter([]),
-        provideOrdenes(),
-        provideCatalogo(),
-        provideFavoritos(),
-        providePerfil(),
+        provideOrdenesMock(),
+        provideCatalogoMock(),
+        provideFavoritosMock(),
+        providePerfilMock(),
         { provide: MOCK_LATENCIA_MS, useValue: 0 },
         { provide: AuthFacade, useValue: auth },
       ],
@@ -40,10 +39,8 @@ describe('AlumnoLayoutComponent', () => {
     await fixture.whenStable();
   });
 
-  it('arma el nombre a partir del correo mientras /me no lo manda', () => {
-    expect(nombreDesdeCorreo('juan.perez@uttt.edu.mx')).toBe('Juan Perez');
-    expect(nombreDesdeCorreo('ANA_ruiz-9@x.mx')).toBe('Ana Ruiz 9');
-    expect(nombreDesdeCorreo(null)).toBe('Alumno');
+  // CL-Sprint5 13/11/2026: el nombre viene del back (sesión o perfil), ya no del correo
+  it('saluda con el primer nombre que manda el back', () => {
     expect(el.querySelector('.al-saludo strong')!.textContent!.trim()).toBe('Juan');
   });
 

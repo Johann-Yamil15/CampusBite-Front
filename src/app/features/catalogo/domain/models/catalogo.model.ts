@@ -23,8 +23,8 @@ export interface ProductoMenu {
   descripcion: string | null;
   precio: number;
   imagenUrl: string | null;
-  // CL-Sprint5 11/11/2026 (etapa 3): datos para las tarjetas del inicio y la tienda. El back aún no los
-  // manda (propuestos en BACKEND_SPECIFICATION.md): sin ellos la tarjeta simplemente no los muestra.
+  // CL-Sprint5 11/11/2026 (etapa 3): datos para las tarjetas del inicio y la tienda. CL-Sprint5 13/11/2026:
+  // calificacion y precioAnterior llegan en null por ahora: la tarjeta simplemente no los muestra.
   calificacion: number | null;
   minutosPreparacion: number | null;
   /** Precio antes de una promoción; null si no está en promoción. */

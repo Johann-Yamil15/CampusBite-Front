@@ -63,7 +63,11 @@ export interface Orden {
   recogidaEn: string;
   /** ISO-8601 con zona. */
   creadoEn: string;
-  codigoRecogida: string;
+  /**
+   * CL-Sprint5 13/11/2026: solo lo recibe el alumno dueño. La cafetería lo recibe en `null`: el encargado lo
+   * teclea al entregar y el back lo valida.
+   */
+  codigoRecogida: string | null;
   total: number;
   metodo: MetodoPagoOrden;
   estadoPago: EstadoPago;

@@ -29,5 +29,15 @@ export default [
         (m) => m.RecuperarPage,
       ),
   },
+  {
+    // CL-Sprint5 13/11/2026: destino del enlace del correo de verificación. Sin guestGuard: el enlace puede
+    // abrirse con otra sesión abierta y, si sirve, la reemplaza (como un login).
+    path: 'verificar-correo',
+    title: 'Verificar correo · CampusBite',
+    loadComponent: () =>
+      import('@features/auth/presentation/pages/verificar-correo/verificar-correo.page').then(
+        (m) => m.VerificarCorreoPage,
+      ),
+  },
   { path: '', pathMatch: 'full', redirectTo: 'login' },
 ] satisfies Routes;

@@ -5,42 +5,57 @@ const authResponse = (extra: Partial<AuthResponseDto> = {}): AuthResponseDto => 
   usuarioId: 'u-1',
   correo: 'a@b.mx',
   rol: 'AdminCafeteria',
+  nombre: 'Ana',
+  idCafeteria: null,
   token: 'jwt',
   expiraEn: '2026-10-09T12:00:00Z',
   ...extra,
 });
 
 describe('AuthMapper', () => {
-  it('convierte la respuesta de login/registro en una sesión de dominio', () => {
+  it('convierte la respuesta de login/verificar-correo en una sesión de dominio', () => {
     const session = AuthMapper.toSession({
       usuarioId: 'u-1',
       correo: 'alumno@uttt.edu.mx',
       rol: 'Alumno',
+      nombre: 'Juan Pérez',
+      idCafeteria: null,
       token: 'jwt',
       expiraEn: '2026-10-09T12:00:00Z',
     });
 
     expect(session).toEqual({
-      user: { id: 'u-1', email: 'alumno@uttt.edu.mx', role: 'Alumno' },
+      user: { id: 'u-1', email: 'alumno@uttt.edu.mx', role: 'Alumno', name: 'Juan Pérez' },
       accessToken: 'jwt',
       expiresAt: new Date('2026-10-09T12:00:00Z'),
     });
   });
 
   it('convierte la respuesta de /me en un usuario', () => {
-    expect(AuthMapper.toUser({ id: 'u-1', correo: 'a@b.mx', rol: 'AdminCafeteria' })).toEqual({
+    expect(
+      AuthMapper.toUser({ id: 'u-1', correo: 'a@b.mx', rol: 'AdminCafeteria', nombre: 'Ana', idCafeteria: null }),
+    ).toEqual({
       id: 'u-1',
       email: 'a@b.mx',
       role: 'AdminCafeteria',
+      name: 'Ana',
     });
   });
 
-  // CL-Sprint4 28/10/2026: HU-07B. idCafeteria es opcional: se usa si viene y no aparece si no
+  // CL-Sprint5 13/11/2026: el registro ya no trae sesión, solo el aviso del correo de verificación
+  it('convierte la respuesta del registro en una cuenta pendiente', () => {
+    expect(
+      AuthMapper.toRegistroPendiente({ correo: 'a@b.mx', correoEnviado: false, mensaje: 'Pide otro.' }),
+    ).toEqual({ email: 'a@b.mx', emailSent: false, message: 'Pide otro.' });
+  });
+
+  // CL-Sprint4 28/10/2026: HU-07B. idCafeteria es null salvo para el encargado: el campo solo aparece si viene
   it('sin idCafeteria el usuario no trae cafeteriaId', () => {
     const user = AuthMapper.toUser({
       id: 'u-1',
       correo: 'a@b.mx',
       rol: 'AdminCafeteria',
+      nombre: 'Ana',
       idCafeteria: null,
     });
     expect('cafeteriaId' in user).toBe(false);
@@ -49,7 +64,7 @@ describe('AuthMapper', () => {
 
   it('con idCafeteria lo pasa a cafeteriaId en /me y en la sesión', () => {
     expect(
-      AuthMapper.toUser({ id: 'u-1', correo: 'a@b.mx', rol: 'AdminCafeteria', idCafeteria: 'c-1' })
+      AuthMapper.toUser({ id: 'u-1', correo: 'a@b.mx', rol: 'AdminCafeteria', nombre: 'Ana', idCafeteria: 'c-1' })
         .cafeteriaId,
     ).toBe('c-1');
     expect(AuthMapper.toSession(authResponse({ idCafeteria: 'c-1' })).user.cafeteriaId).toBe('c-1');

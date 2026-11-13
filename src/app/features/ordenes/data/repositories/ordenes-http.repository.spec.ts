@@ -22,10 +22,11 @@ const DTO: OrdenDto = {
   metodo: 'Efectivo',
   estadoPago: 'Pendiente',
   notas: null,
+  motivoCancelacion: null,
   lineas: [{ idProducto: 'p1', producto: 'Latte', cantidad: 2, precioUnitario: 38, imagenUrl: null }],
 };
 
-/** CL-Sprint5 11/11/2026: rutas, verbos y mapeo del contrato propuesto de api/ordenes. */
+/** CL-Sprint5 11/11/2026: rutas, verbos y mapeo del contrato de api/ordenes. */
 describe('OrdenesHttpRepository', () => {
   let repo: OrdenesHttpRepository;
   let http: HttpTestingController;
@@ -76,7 +77,8 @@ describe('OrdenesHttpRepository', () => {
     repo.reportar(ID, { motivo: 'falto_articulo', detalle: '  ' }).subscribe((r) => (folio = r.folio));
     const req = http.expectOne(`/api/ordenes/${ID}/reportes`);
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ motivo: 'falto_articulo', detalle: null });
+    // CL-Sprint5 13/11/2026: el enum MotivoReporte del back es PascalCase
+    expect(req.request.body).toEqual({ motivo: 'FaltoArticulo', detalle: null });
     req.flush({ folio: 'R-123456' });
     expect(folio).toBe('R-123456');
   });

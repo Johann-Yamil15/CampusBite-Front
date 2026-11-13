@@ -4,15 +4,17 @@ import { Router, provideRouter } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@core/mock/demo-db';
+import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@features/catalogo/data/mock/catalogo.mock-data';
 import { AuthFacade } from '@features/auth';
-import { CatalogoFacade, provideCatalogo } from '@features/catalogo';
-import { MisPedidosFacade, provideOrdenes } from '@features/ordenes';
-import { providePerfil } from '@features/alumno/alumno.providers';
+import { CatalogoFacade } from '@features/catalogo';
+import { MisPedidosFacade } from '@features/ordenes';
 import { CarritoStore } from '@features/alumno/application/carrito.store';
 import { PerfilFacade } from '@features/alumno/application/perfil.facade';
 import { CarritoUiService } from '@features/alumno/presentation/carrito-ui.service';
 import { CheckoutComponent, aIsoConOffset } from './checkout.component';
+import { provideCatalogoMock } from '@features/catalogo/data/mock/catalogo-mock.providers';
+import { provideOrdenesMock } from '@features/ordenes/data/mock/ordenes-mock.providers';
+import { providePerfilMock } from '@features/alumno/data/mock/alumno-mock.providers';
 
 /**
  * CL-Sprint5 11/11/2026: checkout sin Angular Material (etapa 5). Solo se fija el reloj (Date) para que
@@ -33,7 +35,7 @@ describe('CheckoutComponent', () => {
     vi.setSystemTime(new Date(2026, 10, 11, hora[0], hora[1]));
     await TestBed.configureTestingModule({
       imports: [CheckoutComponent],
-      providers: [provideRouter([]), provideCatalogo(), provideOrdenes(), providePerfil(),
+      providers: [provideRouter([]), provideCatalogoMock(), provideOrdenesMock(), providePerfilMock(),
         { provide: AuthFacade, useValue: { user: signal(null) } },
         { provide: MOCK_LATENCIA_MS, useValue: 0 },
       ],

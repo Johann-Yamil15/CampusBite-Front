@@ -6,14 +6,14 @@ import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
 import { TemaService } from '@core/services/tema.service';
 import { AuthFacade } from '@features/auth';
-import { provideCatalogo } from '@features/catalogo';
-import { provideOrdenes } from '@features/ordenes';
 import { ToastService } from '@shared/ui/toast/toast.service';
-import { provideFavoritos, providePerfil } from '@features/alumno/alumno.providers';
 import { PerfilFacade } from '@features/alumno/application/perfil.facade';
 import { PerfilRepository } from '@features/alumno/domain/repositories/perfil.repository';
 import { SesionUiService } from '@features/alumno/presentation/sesion-ui.service';
 import { PerfilPage } from './perfil.page';
+import { provideCatalogoMock } from '@features/catalogo/data/mock/catalogo-mock.providers';
+import { provideOrdenesMock } from '@features/ordenes/data/mock/ordenes-mock.providers';
+import { provideFavoritosMock, providePerfilMock } from '@features/alumno/data/mock/alumno-mock.providers';
 
 /** CL-Sprint5 11/11/2026 (etapa 8): perfil del alumno. */
 describe('PerfilPage', () => {
@@ -25,11 +25,11 @@ describe('PerfilPage', () => {
       imports: [PerfilPage],
       providers: [
         provideRouter([]),
-        provideOrdenes(),
-        provideCatalogo(),
-        provideFavoritos(),
-        providePerfil(),
-        { provide: AuthFacade, useValue: { user: signal({ email: 'alumno@ejemplo.test' }) } },
+        provideOrdenesMock(),
+        provideCatalogoMock(),
+        provideFavoritosMock(),
+        providePerfilMock(),
+        { provide: AuthFacade, useValue: { user: signal({ email: 'alumno@ejemplo.test', name: 'Alumno de Prueba' }) } },
         { provide: MOCK_LATENCIA_MS, useValue: 0 },
       ],
     }).compileComponents();
@@ -59,10 +59,10 @@ describe('PerfilPage', () => {
     await fixture.whenStable();
   };
 
-  it('muestra el nombre con mayúscula (el mismo del layout), las iniciales y el correo', async () => {
+  it('muestra el nombre del back (el mismo del layout), las iniciales y el correo', async () => {
     await abrir();
-    expect(el.querySelector('.pf-nombre')!.textContent!.trim()).toBe('Alumno');
-    expect(el.querySelector('.pf-avatar')!.textContent!.trim()).toBe('A');
+    expect(el.querySelector('.pf-nombre')!.textContent!.trim()).toBe('Alumno de Prueba');
+    expect(el.querySelector('.pf-avatar')!.textContent!.trim()).toBe('AP');
     expect(el.querySelector('.pf-correo')!.textContent).toContain('alumno@ejemplo.test');
   });
 

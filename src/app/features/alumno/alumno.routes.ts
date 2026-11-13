@@ -7,8 +7,8 @@ import { provideFavoritos, providePerfil } from '@features/alumno/alumno.provide
  * El guard de sesión lo pone app.routes.ts al montar la feature.
  *
  * CL-Sprint5 11/11/2026: el inicio del alumno es "/" y ya vive dentro del layout; /inicio queda como
- * redirección para los enlaces viejos. Los favoritos se proveen aquí con su repositorio mock; para
- * conectar el back se cambia `useClass` en alumno.providers.ts. El detalle va por id: /pedidos/:id.
+ * redirección para los enlaces viejos. Los favoritos y el perfil se proveen aquí (CL-Sprint5
+ * 13/11/2026: con sus repositorios HTTP, ver alumno.providers.ts). El detalle va por id: /pedidos/:id.
  * app.routes.ts monta esta feature con authGuard y negocioHomeGuard (el encargado va a /mi-negocio).
  */
 export default [

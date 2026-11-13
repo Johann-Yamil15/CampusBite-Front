@@ -2,11 +2,11 @@ import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { DEMO_PRODUCTO } from '@core/mock/demo-db';
+import { DEMO_PRODUCTO } from '@features/catalogo/data/mock/catalogo.mock-data';
 import { ToastService } from '@shared/ui/toast/toast.service';
-import { provideFavoritos } from '@features/alumno/alumno.providers';
 import { FavoritosFacade } from '@features/alumno/application/favoritos.facade';
 import { CorazonComponent } from './corazon.component';
+import { provideFavoritosMock } from '@features/alumno/data/mock/alumno-mock.providers';
 
 /** Dos corazones del mismo platillo, como en el inicio y en Favoritos a la vez. */
 @Component({
@@ -30,7 +30,7 @@ describe('CorazonComponent', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [DosCorazones],
-      providers: [provideFavoritos(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
+      providers: [provideFavoritosMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
     }).compileComponents();
     await firstValueFrom(TestBed.inject(FavoritosFacade).cargar());
     toasts = TestBed.inject(ToastService);

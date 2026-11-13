@@ -1,6 +1,6 @@
 // CL-Sprint5 11/11/2026 (etapa 6): "Reportar un problema" con un pedido. Hoja (modal) simple: motivo en
 // opciones seleccionables, detalle opcional (obligatorio con "Otro") y, al enviar, la confirmación con el
-// folio del reporte dentro de la misma hoja. Hoy responde el mock; el endpoint está propuesto para el back.
+// folio del reporte dentro de la misma hoja. Lo guarda POST api/ordenes/{id}/reportes.
 import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { ApiError } from '@core/http/api-error';
 import {

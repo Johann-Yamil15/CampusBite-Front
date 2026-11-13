@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PlatilloCatalogo } from '@features/catalogo';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { provideFavoritos } from '@features/alumno/alumno.providers';
 import { CarritoStore } from '@features/alumno/application/carrito.store';
 import { PlatilloCardComponent } from './platillo-card.component';
+import { provideFavoritosMock } from '@features/alumno/data/mock/alumno-mock.providers';
 
 const LATTE: PlatilloCatalogo = {
   idProducto: 'p1',
@@ -34,7 +34,7 @@ describe('PlatilloCardComponent', () => {
   async function crear(cerrada = false): Promise<void> {
     await TestBed.configureTestingModule({
       imports: [PlatilloCardComponent],
-      providers: [provideFavoritos(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
+      providers: [provideFavoritosMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
     }).compileComponents();
     carrito = TestBed.inject(CarritoStore);
     carrito.vaciar();
