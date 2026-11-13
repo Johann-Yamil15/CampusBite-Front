@@ -52,8 +52,9 @@ export class AuthFacade {
    */
   readonly role = computed<UserRole | null>(() => {
     if (!this.isAuthenticated()) return null;
-    const role = readJwtClaim(this.tokens.token(), 'role');
-    return USER_ROLES.find((r) => r === role) ?? null;
+    // Sin distinguir mayúsculas ni espacios: "AdminCafeteria", "admincafeteria " → AdminCafeteria
+    const role = readJwtClaim(this.tokens.token(), 'role')?.trim().toLowerCase();
+    return USER_ROLES.find((r) => r.toLowerCase() === role) ?? null;
   });
 
   /** `true` si hay sesión vigente y su rol es alguno de `roles`. */

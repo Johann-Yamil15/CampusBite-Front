@@ -1,0 +1,197 @@
+// CL-Sprint4 28/10/2026: HU-07B. Diálogo del formulario de producto
+.product-dialog {
+  width: min(94vw, 520px);
+  max-height: min(92dvh, 760px);
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  color: var(--cb-ink);
+  box-shadow: 0 20px 40px rgba(17, 24, 39, 0.2);
+
+  &::backdrop {
+    background: rgba(17, 24, 39, 0.55);
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    max-height: inherit;
+  }
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 0.5rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+  }
+}
+
+.close-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-right: -0.5rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--cb-ink-muted);
+  cursor: pointer;
+
+  svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  &:hover {
+    background: var(--cb-surface-low);
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--cb-brand-ring);
+  }
+}
+
+.dialog-body {
+  display: grid;
+  gap: 1rem;
+  padding: 0.5rem 1.5rem 1rem;
+  overflow-y: auto;
+}
+
+.form-group {
+  display: grid;
+  gap: 0.35rem;
+
+  label,
+  .label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--cb-ink-soft);
+  }
+  .req {
+    color: var(--cb-danger);
+  }
+
+  input:not([type='checkbox']):not([type='file']),
+  textarea,
+  select {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid var(--cb-line);
+    border-radius: 8px;
+    background: var(--cb-surface);
+    color: var(--cb-ink);
+    font: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: var(--cb-primary);
+      box-shadow: 0 0 0 3px var(--cb-brand-ring);
+    }
+    &[aria-invalid='true'] {
+      border-color: var(--cb-danger);
+    }
+  }
+
+  textarea {
+    resize: vertical;
+  }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+
+  input {
+    width: 1.2rem;
+    height: 1.2rem;
+    accent-color: var(--cb-primary);
+  }
+  label {
+    font-weight: 600;
+    color: var(--cb-ink-soft);
+  }
+}
+
+.preview {
+  width: 100%;
+  max-height: 200px;
+  height: auto;
+  border-radius: var(--cb-radius);
+  object-fit: cover;
+}
+
+.file-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.file-btn {
+  cursor: pointer;
+}
+.file-row:has(input:focus-visible) .file-btn {
+  box-shadow: 0 0 0 3px var(--cb-brand-ring);
+}
+.file-name {
+  overflow: hidden;
+  max-width: 14rem;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.help-text {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--cb-ink-muted);
+}
+.error-text {
+  color: var(--cb-danger);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.link-btn {
+  min-height: 44px;
+  padding: 0 0.25rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem 1.25rem;
+  border-top: 1px solid var(--cb-line-soft);
+}
+
+@media (max-width: 480px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+  .dialog-actions button {
+    flex: 1;
+  }
+}

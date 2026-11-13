@@ -1,0 +1,129 @@
+@let p = platillo();
+<article class="pc cb-card cb-card--interactiva" [class.pc-cerrada]="cerrada()">
+  <button type="button" class="pc-foto cb-media" (click)="abrirDetalle()" [attr.aria-label]="'Ver ' + p.producto">
+    <img [src]="p.imagenUrl ?? sinImagen" alt="" loading="lazy" width="320" height="240" />
+    @if (descuento(); as d) {
+      <span class="cb-badge cb-badge--promo pc-oferta">-{{ d }}%</span>
+    }
+    @if (cerrada()) {
+      <span class="cb-badge cb-badge--foto pc-oferta">Cerrada ahora</span>
+    }
+  </button>
+  <!-- CL-Sprint5 11/11/2026 (etapa 7): corazón de favoritos sobre la foto -->
+  <app-corazon class="pc-fav" tipo="platillo" [id]="p.idProducto" [nombre]="p.producto" />
+
+  <div class="pc-cuerpo">
+    <h3 class="pc-nombre">
+      <button type="button" class="pc-nombre-btn" (click)="abrirDetalle()">{{ p.producto }}</button>
+    </h3>
+
+    <p class="cb-meta pc-meta">
+      @if (p.calificacion) {
+        <app-calificacion [valor]="p.calificacion" />
+      }
+      @if (p.minutosPreparacion) {
+        <span><app-icon nombre="reloj" />{{ p.minutosPreparacion }} min</span>
+      }
+    </p>
+    @if (mostrarCafeteria()) {
+      <p class="pc-cafeteria"><app-icon nombre="tienda" />{{ p.cafeteria }}</p>
+    }
+
+    <div class="pc-pie">
+      <span class="pc-precios">
+        <span class="cb-precio">{{ p.precio | currency: 'MXN' : 'symbol-narrow' }}</span>
+        @if (descuento()) {
+          <span class="cb-precio-antes">{{ p.precioAnterior | currency: 'MXN' : 'symbol-narrow' }}</span>
+        }
+      </span>
+
+      @if (cerrada()) {
+        <span class="pc-no-disponible">No disponible</span>
+      } @else if (enCarrito() === 0) {
+        @if (agregarConTexto()) {
+          <!-- CL-Sprint5 11/11/2026 (etapa 7): en Favoritos el botón dice "Agregar" -->
+          <button type="button" class="cb-btn cb-btn--primary cb-btn--small pc-agregar-texto" (click)="agregarUno()">
+            <app-icon nombre="mas" [grosor]="2.25" />Agregar<span class="sr-only"> {{ p.producto }} al carrito</span>
+          </button>
+        } @else {
+          <button type="button" class="pc-agregar" [attr.aria-label]="'Agregar ' + p.producto + ' al carrito'" (click)="agregarUno()">
+            <app-icon nombre="mas" [grosor]="2.25" />
+          </button>
+        }
+      } @else {
+        <app-cantidad
+          [valor]="enCarrito()"
+          (valorChange)="cambiar($event)"
+          [min]="1"
+          [max]="max"
+          [quitable]="true"
+          [compacta]="true"
+          [etiqueta]="p.producto"
+          (quitar)="quitar()"
+        />
+      }
+    </div>
+  </div>
+</article>
+
+<!-- Detalle del platillo: foto grande, descripción y cantidad -->
+@if (detalle()) {
+  <app-modal [title]="p.producto" [subtitle]="p.cafeteria" size="md" (closed)="detalle.set(false)">
+    <div class="pd">
+      <div class="cb-media cb-media--16x9 pd-foto">
+        <img [src]="p.imagenUrl ?? sinImagen" [alt]="p.producto" />
+      </div>
+      <p class="cb-meta">
+        @if (p.calificacion) {
+          <app-calificacion [valor]="p.calificacion" />
+        }
+        @if (p.minutosPreparacion) {
+          <span><app-icon nombre="reloj" />Listo en ~{{ p.minutosPreparacion }} min</span>
+        }
+        @if (p.categoria) {
+          <span>{{ p.categoria }}</span>
+        }
+      </p>
+      @if (p.descripcion) {
+        <p class="pd-desc">{{ p.descripcion }}</p>
+      }
+      <div class="pd-fila">
+        <span class="pd-precios">
+          <span class="cb-precio">{{ p.precio | currency: 'MXN' : 'symbol-narrow' }}</span>
+          @if (descuento()) {
+            <span class="cb-precio-antes">{{ p.precioAnterior | currency: 'MXN' : 'symbol-narrow' }}</span>
+          }
+        </span>
+        @if (!cerrada()) {
+          <app-cantidad [(valor)]="cantidadDetalle" [min]="1" [max]="max" [etiqueta]="p.producto" />
+        }
+      </div>
+      @if (cerrada()) {
+        <p class="pd-aviso">{{ p.cafeteria }} está cerrada ahora: puedes ver su menú, pero no pedir.</p>
+      }
+    </div>
+
+    <div modalActions>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="detalle.set(false)">Cerrar</button>
+      @if (!cerrada()) {
+        <button type="button" class="cb-btn cb-btn--primary" data-modal-focus (click)="agregarDesdeDetalle()">
+          {{ enCarrito() ? 'Actualizar' : 'Agregar' }} · {{ p.precio * cantidadDetalle() | currency: 'MXN' : 'symbol-narrow' }}
+        </button>
+      }
+    </div>
+  </app-modal>
+}
+
+<!-- El carrito ya tiene productos de otra cafetería -->
+@if (pendiente(); as conflicto) {
+  <app-modal title="¿Empezar un carrito nuevo?" size="sm" (closed)="pendiente.set(null)">
+    <p class="pd-desc">
+      Tu carrito tiene productos de <strong>{{ conflicto.cafeteriaActual }}</strong>. Cada pedido es de una
+      sola cafetería: si agregas {{ p.producto }}, se vaciará el carrito actual.
+    </p>
+    <div modalActions>
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="pendiente.set(null)">Conservar mi carrito</button>
+      <button type="button" class="cb-btn cb-btn--primary" data-modal-focus (click)="vaciarYAgregar()">Vaciar y agregar</button>
+    </div>
+  </app-modal>
+}

@@ -1,0 +1,39 @@
+// CL-Sprint4 28/10/2026: HU-07B. Mismo estilo que la confirmación de baja del panel admin
+.confirm {
+  width: min(92vw, 440px);
+  padding: 1.5rem;
+  border: 0;
+  border-radius: 16px;
+  color: var(--cb-ink);
+  box-shadow: 0 20px 40px rgba(17, 24, 39, 0.2);
+
+  &::backdrop {
+    background: rgba(17, 24, 39, 0.55);
+  }
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.15rem;
+    overflow-wrap: anywhere;
+  }
+  p {
+    margin: 0 0 1.25rem;
+    color: var(--cb-ink-soft);
+  }
+  .cb-alert-error {
+    margin-bottom: 1.25rem;
+  }
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .confirm-actions button {
+    flex: 1;
+  }
+}

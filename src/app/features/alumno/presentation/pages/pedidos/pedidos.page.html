@@ -1,0 +1,104 @@
+<!-- CL-Sprint5 11/11/2026 (etapa 6): Mis pedidos con pestañas Activos / Historial -->
+<section class="pg mp" aria-labelledby="pedidos-title">
+  <header class="pg-head">
+    <div>
+      <h1 id="pedidos-title">Mis pedidos</h1>
+      <p class="pg-sub">Sigue lo que pediste y vuelve a pedir lo que te gustó.</p>
+    </div>
+  </header>
+
+  @if (sinPedidos()) {
+    <div class="vacio">
+      <app-icon nombre="bolsa" />
+      <h2>Aún no tienes pedidos</h2>
+      <p>Elige una cafetería, arma tu pedido y aquí verás cómo va hasta que lo recojas.</p>
+      <a class="cb-btn cb-btn--primary" routerLink="/">Explorar cafeterías</a>
+    </div>
+  } @else {
+    <div class="tabs" role="tablist" aria-label="Pedidos">
+      <button
+        type="button"
+        role="tab"
+        id="tab-activos"
+        class="tab"
+        aria-controls="panel-pedidos"
+        [class.active]="pestana() === 'activos'"
+        [attr.aria-selected]="pestana() === 'activos'"
+        [attr.tabindex]="pestana() === 'activos' ? 0 : -1"
+        (click)="verPestana('activos')"
+        (keydown)="teclaPestana($event)"
+      >
+        Activos
+        <span class="tab-count">{{ activos().length }}</span>
+      </button>
+      <button
+        type="button"
+        role="tab"
+        id="tab-historial"
+        class="tab"
+        aria-controls="panel-pedidos"
+        [class.active]="pestana() === 'historial'"
+        [attr.aria-selected]="pestana() === 'historial'"
+        [attr.tabindex]="pestana() === 'historial' ? 0 : -1"
+        (click)="verPestana('historial')"
+        (keydown)="teclaPestana($event)"
+      >
+        Historial
+        <span class="tab-count">{{ historial().length }}</span>
+      </button>
+    </div>
+
+    <div id="panel-pedidos" role="tabpanel" [attr.aria-labelledby]="'tab-' + pestana()" [attr.aria-busy]="cargando()">
+      @if (error(); as e) {
+        <div class="mp-error cb-card" role="alert">
+          <app-icon nombre="alerta" />
+          <div>
+            <strong>No pudimos cargar tus pedidos</strong>
+            <p>{{ e }}</p>
+          </div>
+          <button type="button" class="cb-btn cb-btn--secondary cb-btn--small" (click)="cargar()">
+            <app-icon nombre="recargar" />Reintentar
+          </button>
+        </div>
+      } @else if (cargando() && !todos().length) {
+        <ul class="mp-lista" aria-label="Cargando tus pedidos">
+          @for (s of esqueletos; track s) {
+            <li class="mp-esqueleto cb-card" aria-hidden="true">
+              <div class="mp-esq-top">
+                <div class="cb-skeleton" style="width: 52px; height: 52px"></div>
+                <div class="mp-esq-txt">
+                  <div class="cb-skeleton" style="height: 1rem; width: 55%"></div>
+                  <div class="cb-skeleton" style="height: 0.8rem; width: 80%"></div>
+                </div>
+              </div>
+              <div class="cb-skeleton" style="height: 0.4rem; width: 100%"></div>
+              <div class="cb-skeleton" style="height: 2rem; width: 40%"></div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <ul class="mp-lista">
+          @for (pedido of visibles(); track pedido.idOrden) {
+            <li><app-pedido-card [orden]="pedido" /></li>
+          } @empty {
+            <li class="vacio">
+              @if (pestana() === 'activos') {
+                <app-icon nombre="reloj" />
+                <h2>No tienes pedidos activos</h2>
+                <p>Cuando hagas un pedido lo verás aquí avanzar en vivo hasta que lo recojas.</p>
+                <a class="cb-btn cb-btn--primary" routerLink="/">Explorar cafeterías</a>
+              } @else {
+                <app-icon nombre="pedidos" />
+                <h2>Todavía no hay historial</h2>
+                <p>Aquí quedarán tus pedidos entregados y cancelados para volver a pedirlos.</p>
+                <button type="button" class="cb-btn cb-btn--secondary" (click)="verPestana('activos')">Ver mis pedidos activos</button>
+              }
+            </li>
+          }
+        </ul>
+
+        <app-paginador [total]="todos().length" [porPagina]="porPagina" [(pagina)]="pagina" etiqueta="pedidos" />
+      }
+    </div>
+  }
+</section>

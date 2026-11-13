@@ -1,0 +1,407 @@
+// CL-Sprint5 11/11/2026: inicio del alumno (etapa 3), mobile-first. Todo el texto sale de tokens; el único
+// texto sobre foto (carrusel) va en blanco con velo oscuro debajo, igual en claro y en oscuro.
+@use 'breakpoints' as *;
+
+.in {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cb-space-xl);
+}
+
+.in-head {
+  h1 {
+    margin: 0;
+    font-size: var(--cb-text-2xl);
+    font-weight: 800;
+    letter-spacing: var(--cb-tracking-tight);
+    line-height: var(--cb-leading-tight);
+    color: var(--cb-ink);
+
+    @media (min-width: $cb-bp-desktop) {
+      font-size: var(--cb-text-3xl);
+    }
+  }
+
+  p {
+    margin: 0.35rem 0 0;
+    color: var(--cb-text-muted);
+  }
+}
+
+.in-sec {
+  min-width: 0;
+}
+
+.in-conteo {
+  font-size: var(--cb-text-sm);
+  color: var(--cb-text-muted);
+}
+
+// ---------- Pedido en curso ----------
+.in-activo {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--cb-primary-container);
+  border-radius: var(--cb-radius-lg);
+  background: var(--cb-brand-soft);
+  color: var(--cb-ink);
+  text-decoration: none;
+  transition: transform var(--cb-dur-state) var(--cb-ease-out);
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--cb-focus-ring);
+  }
+
+  &.listo {
+    border-color: var(--cb-success-line);
+    background: var(--cb-success-soft);
+
+    .in-activo-icono {
+      background: var(--cb-success);
+      color: var(--cb-success-soft);
+    }
+  }
+}
+
+.in-activo-icono {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-action);
+  color: var(--cb-on-action);
+
+  --icon-size: 1.3rem;
+}
+
+.in-activo-texto {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+
+  strong {
+    font-size: var(--cb-text-md);
+  }
+
+  small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--cb-text-sm);
+    color: var(--cb-text-muted);
+  }
+}
+
+.in-activo-ver {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: var(--cb-text-sm);
+  font-weight: 800;
+  color: var(--cb-primary);
+
+  --icon-size: 1rem;
+}
+
+// ---------- Carrusel de promociones ----------
+.in-carrusel-marco {
+  position: relative;
+}
+
+.in-carrusel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 88%;
+  gap: var(--cb-space-md);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  @media (min-width: $cb-bp-tablet) {
+    grid-auto-columns: 70%;
+  }
+
+  @media (min-width: $cb-bp-desktop) {
+    grid-auto-columns: calc((100% - var(--cb-space-md)) / 2);
+  }
+}
+
+.in-promo {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 12 / 5;
+  min-height: 9.5rem;
+  border-radius: var(--cb-radius-xl);
+  background: var(--cb-skeleton);
+  scroll-snap-align: start;
+  text-decoration: none;
+
+  img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--cb-dur-enter) var(--cb-ease-out);
+  }
+
+  // Velo de izquierda a derecha: el texto (blanco) siempre queda sobre la parte oscura
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(20, 12, 8, 0.86) 0%, rgba(20, 12, 8, 0.55) 55%, rgba(20, 12, 8, 0.1) 100%);
+  }
+
+  @media (hover: hover) {
+    &:hover img {
+      transform: scale(1.03);
+    }
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--cb-focus-ring);
+  }
+}
+
+.in-promo-texto {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.35rem;
+  max-width: 70%;
+  padding: var(--cb-space-md) var(--cb-space-lg);
+  color: var(--cb-on-image);
+
+  // En escritorio las flechas del carrusel se montan sobre el borde: el texto les deja espacio
+  @media (min-width: $cb-bp-desktop) {
+    padding-left: 2.75rem;
+  }
+
+  strong {
+    font-size: var(--cb-text-xl);
+    font-weight: 800;
+    line-height: var(--cb-leading-tight);
+    letter-spacing: var(--cb-tracking-tight);
+  }
+
+  small {
+    font-size: var(--cb-text-sm);
+    opacity: 0.92;
+  }
+}
+
+.in-flecha {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: none;
+  transform: translateY(-50%);
+  box-shadow: var(--cb-shadow-md);
+
+  &.izq {
+    left: -0.9rem;
+  }
+
+  &.der {
+    right: -0.9rem;
+  }
+
+  @media (min-width: $cb-bp-desktop) {
+    display: inline-flex;
+  }
+}
+
+.in-puntos {
+  display: flex;
+  justify-content: center;
+  gap: 0.15rem;
+  margin-top: 0.4rem;
+}
+
+// Punto de 8px con área de toque de 24px
+.in-punto {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  &::before {
+    content: '';
+    display: block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin: auto;
+    border-radius: var(--cb-radius-pill);
+    background: var(--cb-line);
+    transition:
+      width var(--cb-dur-state),
+      background var(--cb-dur-state);
+  }
+
+  &.activo::before {
+    width: 1.25rem;
+    background: var(--cb-primary);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-radius: var(--cb-radius-pill);
+    box-shadow: var(--cb-focus-ring);
+  }
+}
+
+// ---------- Categorías ----------
+.in-categorias {
+  display: flex;
+  gap: var(--cb-space-md);
+  margin: 0;
+  padding: 2px 0 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  list-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.in-categoria {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  width: 5.25rem;
+  color: var(--cb-ink);
+  font-size: var(--cb-text-sm);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+
+  &:hover .in-categoria-foto {
+    border-color: var(--cb-primary-container);
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    outline: none;
+
+    .in-categoria-foto {
+      box-shadow: var(--cb-focus-ring);
+    }
+  }
+}
+
+.in-categoria-foto {
+  display: block;
+  width: 4.5rem;
+  height: 4.5rem;
+  overflow: hidden;
+  border: 2px solid var(--cb-line-soft);
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-skeleton);
+  transition:
+    border-color var(--cb-dur-state),
+    transform var(--cb-dur-state) var(--cb-ease-out);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+// ---------- Cafeterías (fila que se desliza) y populares (grid) ----------
+.in-fila {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(16rem, 78%);
+  gap: var(--cb-space-md);
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  padding-bottom: 0.25rem;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  > * {
+    scroll-snap-align: start;
+  }
+
+  @media (min-width: $cb-bp-tablet) {
+    grid-auto-columns: minmax(16rem, 44%);
+  }
+
+  // Escritorio: todas a la vista en cuadrícula (deslizar con mouse no es natural)
+  @media (min-width: $cb-bp-desktop) {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow: visible;
+  }
+}
+
+.in-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--cb-space-sm);
+
+  @media (min-width: $cb-bp-tablet) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--cb-space-md);
+  }
+
+  @media (min-width: $cb-bp-desktop) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.in-esqueleto {
+  padding: 0;
+  overflow: hidden;
+}
+
+.in-esqueleto-cuerpo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem;
+}
+
+.in-vacio-texto {
+  margin: 0;
+  color: var(--cb-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .in-activo,
+  .in-promo img,
+  .in-categoria-foto,
+  .in-punto::before {
+    transition: none;
+  }
+}

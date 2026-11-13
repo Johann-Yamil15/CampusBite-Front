@@ -1,0 +1,166 @@
+<!-- CL-Sprint4 28/10/2026: HU-07B. Diálogo para crear o editar un producto -->
+<dialog
+  #dialog
+  class="product-dialog"
+  aria-labelledby="product-form-title"
+  (close)="onDialogClose()"
+>
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <header class="dialog-header">
+      <h2 id="product-form-title">{{ isEdit() ? 'Editar producto' : 'Nuevo producto' }}</h2>
+      <button type="button" class="close-btn" (click)="cancel()">
+        <svg
+          aria-hidden="true"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <span class="sr-only">Cerrar</span>
+      </button>
+    </header>
+
+    <div class="dialog-body">
+      @if (serverError(); as message) {
+        <div class="cb-alert-error" role="alert">
+          <span>{{ message }}</span>
+          @if (imageServiceDown()) {
+            <button
+              type="button"
+              class="link-btn"
+              (click)="saveWithoutImage()"
+              [disabled]="saving()"
+            >
+              Guardar sin imagen
+            </button>
+          }
+        </div>
+      }
+
+      <div class="form-group">
+        <label for="product-name">Nombre <span class="req" aria-hidden="true">*</span></label>
+        <input
+          id="product-name"
+          type="text"
+          formControlName="name"
+          placeholder="Ej. Chilaquiles verdes"
+          autocomplete="off"
+          required
+          [attr.maxlength]="limits.nameMax"
+          [attr.aria-invalid]="errorFor('name') ? true : null"
+          [attr.aria-describedby]="errorFor('name') ? 'product-name-error' : null"
+        />
+        @if (errorFor('name'); as message) {
+          <small id="product-name-error" class="error-text">{{ message }}</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="product-description">Descripción</label>
+        <textarea
+          id="product-description"
+          formControlName="description"
+          rows="3"
+          placeholder="Ej. Con pollo y crema"
+          [attr.maxlength]="limits.descriptionMax"
+          [attr.aria-invalid]="errorFor('description') ? true : null"
+          [attr.aria-describedby]="errorFor('description') ? 'product-description-error' : null"
+        ></textarea>
+        @if (errorFor('description'); as message) {
+          <small id="product-description-error" class="error-text">{{ message }}</small>
+        }
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label for="product-price"
+            >Precio (MXN) <span class="req" aria-hidden="true">*</span></label
+          >
+          <input
+            id="product-price"
+            type="number"
+            inputmode="decimal"
+            formControlName="price"
+            min="0.01"
+            step="0.01"
+            placeholder="0.00"
+            required
+            [attr.aria-invalid]="errorFor('price') ? true : null"
+            [attr.aria-describedby]="errorFor('price') ? 'product-price-error' : null"
+          />
+          @if (errorFor('price'); as message) {
+            <small id="product-price-error" class="error-text">{{ message }}</small>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="product-category">Categoría</label>
+          <select id="product-category" formControlName="categoryId">
+            <option value="">Sin categoría</option>
+            @for (category of categories(); track category.id) {
+              <option [value]="category.id">{{ category.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="check-row">
+        <input id="product-available" type="checkbox" formControlName="available" />
+        <label for="product-available">Disponible para los alumnos</label>
+      </div>
+
+      @if (!isEdit()) {
+        <div class="form-group">
+          <span class="label" id="product-image-label">Imagen (opcional)</span>
+          @if (preview(); as url) {
+            <img
+              class="preview"
+              [src]="url"
+              alt="Vista previa de la imagen"
+              width="320"
+              height="240"
+            />
+          }
+          <div class="file-row">
+            <label class="cb-btn cb-btn--small file-btn" for="product-image">
+              {{ image() ? 'Elegir otra' : 'Elegir imagen' }}
+            </label>
+            <input
+              #fileInput
+              id="product-image"
+              class="sr-only"
+              type="file"
+              [accept]="imageRules.accept"
+              aria-labelledby="product-image-label"
+              aria-describedby="product-image-help"
+              (change)="onFileChange($event)"
+            />
+            @if (image(); as file) {
+              <span class="file-name">{{ file.name }}</span>
+              <button type="button" class="link-btn" (click)="removeImage()">Quitar</button>
+            }
+          </div>
+          <small id="product-image-help" class="help-text"
+            >JPEG, PNG o WebP de máximo {{ imageRules.maxLabel }}.</small
+          >
+          @if (imageError(); as message) {
+            <small class="error-text" role="alert">{{ message }}</small>
+          }
+        </div>
+      } @else {
+        <p class="help-text">
+          Para cambiar la imagen usa «Cambiar imagen» en el menú de la tarjeta.
+        </p>
+      }
+    </div>
+
+    <footer class="dialog-actions">
+      <button type="button" class="cb-btn cb-btn--secondary" (click)="cancel()">Cancelar</button>
+      <button type="submit" class="cb-btn cb-btn--primary" [disabled]="saving()">
+        {{ saving() ? 'Guardando…' : isEdit() ? 'Guardar cambios' : 'Crear producto' }}
+      </button>
+    </footer>
+  </form>
+</dialog>

@@ -1,0 +1,85 @@
+<!-- CL-Sprint5 11/11/2026 (etapa 9): Configuración del negocio -->
+<section class="cf" aria-labelledby="cf-titulo">
+  <header>
+    <h1 id="cf-titulo">Configuración</h1>
+    <p class="cf-sub">Lo que ven los alumnos de tu negocio y cómo te pueden pagar.</p>
+  </header>
+
+  @if (form(); as f) {
+    <form class="cf-form" novalidate (submit)="guardar($event)">
+      <section class="cb-card cf-card" aria-labelledby="cf-datos">
+        <h2 id="cf-datos">Datos del negocio</h2>
+        <label class="cb-field">
+          <span>Nombre</span>
+          <input type="text" name="name" [attr.maxlength]="limites.nameMax" [value]="f.name" (input)="escribir('name', $event)" [attr.aria-invalid]="!!error('name')" />
+          @if (error('name'); as e) {
+            <small class="cf-error">{{ e }}</small>
+          }
+        </label>
+        <label class="cb-field">
+          <span>Ubicación</span>
+          <input type="text" name="location" placeholder="Edificio A, planta baja" [attr.maxlength]="limites.locationMax" [value]="f.location" (input)="escribir('location', $event)" [attr.aria-invalid]="!!error('location')" />
+          @if (error('location'); as e) {
+            <small class="cf-error">{{ e }}</small>
+          }
+        </label>
+        <label class="cb-field">
+          <span>Punto de entrega</span>
+          <input type="text" name="pickupPoint" placeholder="Barra principal" [attr.maxlength]="limites.pickupPointMax" [value]="f.pickupPoint" (input)="escribir('pickupPoint', $event)" [attr.aria-invalid]="!!error('pickupPoint')" />
+          <small [class.cf-error]="error('pickupPoint')">{{ error('pickupPoint') ?? 'Dónde recogen los alumnos su pedido.' }}</small>
+        </label>
+        <div class="cb-switch-row">
+          <label for="cf-campus">
+            <strong>Está dentro del campus</strong>
+            <small>Los alumnos lo ven como "Del campus".</small>
+          </label>
+          <input id="cf-campus" type="checkbox" role="switch" class="cb-switch" [checked]="f.onCampus" (change)="alternarCampus()" />
+        </div>
+      </section>
+
+      <section class="cb-card cf-card" aria-labelledby="cf-pagos">
+        <h2 id="cf-pagos">Métodos de pago que aceptas</h2>
+        <p class="cf-ayuda">Solo estos aparecerán al alumno cuando pague.</p>
+        <div class="cf-metodos" role="group" aria-labelledby="cf-pagos">
+          @for (m of metodos; track m) {
+            <button type="button" class="cf-metodo" [attr.aria-pressed]="f.paymentMethods.includes(m)" (click)="alternarMetodo(m)">
+              <app-icon [nombre]="info[m].icono" />
+              <span><strong>{{ info[m].etiqueta }}</strong><small>{{ info[m].detalle }}</small></span>
+              <span class="cf-check" aria-hidden="true">
+                @if (f.paymentMethods.includes(m)) {
+                  <app-icon nombre="palomita" [grosor]="2.5" />
+                }
+              </span>
+            </button>
+          }
+        </div>
+        @if (error('paymentMethods'); as e) {
+          <small class="cf-error" role="alert">{{ e }}</small>
+        }
+      </section>
+
+      @if (errorGuardar(); as e) {
+        <p class="cb-alert-error" role="alert">{{ e }}</p>
+      }
+
+      <div class="cf-acciones">
+        <button type="button" class="cb-btn cb-btn--secondary" [disabled]="!cambio() || guardando()" (click)="descartar()">Descartar cambios</button>
+        <button type="submit" class="cb-btn cb-btn--primary" [disabled]="!cambio() || guardando()" [attr.aria-busy]="guardando()">
+          {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+        </button>
+      </div>
+    </form>
+  } @else if (falloCarga(); as e) {
+    <div class="vacio" role="alert">
+      <app-icon nombre="alerta" />
+      <h2>No pudimos cargar tu negocio</h2>
+      <p>{{ e }}</p>
+      <button type="button" class="cb-btn cb-btn--primary" (click)="cargar()"><app-icon nombre="recargar" />Reintentar</button>
+    </div>
+  } @else {
+    <div class="cf-form" role="status" aria-label="Cargando los datos de tu negocio">
+      <div class="cb-card cb-skeleton" style="height: 18rem" aria-hidden="true"></div>
+      <div class="cb-card cb-skeleton" style="height: 12rem" aria-hidden="true"></div>
+    </div>
+  }
+</section>

@@ -1,0 +1,62 @@
+<!-- CL-Sprint5 11/11/2026: carrito (etapa 5), sin Angular Material -->
+@if (ui.abierto()) {
+  <div class="cd-fondo" (click)="ui.cerrar()" aria-hidden="true"></div>
+
+  <aside #panel class="cd" role="dialog" aria-modal="true" aria-labelledby="cd-titulo" tabindex="-1">
+    <header class="cd-cabeza">
+      <div class="cd-titulos">
+        <h2 id="cd-titulo">Tu carrito</h2>
+        @if (carrito.cafeteria(); as cafeteria) {
+          <a class="cd-cafeteria" [routerLink]="['/cafeterias', carrito.idCafeteria()]" (click)="ui.cerrar()">
+            <app-icon nombre="tienda" />{{ cafeteria }}
+          </a>
+        }
+      </div>
+      <button type="button" class="cb-btn cb-btn--icon" aria-label="Cerrar carrito" (click)="ui.cerrar()">
+        <app-icon nombre="cerrar" />
+      </button>
+    </header>
+
+    <div class="cd-cuerpo">
+      @for (item of carrito.items(); track item.idProducto) {
+        <app-carrito-item [item]="item" />
+      } @empty {
+        <div class="cd-vacio">
+          <app-icon nombre="bolsa" />
+          <h3>Tu carrito está vacío</h3>
+          <p>Agrega algo rico de una cafetería y lo verás aquí.</p>
+          <a class="cb-btn cb-btn--primary" routerLink="/" (click)="ui.cerrar()">Explorar cafeterías</a>
+        </div>
+      }
+    </div>
+
+    @if (!carrito.isEmpty()) {
+      <footer class="cd-pie">
+        @if (confirmandoVaciar()) {
+          <div class="cd-confirmar" role="alertdialog" aria-labelledby="cd-vaciar-texto">
+            <p id="cd-vaciar-texto">¿Vaciar el carrito? Se quitarán {{ carrito.totalItems() }} productos.</p>
+            <div class="cd-confirmar-botones">
+              <button type="button" class="cb-btn cb-btn--secondary" (click)="confirmandoVaciar.set(false)">No</button>
+              <button type="button" class="cb-btn cb-btn--danger" (click)="vaciar()">Sí, vaciar</button>
+            </div>
+          </div>
+        } @else {
+          <div class="cd-fila">
+            <span>{{ carrito.totalItems() }} {{ carrito.totalItems() === 1 ? 'producto' : 'productos' }}</span>
+            <button type="button" class="cb-link cd-vaciar" (click)="confirmandoVaciar.set(true)">
+              <app-icon nombre="basura" />Vaciar
+            </button>
+          </div>
+          <div class="cd-fila cd-total">
+            <span>Total</span>
+            <strong>{{ carrito.totalPrecio() | currency: 'MXN' : 'symbol-narrow' }}</strong>
+          </div>
+          <button type="button" class="cb-btn cb-btn--primary cb-btn--lg cb-btn--full cb-btn--elevado" (click)="continuar()">
+            Continuar con el pedido
+            <app-icon nombre="flecha-der" />
+          </button>
+        }
+      </footer>
+    }
+  </aside>
+}

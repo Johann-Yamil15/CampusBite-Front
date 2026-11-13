@@ -1,0 +1,152 @@
+// JY-Sprint4 05/11/2026: avisos flotantes con los tokens del sistema (src/styles/_tokens.scss).
+// Abajo a la derecha en escritorio; arriba en móvil, para no tapar la barra inferior ni el FAB del carrito.
+.toast-pila {
+  position: fixed;
+  right: var(--cb-space-md);
+  bottom: var(--cb-space-md);
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  // La pila no debe bloquear clics donde no hay aviso
+  pointer-events: none;
+  max-width: min(26rem, calc(100vw - 2 * var(--cb-space-md)));
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--cb-line-soft);
+  border-left: 4px solid var(--cb-line);
+  border-radius: var(--cb-radius);
+  background: var(--cb-surface);
+  box-shadow: var(--cb-shadow-lg);
+  animation: toast-entra 0.18s ease-out;
+}
+
+.toast-icono {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.toast-texto {
+  flex: 1;
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--cb-ink);
+}
+
+.toast-ok {
+  border-left-color: var(--cb-success);
+
+  .toast-icono {
+    color: var(--cb-success);
+  }
+}
+
+.toast-error {
+  border-left-color: var(--cb-danger);
+
+  .toast-icono {
+    color: var(--cb-danger);
+  }
+}
+
+.toast-info {
+  border-left-color: var(--cb-primary-container);
+
+  .toast-icono {
+    color: var(--cb-primary);
+  }
+}
+
+.toast-x {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 0;
+  border-radius: var(--cb-radius-pill);
+  background: none;
+  color: var(--cb-text-muted);
+  cursor: pointer;
+
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  &:hover {
+    background: var(--cb-surface-low);
+    color: var(--cb-ink);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cb-primary);
+    outline-offset: 1px;
+  }
+}
+
+@keyframes toast-entra {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (max-width: 900px) {
+  .toast-pila {
+    top: calc(var(--cb-space-md) + 3.5rem);
+    bottom: auto;
+    left: var(--cb-space-md);
+    right: var(--cb-space-md);
+    max-width: none;
+  }
+
+  @keyframes toast-entra {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}
+
+// CL-Sprint5 11/11/2026 (etapa 7): botón de acción del aviso ("Deshacer"). Texto de marca, 44px de alto
+// para el dedo.
+.toast-accion {
+  flex-shrink: 0;
+  align-self: center;
+  min-height: 44px;
+  margin: -0.6rem 0;
+  padding: 0 0.6rem;
+  border: 0;
+  border-radius: var(--cb-radius);
+  background: none;
+  color: var(--cb-primary);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 800;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--cb-brand-soft);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--cb-focus-ring);
+  }
+}
