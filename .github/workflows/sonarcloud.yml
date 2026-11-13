@@ -16,6 +16,8 @@ jobs:
   sonarcloud:
     name: Pruebas con cobertura y análisis
     runs-on: ubuntu-latest
+    env:
+      TZ: America/Mexico_City    # hora del campus; el runner viene en UTC y las pruebas de horas pico la usan
     steps:
       - name: Checkout
         uses: actions/checkout@v4
