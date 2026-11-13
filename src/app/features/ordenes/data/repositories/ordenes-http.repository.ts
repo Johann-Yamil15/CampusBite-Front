@@ -17,8 +17,8 @@ export const TAMANO_PAGINA_MIS_ORDENES = 50;
 
 /**
  * CL-Sprint5 11/11/2026: `api/ordenes` y `api/cafeterias/{id}/ordenes`. Reemplaza a OrdenService de
- * shared/menu (FB-Sprint4). Las rutas son las propuestas en BACKEND_SPECIFICATION.md; el controller aún no
- * existe, por eso ordenes.providers.ts enlaza el mock.
+ * shared/menu (FB-Sprint4).
+ * CL-Sprint5 13/11/2026: conectado a OrdenesController del back (PR #38).
  */
 @Injectable()
 export class OrdenesHttpRepository extends OrdenesRepository {
@@ -49,12 +49,12 @@ export class OrdenesHttpRepository extends OrdenesRepository {
       .pipe(map(OrdenMapper.toDomain));
   }
 
-  /** CL-Sprint5 11/11/2026 (etapa 6): endpoint nuevo, propuesto en BACKEND_SPECIFICATION.md. */
+  /** CL-Sprint5 11/11/2026 (etapa 6). Responde 201 { folio }; 409 si ya reportó esa orden. */
   reportar(idOrden: string, reporte: ReporteProblema): Observable<ReporteRecibido> {
-    return this.api.post<ReporteRecibido>(`ordenes/${idOrden}/reportes`, {
-      motivo: reporte.motivo,
-      detalle: reporte.detalle.trim() || null,
-    });
+    return this.api.post<ReporteRecibido>(
+      `ordenes/${idOrden}/reportes`,
+      OrdenMapper.toReporteRequest(reporte),
+    );
   }
 
   ordenesCafeteria(idCafeteria: string): Observable<Orden[]> {
@@ -75,7 +75,7 @@ export class OrdenesHttpRepository extends OrdenesRepository {
       .pipe(map(OrdenMapper.toDomain));
   }
 
-  /** CL-Sprint5 11/11/2026 (etapa 9): endpoint nuevo (llama a sp_confirmar_pago). */
+  /** CL-Sprint5 11/11/2026 (etapa 9): transferencia o tarjeta (no hay pasarela: el encargado confirma ambas). */
   confirmarPago(idOrden: string): Observable<Orden> {
     return this.api
       .post<OrdenDto>(`ordenes/${idOrden}/confirmar-pago`, {})

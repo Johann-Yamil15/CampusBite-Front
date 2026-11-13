@@ -87,3 +87,23 @@
 @media (prefers-reduced-motion: reduce) {
   .account-toggle button { transition: none; }
 }
+
+// CL-Sprint5 13/11/2026: "Revisa tu correo" tras registrarse (mismo estado de listo que recuperar.page.scss)
+.done-state {
+  text-align: center;
+  padding: var(--cb-space-lg) 0;
+}
+
+.done-icon {
+  width: 3rem;
+  height: 3rem;
+  color: var(--cb-primary);
+  margin: 0 auto var(--cb-space-md);
+}
+
+.done-state .title { margin-bottom: 0.4rem; }
+.done-state .subtitle { margin-bottom: var(--cb-space-sm); }
+.done-correo { margin-bottom: var(--cb-space-lg); color: var(--cb-ink-muted); overflow-wrap: anywhere; }
+.done-nota { margin-bottom: var(--cb-space-md); color: var(--cb-ink-muted); }
+.done-state .cb-alert-error { margin-bottom: var(--cb-space-md); text-align: left; }
+.done-reenviar { margin-top: var(--cb-space-sm); }

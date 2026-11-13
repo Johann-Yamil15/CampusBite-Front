@@ -94,7 +94,8 @@ import { ToastService } from '@shared/ui/toast/toast.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CodigoRecogidaComponent {
-  readonly codigo = input.required<string>();
+  /** CL-Sprint5 13/11/2026: `Orden.codigoRecogida` admite null (la cafetería no lo recibe); aquí vale ''. */
+  readonly codigo = input.required<string, string | null>({ transform: (c) => c ?? '' });
   readonly compacto = input(false);
 
   private readonly toast = inject(ToastService);

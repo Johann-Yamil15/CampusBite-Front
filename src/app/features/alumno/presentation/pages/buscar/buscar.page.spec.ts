@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { provideCatalogo } from '@features/catalogo';
-import { provideFavoritos } from '@features/alumno/alumno.providers';
 import { BuscarPage } from './buscar.page';
+import { provideCatalogoMock } from '@features/catalogo/data/mock/catalogo-mock.providers';
+import { provideFavoritosMock } from '@features/alumno/data/mock/alumno-mock.providers';
 
 /** CL-Sprint5 11/11/2026: buscador con el catálogo mock (sin latencia), etapa 4. */
 describe('BuscarPage', () => {
@@ -23,7 +23,7 @@ describe('BuscarPage', () => {
     localStorage.clear();
     await TestBed.configureTestingModule({
       imports: [BuscarPage],
-      providers: [provideRouter([]), provideCatalogo(), provideFavoritos(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
+      providers: [provideRouter([]), provideCatalogoMock(), provideFavoritosMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
     }).compileComponents();
     fixture = TestBed.createComponent(BuscarPage);
     el = fixture.nativeElement;

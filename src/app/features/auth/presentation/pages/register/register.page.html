@@ -11,6 +11,27 @@
         <span class="brand-name">Campus<strong>Bite</strong></span>
       </div>
 
+      <!-- CL-Sprint5 13/11/2026: el registro ya no inicia sesión; la cuenta se activa con el enlace del correo -->
+      @if (pendiente(); as p) {
+        <div class="done-state" role="status">
+          <svg class="done-icon" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>
+          <h1 class="title">Revisa tu correo</h1>
+          <p class="subtitle">{{ p.message }}</p>
+          <p class="done-correo">Cuenta: <strong>{{ p.email }}</strong></p>
+
+          @if (reenviado()) {
+            <p class="done-nota">Si la cuenta falta por verificar, te enviamos un correo nuevo.</p>
+          }
+          @if (authFacade.error()) {
+            <div class="cb-alert-error" role="alert">{{ authFacade.error() }}</div>
+          }
+
+          <a routerLink="/auth/login" class="cb-btn cb-btn--primary cb-btn--block">Ir a iniciar sesión</a>
+          <button type="button" class="cb-btn cb-btn--secondary cb-btn--block done-reenviar" [disabled]="authFacade.isLoading()" (click)="reenviar(p.email)">
+            @if (authFacade.isLoading()) { Enviando… } @else { Reenviar el correo }
+          </button>
+        </div>
+      } @else {
       <h1 class="title">Crear cuenta</h1>
       <p class="subtitle">
         @if (accountType() === 'alumno') { Únete a CampusBite con tu correo institucional. }
@@ -191,6 +212,7 @@
           }
         </button>
       </form>
+      }
 
       <div class="register-prompt">
         <span>¿Ya tienes una cuenta?</span>

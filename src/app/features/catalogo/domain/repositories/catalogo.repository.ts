@@ -2,9 +2,8 @@ import { Observable } from 'rxjs';
 import { MenuCafeteria, Promocion } from '@features/catalogo/domain/models/catalogo.model';
 
 /**
- * CL-Sprint5 11/11/2026: contrato (puerto) del catálogo del alumno. Se enlaza en catalogo.providers.ts:
- * hoy con CatalogoMockRepository porque el back aún no expone GET api/menu; cuando lo haga, solo se cambia
- * `useClass` por CatalogoHttpRepository.
+ * CL-Sprint5 11/11/2026: contrato (puerto) del catálogo del alumno. Se enlaza en catalogo.providers.ts
+ * con CatalogoHttpRepository (CL-Sprint5 13/11/2026); las pruebas usan CatalogoMockRepository.
  */
 export abstract class CatalogoRepository {
   /** Menú de todas las cafeterías activas. */

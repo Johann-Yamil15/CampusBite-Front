@@ -31,7 +31,10 @@ export class PerfilFacade {
 
   /** El correo de la sesión gana (es el real); el del perfil sirve tras recargar antes de /me. */
   readonly correo = computed(() => this.auth.user()?.email ?? this._perfil()?.correo ?? null);
-  readonly nombre = computed(() => nombreVisible(this._perfil()?.datos.nombre, this.correo()));
+  /** CL-Sprint5 13/11/2026: el del perfil (se refresca al guardar) o, mientras carga, el de la sesión. */
+  readonly nombre = computed(() =>
+    nombreVisible(this._perfil()?.datos.nombre, this.auth.user()?.name),
+  );
   readonly primerNombre = computed(() => this.nombre().split(' ')[0]);
   readonly iniciales = computed(() => iniciales(this.nombre()));
   readonly preferencias = computed(() => this._perfil()?.preferencias ?? PREFERENCIAS_INICIALES);

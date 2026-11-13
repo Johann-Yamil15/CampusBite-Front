@@ -6,11 +6,11 @@ import {
 } from '@features/alumno/domain/models/perfil.model';
 
 /**
- * CL-Sprint5 11/11/2026 (etapa 8): contrato del perfil del alumno. No existe en el back (propuesto en
- * BACKEND_SPECIFICATION.md); se enlaza en alumno.providers.ts con el mock.
+ * CL-Sprint5 11/11/2026 (etapa 8): contrato del perfil del alumno. Se enlaza en alumno.providers.ts con
+ * PerfilHttpRepository (CL-Sprint5 13/11/2026).
  *
- * Errores (ApiError): 400 contraseña actual incorrecta, 401 sin sesión, 422 datos inválidos (mismas reglas
- * que el registro).
+ * Errores (ApiError): 400 datos inválidos (mismas reglas que el registro) o contraseña actual incorrecta,
+ * 401 sin sesión, 409 matrícula repetida, 429 demasiados intentos.
  */
 export abstract class PerfilRepository {
   abstract obtener(): Observable<PerfilAlumno>;

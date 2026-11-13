@@ -1,6 +1,6 @@
 // JY-Sprint4 05/11/2026: HU futura (cascarón visual). Horario del negocio: qué días abre y a qué hora, más
 // un interruptor para cerrar hoy por imprevistos.
-// CL-Sprint5 11/11/2026 (etapa 9): ahora se guarda con NegocioFacade (mock compartido con el alumno): el
+// CL-Sprint5 11/11/2026 (etapa 9): ahora se guarda con NegocioFacade (api/cafeterias/{id}/horario): el
 // estado abierto/cerrado del catálogo y los horarios de recogida del checkout respetan este horario y el
 // "cerrar por hoy". Carga con esqueleto, error con "Reintentar" y "Guardando…" en cada cambio.
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';

@@ -2,14 +2,18 @@ import {
   EstadoOrden,
   EstadoPago,
   MetodoPagoOrden,
+  MotivoReporte,
   NuevaOrden,
   Orden,
+  ReporteProblema,
   folioDe,
 } from '@features/ordenes/domain/models/orden.model';
 import {
   CrearOrdenRequestDto,
+  CrearReporteRequestDto,
   EstadoOrdenDto,
   MetodoPagoDto,
+  MotivoReporteDto,
   OrdenDto,
 } from '@features/ordenes/data/dtos/orden.dto';
 
@@ -32,6 +36,15 @@ const METODO_DTO: Record<MetodoPagoOrden, MetodoPagoDto> = {
   transferencia: 'Transferencia',
 };
 
+// CL-Sprint5 13/11/2026: la API solo acepta el texto PascalCase del enum (no números ni snake_case)
+const MOTIVO_DTO: Record<MotivoReporte, MotivoReporteDto> = {
+  falto_articulo: 'FaltoArticulo',
+  producto_equivocado: 'ProductoEquivocado',
+  calidad: 'Calidad',
+  cobro: 'Cobro',
+  otro: 'Otro',
+};
+
 /** CL-Sprint5 11/11/2026: DTO de api/ordenes ↔ entidades del dominio. */
 export const OrdenMapper = {
   toDomain(dto: OrdenDto): Orden {
@@ -51,7 +64,7 @@ export const OrdenMapper = {
       metodo: dto.metodo.toLowerCase() as MetodoPagoOrden,
       estadoPago: dto.estadoPago.toLowerCase() as EstadoPago,
       notas: dto.notas,
-      motivoCancelacion: dto.motivoCancelacion ?? null,
+      motivoCancelacion: dto.motivoCancelacion,
       lineas: dto.lineas.map((l) => ({ ...l })),
     };
   },
@@ -68,5 +81,9 @@ export const OrdenMapper = {
 
   toEstadoDto(estado: EstadoOrden): EstadoOrdenDto {
     return ESTADO_DTO[estado];
+  },
+
+  toReporteRequest(reporte: ReporteProblema): CrearReporteRequestDto {
+    return { motivo: MOTIVO_DTO[reporte.motivo], detalle: reporte.detalle.trim() || null };
   },
 };

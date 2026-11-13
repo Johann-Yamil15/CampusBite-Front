@@ -3,9 +3,10 @@ import { vi } from 'vitest';
 import { provideRouter } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@core/mock/demo-db';
-import { MetodoPagoOrden, MisPedidosFacade, provideOrdenes } from '@features/ordenes';
+import { DEMO_CAFETERIA, DEMO_PRODUCTO } from '@features/catalogo/data/mock/catalogo.mock-data';
+import { MetodoPagoOrden, MisPedidosFacade } from '@features/ordenes';
 import { PedidoConfirmadoPage } from './pedido-confirmado.page';
+import { provideOrdenesMock } from '@features/ordenes/data/mock/ordenes-mock.providers';
 
 /** CL-Sprint5 11/11/2026: confirmación con el código de recogida (etapa 5). */
 describe('PedidoConfirmadoPage', () => {
@@ -23,7 +24,7 @@ describe('PedidoConfirmadoPage', () => {
   async function confirmar(metodo: MetodoPagoOrden): Promise<string> {
     await TestBed.configureTestingModule({
       imports: [PedidoConfirmadoPage],
-      providers: [provideRouter([]), provideOrdenes(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
+      providers: [provideRouter([]), provideOrdenesMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
     }).compileComponents();
     const orden = await firstValueFrom(
       TestBed.inject(MisPedidosFacade).crear({
@@ -37,7 +38,7 @@ describe('PedidoConfirmadoPage', () => {
     el = fixture.nativeElement;
     fixture.componentRef.setInput('id', orden.idOrden);
     await fixture.whenStable();
-    return orden.codigoRecogida;
+    return orden.codigoRecogida!;
   }
 
   it('muestra los 6 dígitos del código de recogida', async () => {
@@ -60,7 +61,7 @@ describe('PedidoConfirmadoPage', () => {
   it('un id que no existe dice que no lo encontramos', async () => {
     await TestBed.configureTestingModule({
       imports: [PedidoConfirmadoPage],
-      providers: [provideRouter([]), provideOrdenes(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
+      providers: [provideRouter([]), provideOrdenesMock(), { provide: MOCK_LATENCIA_MS, useValue: 0 }],
     }).compileComponents();
     fixture = TestBed.createComponent(PedidoConfirmadoPage);
     el = fixture.nativeElement;

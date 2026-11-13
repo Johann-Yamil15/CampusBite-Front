@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { MockBackend, MockHttpError } from '@core/mock/mock-backend';
-import { DemoNegocioStore } from '@core/mock/demo-negocio.store';
+import { DEMO_CAFETERIAS } from '@features/catalogo/data/mock/catalogo.mock-data';
 import { TokenStorageService } from '@core/services/token-storage.service';
 import { readJwtClaim } from '@core/utils/jwt.util';
 import { FavoritosRepository } from '@features/alumno/domain/repositories/favoritos.repository';
@@ -38,8 +38,7 @@ interface Guardado {
 export class FavoritosMockRepository extends FavoritosRepository {
   private readonly backend = inject(MockBackend);
   private readonly tokens = inject(TokenStorageService);
-  private readonly negocio = inject(DemoNegocioStore);
-  private readonly abierta = (id: string) => this.negocio.estadoHoy(id).abierta;
+  private readonly abierta = (id: string) => !!DEMO_CAFETERIAS.find((c) => c.id === id)?.abierta;
   /** Respaldo si localStorage no está disponible. */
   private enMemoria: Guardado | null = null;
 

@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
 import { vi } from 'vitest';
 import { MOCK_LATENCIA_MS } from '@core/mock/mock-backend';
-import { DEMO_CAFETERIA } from '@core/mock/demo-db';
-import { CatalogoFacade, provideCatalogo } from '@features/catalogo';
-import { provideNegocio } from '@features/menu-negocio/negocio.providers';
+import { DEMO_CAFETERIA } from '@features/catalogo/data/mock/catalogo.mock-data';
 import { HorarioPage } from './horario.page';
+import { provideNegocioMock } from '@features/menu-negocio/data/mock/negocio-mock.providers';
 
-/** CL-Sprint5 11/11/2026 (etapa 9): el horario se guarda y el alumno lo respeta. */
+// CL-Sprint5 13/11/2026: ya no se comprueba aquí lo que ve el alumno: lo calcula el back (GET api/menu y
+// api/promociones/activas). El mock del negocio ya no comparte datos con el del catálogo.
+/** CL-Sprint5 11/11/2026 (etapa 9): el horario se guarda y se cierra por hoy. */
 describe('HorarioPage', () => {
   let fixture: ComponentFixture<HorarioPage>;
   let el: HTMLElement;
@@ -20,8 +20,7 @@ describe('HorarioPage', () => {
     await TestBed.configureTestingModule({
       imports: [HorarioPage],
       providers: [
-        provideNegocio(),
-        provideCatalogo(),
+        provideNegocioMock(),
         { provide: MOCK_LATENCIA_MS, useValue: 0 },
         { provide: ActivatedRoute, useValue: { snapshot: { pathFromRoot: [{ data: { id: DEMO_CAFETERIA.central } }] } } },
       ],
@@ -38,11 +37,6 @@ describe('HorarioPage', () => {
 
   const boton = (texto: string) =>
     [...el.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent!.includes(texto))!;
-  const central = async () => {
-    const catalogo = TestBed.inject(CatalogoFacade);
-    await firstValueFrom(catalogo.cargar(true));
-    return catalogo.cafeteria(DEMO_CAFETERIA.central)!;
-  };
 
   it('muestra la semana, el día de hoy y que está abierto ahora', () => {
     expect(el.querySelectorAll('.dia').length).toBe(7);
@@ -50,7 +44,7 @@ describe('HorarioPage', () => {
     expect(el.querySelector('.cierre h2')!.textContent).toContain('Abierto ahora');
   });
 
-  it('editar un día valida el rango y cambia la hora de cierre que ve el alumno', async () => {
+  it('editar un día valida el rango y guarda la nueva hora', async () => {
     boton('Editar Miércoles').click();
     await fixture.whenStable();
     const [abre, cierra] = [...el.querySelectorAll<HTMLInputElement>('app-modal input[type="time"]')];
@@ -68,19 +62,17 @@ describe('HorarioPage', () => {
     boton('Guardar').click();
     await fixture.whenStable();
     expect(el.querySelector('.dia.hoy')!.textContent).toContain('08:00 – 20:00');
-    expect((await central()).cierraA).toBe('20:00');
   });
 
-  it('"Cerrar por hoy" pide confirmación y el alumno la ve cerrada', async () => {
+  it('"Cerrar por hoy" pide confirmación y se puede volver a abrir', async () => {
     boton('Cerrar por hoy').click();
     await fixture.whenStable();
     boton('Sí, cerrar hoy').click();
     await fixture.whenStable();
     expect(el.querySelector('.cierre h2')!.textContent).toContain('Cerrado por hoy');
-    expect((await central()).abierta).toBe(false);
 
     boton('Volver a abrir').click();
     await fixture.whenStable();
-    expect((await central()).abierta).toBe(true);
+    expect(el.querySelector('.cierre h2')!.textContent).toContain('Abierto ahora');
   });
 });

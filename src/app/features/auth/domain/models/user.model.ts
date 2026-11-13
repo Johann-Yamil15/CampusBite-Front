@@ -7,11 +7,25 @@ export interface User {
   id: string;
   email: string;
   role: UserRole;
+  /** CL-Sprint5 13/11/2026: nombre que manda el back en login y /me (claim del token). */
+  name: string;
   /**
-   * CL-Sprint4 28/10/2026: HU-07B. Cafetería del encargado (solo AdminCafeteria). Opcional: hoy el backend aún no
-   * la manda en login ni en /me; cuando la mande, negocioHomeGuard lo lleva directo a su panel.
+   * CL-Sprint4 28/10/2026: HU-07B. Cafetería del encargado (solo AdminCafeteria; el back manda null para los
+   * demás roles y entonces el campo no existe).
    */
   cafeteriaId?: string;
+}
+
+/**
+ * CL-Sprint5 13/11/2026: resultado del registro (alumno o negocio). La cuenta queda creada pero sin sesión
+ * hasta que el usuario abra el enlace del correo (`/verificar-correo?token=...`).
+ */
+export interface RegistroPendiente {
+  email: string;
+  /** false: la cuenta se creó pero el correo no salió; puede pedir que se reenvíe. */
+  emailSent: boolean;
+  /** Texto del back para mostrar tal cual. */
+  message: string;
 }
 
 export interface Credentials {

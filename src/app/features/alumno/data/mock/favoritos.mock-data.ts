@@ -1,5 +1,5 @@
 // CL-Sprint5 11/11/2026: favoritos de demostración (antes FAVORITAS en alumno/presentation/catalogo.mock.ts
-// de JY-Sprint4). Se arman desde la BD de demostración compartida (core/mock/demo-db.ts).
+// de JY-Sprint4). Se arman con los datos de prueba del catálogo (catalogo.mock-data.ts).
 // CL-Sprint5 11/11/2026 (etapa 7): también platillos, guardados como "fila" (lo que guardaría la tabla:
 // el id y los datos del momento) para poder mostrar los que la cafetería ya retiró.
 import {
@@ -8,7 +8,7 @@ import {
   DEMO_PRODUCTO,
   DEMO_PRODUCTOS,
   fotoDemo,
-} from '@core/mock/demo-db';
+} from '@features/catalogo/data/mock/catalogo.mock-data';
 import {
   CafeteriaFavorita,
   PlatilloFavorito,
@@ -31,7 +31,7 @@ export interface FilaPlatilloFavorito {
   cafeteria: string;
 }
 
-/** CL-Sprint5 11/11/2026 (etapa 9): `abierta` dice si abre ahora (horario del negocio, DemoNegocioStore). */
+/** CL-Sprint5 11/11/2026 (etapa 9): `abierta` dice si abre ahora (fijo en los datos de prueba). */
 export type AbiertaAhora = (idCafeteria: string) => boolean;
 
 /** La favorita tal como la devolvería el back, o `null` si la cafetería no existe. */

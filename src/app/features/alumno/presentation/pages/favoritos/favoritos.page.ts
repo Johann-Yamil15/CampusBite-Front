@@ -1,6 +1,5 @@
 // JY-Sprint4 05/11/2026: HU futura (cascarón visual). Cafeterías favoritas del alumno.
-// CL-Sprint5 11/11/2026: lee, quita y restaura con FavoritosFacade (repositorio mock hasta que exista el
-// endpoint de favoritos).
+// CL-Sprint5 11/11/2026: lee, quita y restaura con FavoritosFacade (api/favoritos/...).
 // CL-Sprint5 11/11/2026 (etapa 7): rediseño. Pestañas Platillos / Cafeterías (en la URL: ?ver=cafeterias).
 //   - Los favoritos se cruzan con el menú de HOY (CatalogoFacade): el platillo se muestra con la misma
 //     tarjeta del resto de la app (mismo flujo del carrito, con el aviso si el carrito es de otra
