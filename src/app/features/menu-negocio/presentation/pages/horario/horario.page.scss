@@ -1,0 +1,235 @@
+// JY-Sprint4 05/11/2026: horario. El mobiliario común (.pg, .chip) está en styles.scss
+.kpis {
+  // Los KPI del encabezado no estiran como la rejilla de .cb-kpis
+  display: flex;
+  flex-wrap: wrap;
+}
+
+// ---------- Cierre temporal ----------
+.cierre {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cb-space-lg);
+  flex-wrap: wrap;
+
+  h2 {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 800;
+    color: var(--cb-ink);
+  }
+
+  p {
+    margin: 0.2rem 0 0;
+    max-width: 38rem;
+    font-size: 0.875rem;
+    color: var(--cb-text-muted);
+  }
+
+  // Cerrado: franja roja para que no pase desapercibido
+  &.activo {
+    border-left: 4px solid var(--cb-danger);
+    background: var(--cb-danger-soft);
+
+    h2 {
+      color: var(--cb-danger);
+    }
+  }
+}
+
+.cierre-texto {
+  flex: 1;
+  min-width: 14rem;
+}
+
+// ---------- Días ----------
+.dias {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.dia {
+  display: flex;
+  align-items: center;
+  gap: var(--cb-space-md);
+  padding: 0.7rem 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--cb-line-soft);
+  }
+
+  &.cerrado .dia-nombre,
+  &.cerrado .dia-rango {
+    color: var(--cb-text-muted);
+  }
+}
+
+.dia-nombre {
+  width: 7rem;
+  flex-shrink: 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--cb-ink);
+}
+
+.dia-rango {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9375rem;
+  color: var(--cb-ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.nota {
+  margin: var(--cb-space-md) 0 0;
+  font-size: 0.75rem;
+  color: var(--cb-text-muted);
+}
+
+// ---------- Modal ----------
+.opcion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cb-space-md);
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    cursor: pointer;
+
+    strong {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--cb-ink);
+    }
+
+    small {
+      font-size: 0.8125rem;
+      color: var(--cb-text-muted);
+    }
+  }
+}
+
+// Interruptor sobre un checkbox real: teclado y lector de pantalla siguen funcionando
+.switch {
+  flex-shrink: 0;
+  appearance: none;
+  width: 2.75rem;
+  height: 1.6rem;
+  margin: 0;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-surface-high);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.18s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0.2rem;
+    left: 0.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: var(--cb-radius-pill);
+    background: var(--cb-surface);
+    box-shadow: var(--cb-shadow-sm);
+    transition: transform 0.18s;
+  }
+
+  &:checked {
+    background: var(--cb-primary);
+  }
+
+  &:checked::after {
+    transform: translateX(1.15rem);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cb-primary);
+    outline-offset: 2px;
+  }
+}
+
+.fila {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--cb-space-md);
+  margin-top: var(--cb-space-md);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  > span {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--cb-ink);
+  }
+
+  input {
+    min-height: 44px;
+    padding: 0 0.75rem;
+    border: 1px solid var(--cb-line);
+    border-radius: var(--cb-radius);
+    background: var(--cb-surface);
+    color: var(--cb-ink);
+    font: inherit;
+
+    &:focus-visible {
+      outline: none;
+      border-color: var(--cb-primary);
+      box-shadow: 0 0 0 3px var(--cb-brand-ring);
+    }
+  }
+}
+
+.cb-alert-error {
+  margin-top: var(--cb-space-md);
+}
+
+.modal-texto {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--cb-ink-soft);
+}
+
+@media (max-width: 640px) {
+  .dia {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .dia-nombre {
+    width: 100%;
+  }
+}
+
+
+// CL-Sprint5 11/11/2026 (etapa 9): carga, día de hoy y vacío con app-icon
+.hr-cargando {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cb-space-md);
+}
+
+.dia.hoy {
+  padding-inline: 0.6rem;
+  border-radius: var(--cb-radius);
+  background: var(--cb-brand-soft);
+
+  small {
+    font-weight: 600;
+    color: var(--cb-primary);
+  }
+}
+
+.vacio app-icon {
+  --icon-size: 2.75rem;
+  color: var(--cb-primary-container);
+}

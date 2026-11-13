@@ -11,10 +11,21 @@
   <nav class="nav-list" aria-label="Panel de negocio">
     @for (item of items; track item.icon) {
       @switch (item.kind) {
-        @case ('current') {
-          <a class="nav-item active" href="#" aria-current="page" (click)="$event.preventDefault()">
+        @case ('link') {
+          <a
+            class="nav-item"
+            [routerLink]="item.link"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: !!item.exact }"
+            #rla="routerLinkActive"
+            [attr.aria-current]="rla.isActive ? 'page' : null"
+          >
             <ng-container *ngTemplateOutlet="icon; context: { $implicit: item.icon }" />
             <span class="label">{{ item.label }}</span>
+            <!-- CL-Sprint5 11/11/2026 (etapa 9): pedidos nuevos esperando -->
+            @if (item.icon === 'pedidos' && pedidosNuevos()) {
+              <span class="nav-badge">{{ pedidosNuevos() }}<span class="sr-only"> pedidos nuevos</span></span>
+            }
           </a>
         }
         @case ('menu') {

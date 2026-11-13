@@ -4,6 +4,7 @@
 // Learn more about theming and how to use it for your application's
 // custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
+@use 'sass:meta';
 @use 'tokens';
 html {
   height: 100%;
@@ -23,7 +24,9 @@ body {
   // Default the application to a light color theme. This can be changed to
   // `dark` to enable the dark color theme, or to `light dark` to defer to the
   // user's system settings.
-  color-scheme: light;
+  // CL-Sprint5 11/11/2026: `light dark`, igual que los tokens: con `light` los controles nativos (inputs de
+  // fecha, select, barras de scroll) se quedaban claros sobre las pantallas en modo oscuro.
+  color-scheme: light dark;
 
   // Set a default background, font and text colors for the application using
   // Angular Material's system-level CSS variables. Learn more about these
@@ -151,43 +154,60 @@ body {
   text-decoration: none;
   cursor: pointer;
   transition:
-    background 0.2s,
-    border-color 0.2s,
-    color 0.2s;
+    background var(--cb-dur-state),
+    border-color var(--cb-dur-state),
+    color var(--cb-dur-state),
+    transform var(--cb-dur-press) var(--cb-ease-out);
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px var(--cb-brand-ring);
+    box-shadow: var(--cb-focus-ring);
   }
 
+  // CL-Sprint5 11/11/2026: respuesta al toque (sin mover lo de alrededor: scale no cambia el layout)
+  &:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  // CL-Sprint5 11/11/2026: deshabilitado = gris neutro, sin sombra ni respuesta al toque, en TODAS las
+  // variantes. Antes era la misma variante al 55%: en oscuro el primario quedaba café/naranja y parecía
+  // activo. (0,2,0) le gana a .cb-btn--primary, --elevado, --block… sin !important.
   &:disabled {
-    opacity: 0.55;
+    opacity: 1;
+    border-color: transparent;
+    background: var(--cb-disabled);
+    color: var(--cb-on-disabled);
+    box-shadow: none;
+    transform: none;
     cursor: not-allowed;
   }
 }
 
+// CL-Sprint5 11/11/2026: los colores de los botones salen de los tokens de acción y de superficie, nunca de
+// un #fff fijo: así funcionan en claro y en oscuro (antes el primario daba 1.7:1 en oscuro y el
+// secundario era blanco con texto claro).
 .cb-btn--primary {
-  background: var(--cb-brand-strong);
-  color: #fff;
+  background: var(--cb-action);
+  color: var(--cb-on-action);
   &:hover:not(:disabled) {
-    background: #8a2b00;
+    background: var(--cb-action-hover);
   }
 }
 
 .cb-btn--secondary {
   border-color: var(--cb-line);
-  background: #fff;
+  background: var(--cb-surface);
   color: var(--cb-ink-soft);
   &:hover:not(:disabled) {
-    background: var(--cb-canvas);
+    background: var(--cb-surface-high);
   }
 }
 
 .cb-btn--danger {
-  background: var(--cb-danger-strong);
-  color: #fff;
+  background: var(--cb-danger-action);
+  color: var(--cb-on-danger-action);
   &:hover:not(:disabled) {
-    background: #9f1616;
+    background: var(--cb-danger-action-hover);
   }
 }
 
@@ -195,7 +215,7 @@ body {
   padding: 0 0.85rem;
   font-size: 0.85rem;
   border-color: var(--cb-line);
-  background: #fff;
+  background: var(--cb-surface);
   color: var(--cb-ink-soft);
   &:hover:not(:disabled) {
     border-color: var(--cb-brand);
@@ -401,7 +421,7 @@ input:-webkit-autofill:focus {
   margin-top: 0.5rem;
   min-height: 50px;
   font-size: 1rem;
-  box-shadow: 0 10px 20px -8px rgba(171, 53, 0, 0.45);
+  box-shadow: 0 10px 20px -8px var(--cb-action-shadow);
   transition:
     background 0.2s,
     box-shadow 0.2s,
@@ -552,3 +572,387 @@ input:-webkit-autofill:focus {
     transition: none;
   }
 }
+
+// JY-Sprint4 05/11/2026: mobiliario común de las pantallas de pedidos (alumno y negocio): encabezado de
+// página, pestañas, chip de estado y estado vacío. Vive aquí porque lo comparten varias features y el
+// presupuesto de estilos es por componente.
+.pg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cb-space-lg);
+}
+
+.pg-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--cb-space-md);
+  flex-wrap: wrap;
+
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--cb-ink);
+  }
+}
+
+.pg-sub {
+  margin: 0.25rem 0 0;
+  color: var(--cb-text-muted);
+  font-size: 0.9rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.25rem;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-surface-low);
+  width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 38px;
+  padding: 0 0.9rem;
+  border: 0;
+  border-radius: var(--cb-radius-pill);
+  background: none;
+  color: var(--cb-ink-muted);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid var(--cb-primary); outline-offset: 2px; }
+  &.active { background: var(--cb-surface); color: var(--cb-primary); box-shadow: var(--cb-shadow-sm); }
+}
+
+.tab-count {
+  min-width: 1.25rem;
+  padding: 0 0.3rem;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-surface-high);
+  color: var(--cb-ink-muted);
+  font-size: 0.6875rem;
+  text-align: center;
+}
+
+.tab.active .tab-count {
+  background: var(--cb-brand-soft);
+  color: var(--cb-primary);
+}
+
+// Chip de estado. Los colores salen de los tokens, no hay verdes/rojos sueltos
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid transparent;
+  border-radius: var(--cb-radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.chip.estado-recibido {
+  background: var(--cb-surface-high);
+  border-color: var(--cb-line);
+  color: var(--cb-ink-soft);
+}
+
+.chip.estado-en_preparacion {
+  background: var(--cb-brand-soft);
+  border-color: var(--cb-primary-container);
+  color: var(--cb-primary);
+}
+
+.chip.estado-listo {
+  background: var(--cb-success-soft);
+  border-color: var(--cb-success-line);
+  color: var(--cb-success);
+}
+
+.chip.estado-entregado {
+  background: var(--cb-surface-low);
+  border-color: var(--cb-line-soft);
+  color: var(--cb-text-muted);
+}
+
+.chip.estado-cancelado {
+  background: var(--cb-danger-soft);
+  border-color: var(--cb-danger-line);
+  color: var(--cb-danger);
+}
+
+.vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: var(--cb-space-xl) var(--cb-space-md);
+  border: 1px dashed var(--cb-line);
+  border-radius: var(--cb-radius-lg);
+  background: var(--cb-surface);
+  text-align: center;
+
+  svg {
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--cb-primary-container);
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--cb-ink);
+  }
+
+  p {
+    margin: 0;
+    max-width: 30rem;
+    color: var(--cb-text-muted);
+    font-size: 0.9rem;
+  }
+
+  .cb-btn { margin-top: 0.4rem; }
+}
+
+// JY-Sprint4 05/11/2026: controles de formulario, tarjetas, KPIs e interruptor del sistema de diseño.
+// Están aquí y no en cada pantalla porque los comparten las features de alumno y de negocio, y el
+// presupuesto de estilos es por componente. Todo sale de los tokens: ningún color suelto.
+.cb-card {
+  padding: var(--cb-space-lg);
+  background: var(--cb-surface);
+  border: 1px solid var(--cb-line-soft);
+  border-radius: var(--cb-radius-lg);
+  box-shadow: var(--cb-shadow-sm);
+  min-width: 0;
+}
+
+.cb-card-title {
+  margin: 0 0 var(--cb-space-md);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--cb-text-muted);
+}
+
+.cb-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--cb-space-sm);
+  margin: 0;
+
+  > div {
+    padding: 0.6rem 0.9rem;
+    border: 1px solid var(--cb-line-soft);
+    border-radius: var(--cb-radius);
+    background: var(--cb-surface);
+  }
+
+  dt {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--cb-text-muted);
+  }
+
+  dd {
+    margin: 0.1rem 0 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--cb-ink);
+  }
+}
+
+// Campo de formulario: <label class="cb-field"><span>Etiqueta</span><input …><small>pista</small></label>
+.cb-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+
+  > span {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--cb-ink);
+
+    small {
+      font-weight: 400;
+      color: var(--cb-text-muted);
+    }
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--cb-line);
+    border-radius: var(--cb-radius);
+    background: var(--cb-surface);
+    color: var(--cb-ink);
+    font: inherit;
+
+    &::placeholder {
+      color: var(--cb-text-muted);
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      outline: none;
+      border-color: var(--cb-primary);
+      box-shadow: 0 0 0 3px var(--cb-brand-ring);
+    }
+
+    &:disabled {
+      background: var(--cb-surface-low);
+      color: var(--cb-text-muted);
+      cursor: not-allowed;
+    }
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  select {
+    appearance: none;
+    // Hueco para la flecha dibujada con background
+    padding-right: 2.25rem;
+    background-image: linear-gradient(45deg, transparent 50%, var(--cb-text-muted) 50%),
+      linear-gradient(135deg, var(--cb-text-muted) 50%, transparent 50%);
+    background-position:
+      calc(100% - 1.1rem) 1.15rem,
+      calc(100% - 0.75rem) 1.15rem;
+    background-size:
+      0.35rem 0.35rem,
+      0.35rem 0.35rem;
+    background-repeat: no-repeat;
+    cursor: pointer;
+  }
+
+  // Campo inválido: borde y pista en rojo, sin depender solo del color (la pista lo dice con texto)
+  &.invalido input,
+  &.invalido select,
+  &.invalido textarea {
+    border-color: var(--cb-danger);
+  }
+
+  > small {
+    font-size: 0.75rem;
+    color: var(--cb-text-muted);
+  }
+
+  &.invalido > small {
+    color: var(--cb-danger);
+    font-weight: 600;
+  }
+}
+
+.cb-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cb-space-md);
+}
+
+.cb-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--cb-space-md);
+}
+
+// Interruptor dibujado sobre un checkbox real: teclado y lector de pantalla siguen funcionando
+.cb-switch {
+  flex-shrink: 0;
+  appearance: none;
+  width: 2.75rem;
+  height: 1.6rem;
+  margin: 0;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-surface-high);
+  cursor: pointer;
+  position: relative;
+  transition: background 0.18s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0.2rem;
+    left: 0.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: var(--cb-radius-pill);
+    background: var(--cb-surface);
+    box-shadow: var(--cb-shadow-sm);
+    transition: transform 0.18s;
+  }
+
+  &:checked {
+    background: var(--cb-primary);
+  }
+
+  &:checked::after {
+    transform: translateX(1.15rem);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cb-primary);
+    outline-offset: 2px;
+  }
+}
+
+.cb-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--cb-space-md);
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    cursor: pointer;
+
+    strong {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--cb-ink);
+    }
+
+    small {
+      font-size: 0.8125rem;
+      color: var(--cb-text-muted);
+    }
+  }
+}
+
+@media (max-width: 520px) {
+  .cb-form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cb-switch,
+  .cb-switch::after {
+    transition: none;
+  }
+}
+
+// CL-Sprint5 11/11/2026: piezas base del sistema de diseño (botones extra, insignias, chips, esqueleto…).
+// Se cargan AL FINAL a propósito: sus variantes (.cb-btn--icon, --lg…) deben ganarle a la base .cb-btn,
+// que tiene la misma especificidad. Con @use quedarían al principio del CSS y perderían.
+@include meta.load-css('componentes');

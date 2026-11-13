@@ -1,0 +1,134 @@
+// JY-Sprint4 05/11/2026: modal con los tokens del sistema (ver src/styles/_tokens.scss)
+// CL-Sprint5 11/11/2026: en teléfono es una hoja que sube desde abajo (el pulgar llega a los botones);
+// de tableta para arriba sigue siendo un diálogo centrado. Fondo y capa salen de los tokens.
+@use 'breakpoints' as *;
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--cb-z-modal);
+  display: grid;
+  place-items: end center;
+  padding: 0;
+  background: var(--cb-scrim);
+  backdrop-filter: blur(2px);
+  animation: modal-fade var(--cb-dur-state) ease-out;
+
+  @media (min-width: $cb-bp-tablet) {
+    place-items: center;
+    padding: var(--cb-space-md);
+  }
+}
+
+.modal-panel {
+  width: 100%;
+  max-height: 92dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--cb-surface);
+  border: 1px solid var(--cb-line-soft);
+  border-bottom: 0;
+  border-radius: var(--cb-radius-xl) var(--cb-radius-xl) 0 0;
+  box-shadow: var(--cb-shadow-xl);
+  // Deja libre la barra de gestos del teléfono
+  padding-bottom: env(safe-area-inset-bottom);
+  animation: modal-sube var(--cb-dur-enter) var(--cb-ease-out);
+
+  // Asa de la hoja (solo teléfono)
+  &::before {
+    content: '';
+    align-self: center;
+    width: 2.5rem;
+    height: 0.3rem;
+    margin-top: 0.5rem;
+    border-radius: var(--cb-radius-pill);
+    background: var(--cb-line);
+  }
+
+  @media (min-width: $cb-bp-tablet) {
+    max-height: calc(100dvh - 2 * var(--cb-space-lg));
+    border-bottom: 1px solid var(--cb-line-soft);
+    border-radius: var(--cb-radius-lg);
+    padding-bottom: 0;
+    animation: modal-rise var(--cb-dur-state) var(--cb-ease-out);
+
+    &::before {
+      display: none;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--cb-primary);
+    outline-offset: 2px;
+  }
+
+  @media (min-width: $cb-bp-tablet) {
+    &.size-sm { max-width: 26rem; }
+    &.size-md { max-width: 34rem; }
+    &.size-lg { max-width: 48rem; }
+  }
+}
+
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--cb-space-md);
+  padding: var(--cb-space-lg) var(--cb-space-lg) var(--cb-space-md);
+  border-bottom: 1px solid var(--cb-line-soft);
+
+  h2 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--cb-ink);
+  }
+}
+
+.modal-sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--cb-text-muted);
+}
+
+.modal-title { flex: 1; }
+
+.modal-x {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: var(--cb-radius-pill);
+  background: var(--cb-surface-low);
+  color: var(--cb-text-muted);
+  cursor: pointer;
+
+  svg { width: 1.125rem; height: 1.125rem; }
+  &:hover { background: var(--cb-surface-high); color: var(--cb-ink); }
+  &:focus-visible { outline: 2px solid var(--cb-primary); outline-offset: 2px; }
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--cb-space-lg);
+}
+
+.modal-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--cb-space-sm);
+  padding: var(--cb-space-md) var(--cb-space-lg) var(--cb-space-lg);
+
+  // Sin acciones no se ve el espacio de más
+  &:empty { display: none; }
+}
+
+@keyframes modal-fade { from { opacity: 0; } }
+@keyframes modal-rise { from { opacity: 0; transform: translateY(8px) scale(0.98); } }
+@keyframes modal-sube { from { transform: translateY(100%); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop, .modal-panel { animation: none; }
+}

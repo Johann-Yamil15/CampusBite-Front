@@ -1,0 +1,80 @@
+import { Routes } from '@angular/router';
+import { provideFavoritos, providePerfil } from '@features/alumno/alumno.providers';
+
+/**
+ * JY-Sprint4 05/11/2026: rutas del alumno (cascarón visual). Todas cuelgan de AlumnoLayoutComponent para
+ * que el sidebar y la topbar no se vuelvan a dibujar al cambiar de sección.
+ * El guard de sesión lo pone app.routes.ts al montar la feature.
+ *
+ * CL-Sprint5 11/11/2026: el inicio del alumno es "/" y ya vive dentro del layout; /inicio queda como
+ * redirección para los enlaces viejos. Los favoritos se proveen aquí con su repositorio mock; para
+ * conectar el back se cambia `useClass` en alumno.providers.ts. El detalle va por id: /pedidos/:id.
+ * app.routes.ts monta esta feature con authGuard y negocioHomeGuard (el encargado va a /mi-negocio).
+ */
+export default [
+  { path: 'inicio', pathMatch: 'full', redirectTo: '' },
+  {
+    path: '',
+    providers: [provideFavoritos(), providePerfil()],
+    loadComponent: () =>
+      import('./presentation/layout/alumno-layout.component').then((m) => m.AlumnoLayoutComponent),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        title: 'Inicio · CampusBite',
+        loadComponent: () =>
+          import('./presentation/pages/inicio/inicio.page').then((m) => m.InicioPage),
+      },
+      {
+        // CL-Sprint5 11/11/2026 (etapa 3): tienda de una cafetería; el id llega como input `id`
+        path: 'cafeterias/:id',
+        title: 'Cafetería · CampusBite',
+        loadComponent: () =>
+          import('./presentation/pages/tienda/tienda.page').then((m) => m.TiendaPage),
+      },
+      {
+        path: 'buscar',
+        title: 'Buscar · CampusBite',
+        loadComponent: () =>
+          import('./presentation/pages/buscar/buscar.page').then((m) => m.BuscarPage),
+      },
+      {
+        path: 'pedidos',
+        title: 'Mis pedidos · CampusBite',
+        loadComponent: () =>
+          import('./presentation/pages/pedidos/pedidos.page').then((m) => m.PedidosPage),
+      },
+      {
+        // CL-Sprint5 11/11/2026 (etapa 5): a donde lleva el checkout; muestra el código de recogida
+        path: 'pedidos/:id/confirmado',
+        title: '¡Pedido enviado! · CampusBite',
+        loadComponent: () =>
+          import('./presentation/pages/pedido-confirmado/pedido-confirmado.page').then(
+            (m) => m.PedidoConfirmadoPage,
+          ),
+      },
+      {
+        // El id llega al componente como input `id` (withComponentInputBinding)
+        path: 'pedidos/:id',
+        title: 'Detalle del pedido · CampusBite',
+        loadComponent: () =>
+          import('./presentation/pages/pedido-detalle/pedido-detalle.page').then(
+            (m) => m.PedidoDetallePage,
+          ),
+      },
+      {
+        path: 'favoritos',
+        title: 'Favoritos · CampusBite',
+        loadComponent: () =>
+          import('./presentation/pages/favoritos/favoritos.page').then((m) => m.FavoritosPage),
+      },
+      {
+        path: 'perfil',
+        title: 'Mi perfil · CampusBite',
+        loadComponent: () =>
+          import('./presentation/pages/perfil/perfil.page').then((m) => m.PerfilPage),
+      },
+    ],
+  },
+] satisfies Routes;

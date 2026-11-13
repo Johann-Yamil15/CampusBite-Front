@@ -1,3 +1,4 @@
+import { isDevMode } from '@angular/core';
 import { Routes } from '@angular/router';
 import {
   authGuard,
@@ -16,21 +17,24 @@ export const routes: Routes = [
   // Alias cortos que ya usa la app (logout, enlaces de las pantallas)
   { path: 'login', pathMatch: 'full', redirectTo: 'auth/login' },
   { path: 'register', pathMatch: 'full', redirectTo: 'auth/register' },
-  // JJ-Sprint3 21/10/2026: cascarón visual (HU futura les da funcionalidad). Traen su propia navegación
-  // inferior completa, por eso van fuera del MainLayout (que tiene su propia barra superior) y no dentro.
   // CL-Sprint4 28/10/2026: HU-07B. negocioHomeGuard lleva al encargado a su panel /mi-negocio
+  // CL-Sprint5 11/11/2026: "/" es el inicio del alumno (antes la maqueta de features/home, ya retirada) y
+  // la feature alumno trae todas sus pantallas bajo su layout: /, /buscar, /pedidos, /pedidos/:id,
+  // /favoritos y /perfil (/inicio redirige a /). Va antes del MainLayout para que "/" sea suyo.
   {
     path: '',
     canActivate: [authGuard, negocioHomeGuard],
-    loadChildren: () => import('@features/home/home.routes'),
+    loadChildren: () => import('@features/alumno/alumno.routes'),
   },
+  // CL-Sprint5 11/11/2026: cafeteriaDelEncargadoResolver (auth) manda aquí cuando no encuentra la cafetería
+  // del encargado. Antes era la maqueta del perfil de negocio con datos fijos; ahora un aviso honesto con
+  // reintentar y cerrar sesión. No redirige a /mi-negocio: el resolver volvería a fallar y haría un ciclo.
   {
     path: 'negocio',
     canActivate: [authGuard],
+    title: 'Tu negocio · CampusBite',
     loadComponent: () =>
-      import('@features/cafeterias/presentation/pages/perfil-negocio/perfil-negocio.page').then(
-        (m) => m.PerfilNegocioPage,
-      ),
+      import('@shell/sin-negocio/sin-negocio.page').then((m) => m.SinNegocioPage),
   },
   // CL-Sprint4 28/10/2026: HU-07B. Panel del negocio, solo para AdminCafeteria. Trae su propia
   // navegación (sidebar del Panel de Negocio), por eso va fuera del MainLayout. roleGuard ya exige
@@ -60,13 +64,14 @@ export const routes: Routes = [
       },
     ],
   },
-  // FB-Sprint4 29/10/2026: Ruta para la pantalla de inicio del alumno (Catálogo de cafeterías)
+  // CL-Sprint5 11/11/2026: catálogo vivo del sistema de diseño, solo en desarrollo (en producción no existe)
   {
-    path: 'inicio',
-    canActivate: [authGuard],
-    loadComponent: () => import('@features/inicio-alumno/inicio-alumno').then(m => m.InicioAlumnoComponent)
+    path: 'sistema-diseno',
+    canMatch: [() => isDevMode()],
+    title: 'Sistema de diseño · CampusBite',
+    loadComponent: () =>
+      import('@shell/sistema-diseno/sistema-diseno.page').then((m) => m.SistemaDisenoPage),
   },
-  
   {
     path: '**',
     title: 'No encontrado · CampusBite',

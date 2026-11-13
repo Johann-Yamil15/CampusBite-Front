@@ -1,0 +1,35 @@
+<!-- JY-Sprint4 05/11/2026: modal genérico. Se cierra con Escape o con la X: el clic en el fondo no cierra,
+     para no perder lo escrito en un formulario por un clic de más. -->
+<div class="modal-backdrop">
+  <div
+    class="modal-panel"
+    [class]="'size-' + size()"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="title()"
+    tabindex="-1"
+  >
+    <header class="modal-head">
+      <div class="modal-title">
+        <h2>{{ title() }}</h2>
+        @if (subtitle()) {
+          <p class="modal-sub">{{ subtitle() }}</p>
+        }
+      </div>
+      <button type="button" class="modal-x" (click)="closed.emit()">
+        <svg aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <span class="sr-only">Cerrar</span>
+      </button>
+    </header>
+
+    <div class="modal-body">
+      <ng-content />
+    </div>
+
+    <footer class="modal-foot">
+      <ng-content select="[modalActions]" />
+    </footer>
+  </div>
+</div>

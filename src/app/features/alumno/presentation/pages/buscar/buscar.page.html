@@ -1,0 +1,233 @@
+<!-- CL-Sprint5 11/11/2026: buscador del alumno (etapa 4) -->
+<section class="bu" aria-labelledby="bu-titulo">
+  <header class="bu-head">
+    <h1 id="bu-titulo">Buscar</h1>
+
+    <div class="bu-caja" role="search">
+      <app-icon nombre="buscar" />
+      <input
+        type="search"
+        enterkeyhint="search"
+        placeholder="Platillo, ingrediente o cafetería"
+        aria-label="Buscar platillo, ingrediente o cafetería"
+        autocomplete="off"
+        [value]="textoVivo()"
+        (input)="escribir($event)"
+        (keydown.enter)="confirmarTexto()"
+        (change)="confirmarTexto()"
+      />
+      @if (textoVivo()) {
+        <button type="button" class="bu-borrar" aria-label="Borrar búsqueda" (click)="borrarTexto()">
+          <app-icon nombre="cerrar" />
+        </button>
+      }
+    </div>
+
+    @if (!textoVivo() && recientes().length) {
+      <div class="bu-recientes">
+        <span class="bu-recientes-titulo">Recientes</span>
+        @for (r of recientes(); track r) {
+          <button type="button" class="cb-chip" (click)="usarReciente(r)">
+            <app-icon nombre="reloj" />{{ r }}
+          </button>
+        }
+        <button type="button" class="cb-link" (click)="borrarRecientes()">Borrar</button>
+      </div>
+    }
+
+    @if (categorias().length) {
+      <div class="cb-chips" role="group" aria-label="Categorías">
+        <button type="button" class="cb-chip" [attr.aria-pressed]="!criterios().categoria" (click)="verCategoria(null)">Todas</button>
+        @for (c of categorias(); track c) {
+          <button type="button" class="cb-chip" [attr.aria-pressed]="criterios().categoria === c" (click)="verCategoria(c)">{{ c }}</button>
+        }
+      </div>
+    }
+  </header>
+
+  <div class="bu-cuerpo">
+    <!-- Escritorio: filtros siempre a la vista -->
+    <aside class="bu-lado cb-card" aria-label="Filtros">
+      <h2 class="cb-card-title">Filtros</h2>
+      <ng-container [ngTemplateOutlet]="filtros" />
+    </aside>
+
+    <div class="bu-resultados" [attr.aria-busy]="cargando()">
+      <div class="bu-barra">
+        <!-- Teléfono y tableta: los filtros se abren en una hoja -->
+        <button type="button" class="cb-btn cb-btn--secondary bu-btn-filtros" (click)="filtrosAbiertos.set(true)">
+          <app-icon nombre="filtros" />
+          Filtros
+          @if (nFiltros()) {
+            <span class="cb-badge cb-badge--marca">{{ nFiltros() }}</span>
+          }
+        </button>
+
+        <p class="bu-conteo" role="status" aria-live="polite">
+          @if (cargando() && !resultados().length) {
+            Buscando…
+          } @else {
+            <strong>{{ resultados().length }}</strong> {{ resultados().length === 1 ? 'platillo' : 'platillos' }}
+            @if (criterios().texto) {
+              para «{{ criterios().texto }}»
+            }
+          }
+        </p>
+
+        <label class="bu-orden">
+          <span class="sr-only">Ordenar por</span>
+          <select [value]="criterios().orden" (change)="onOrden($event)">
+            @for (o of ordenes; track o) {
+              <option [value]="o" [selected]="criterios().orden === o">{{ etiquetaOrden[o] }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      @if (pildoras().length) {
+        <ul class="bu-pildoras" aria-label="Filtros activos">
+          @for (p of pildoras(); track p.clave) {
+            <li>
+              <button type="button" class="bu-pildora" [attr.aria-label]="'Quitar filtro ' + p.etiqueta" (click)="p.quitar()">
+                {{ p.etiqueta }} <app-icon nombre="cerrar" />
+              </button>
+            </li>
+          }
+          <li><button type="button" class="cb-link" (click)="limpiar()">Limpiar todo</button></li>
+        </ul>
+      }
+
+      @if (errorCarga(); as e) {
+        <div class="cb-alert-error" role="alert">
+          <span>{{ e }}</span>
+          <button type="button" class="cb-btn cb-btn--small" (click)="cargarCatalogo(true)">Reintentar</button>
+        </div>
+      }
+
+      <div class="bu-grid">
+        @if (cargando() && !resultados().length) {
+          @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+            <div class="bu-esqueleto cb-card">
+              <div class="cb-skeleton" style="aspect-ratio: 4 / 3; border-radius: 0"></div>
+              <div class="bu-esqueleto-cuerpo">
+                <div class="cb-skeleton" style="height: 0.9rem; width: 70%"></div>
+                <div class="cb-skeleton" style="height: 1.2rem; width: 35%"></div>
+              </div>
+            </div>
+          }
+        } @else {
+          @for (p of visibles(); track p.idProducto) {
+            <app-platillo-card [platillo]="p" [cerrada]="!p.cafeteriaAbierta" />
+          } @empty {
+            @if (!errorCarga()) {
+              <div class="vacio bu-vacio">
+                <app-icon nombre="buscar" />
+                <h2>
+                  @if (criterios().texto) {
+                    No encontramos «{{ criterios().texto }}»
+                  } @else {
+                    Nada coincide con tus filtros
+                  }
+                </h2>
+                <p>Prueba con otra palabra (también buscamos en los ingredientes) o quita algún filtro.</p>
+                @if (hayCriterios()) {
+                  <button type="button" class="cb-btn cb-btn--primary" (click)="limpiar()">Quitar filtros y búsqueda</button>
+                }
+              </div>
+            }
+          }
+        }
+      </div>
+
+      @if (resultados().length > porPagina) {
+        <app-paginador [total]="resultados().length" [porPagina]="porPagina" [(pagina)]="pagina" etiqueta="platillos" />
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Controles de filtro: los mismos en la columna de escritorio y en la hoja de teléfono -->
+<ng-template #filtros>
+  <div class="bu-filtros">
+    <fieldset>
+      <legend>Precio máximo</legend>
+      <div class="bu-opciones">
+        @for (p of opcionesPrecio; track p) {
+          <button type="button" class="cb-chip" [attr.aria-pressed]="criterios().precioMax === p" (click)="elegir('precioMax', p)">Hasta ${{ p }}</button>
+        }
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Listo en</legend>
+      <div class="bu-opciones">
+        @for (t of opcionesTiempo; track t) {
+          <button type="button" class="cb-chip" [attr.aria-pressed]="criterios().minutosMax === t" (click)="elegir('minutosMax', t)">
+            <app-icon nombre="reloj" />{{ t }} min o menos
+          </button>
+        }
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Calificación</legend>
+      <div class="bu-opciones">
+        @for (c of opcionesCalificacion; track c) {
+          <button type="button" class="cb-chip" [attr.aria-pressed]="criterios().calificacionMin === c" (click)="elegir('calificacionMin', c)">
+            <app-icon nombre="estrella" class="bu-estrella" />{{ c }}+
+          </button>
+        }
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Dieta</legend>
+      <div class="bu-opciones">
+        @for (d of dietas; track d) {
+          <button type="button" class="cb-chip" [attr.aria-pressed]="criterios().dietas.includes(d)" (click)="alternarDieta(d)">
+            @if (criterios().dietas.includes(d)) {
+              <app-icon nombre="palomita" />
+            }
+            {{ etiquetaDieta[d] }}
+          </button>
+        }
+      </div>
+    </fieldset>
+
+    <label class="cb-field">
+      <span>Cafetería</span>
+      <select (change)="onCafeteria($event)">
+        <option value="" [selected]="!criterios().idCafeteria">Todas las cafeterías</option>
+        @for (c of cafeterias(); track c.idCafeteria) {
+          <option [value]="c.idCafeteria" [selected]="criterios().idCafeteria === c.idCafeteria">{{ c.cafeteria }}</option>
+        }
+      </select>
+    </label>
+
+    <div class="cb-switch-row">
+      <label for="bu-abiertas">
+        <strong>Solo abiertas ahora</strong>
+        <small>Oculta lo que no puedes pedir en este momento.</small>
+      </label>
+      <input
+        id="bu-abiertas"
+        type="checkbox"
+        class="cb-switch"
+        [checked]="criterios().soloAbiertas"
+        (change)="poner({ soloAbiertas: !criterios().soloAbiertas })"
+      />
+    </div>
+  </div>
+</ng-template>
+
+@if (filtrosAbiertos()) {
+  <app-modal title="Filtros" size="md" (closed)="filtrosAbiertos.set(false)">
+    <ng-container [ngTemplateOutlet]="filtros" />
+    <div modalActions>
+      <button type="button" class="cb-btn cb-btn--secondary" [disabled]="!nFiltros()" (click)="limpiar()">Limpiar</button>
+      <button type="button" class="cb-btn cb-btn--primary" data-modal-focus (click)="filtrosAbiertos.set(false)">
+        Ver {{ resultados().length }} {{ resultados().length === 1 ? 'platillo' : 'platillos' }}
+      </button>
+    </div>
+  </app-modal>
+}
