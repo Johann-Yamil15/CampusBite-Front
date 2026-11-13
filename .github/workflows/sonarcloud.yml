@@ -1,0 +1,40 @@
+# JJ-Sprint5 13/11/2026: SonarCloud con cobertura de Vitest. El análisis automático no trae cobertura
+# (por eso salía "–"). La configuración del análisis está en sonar-project.properties.
+name: SonarCloud
+
+on:
+  push:
+    branches: [develop, release, main, 'Sprint*']
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  sonarcloud:
+    name: Pruebas con cobertura y análisis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # Sonar necesita el historial para saber qué código es nuevo
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Pruebas con cobertura
+        run: npx ng test --watch=false --coverage --coverage-reporters=lcov --coverage-reporters=text-summary
+
+      - name: Análisis SonarCloud
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
