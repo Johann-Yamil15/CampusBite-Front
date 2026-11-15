@@ -217,6 +217,9 @@ function sortProducts(list: MenuProduct[]): MenuProduct[] {
 function toFriendly(err: ApiError): ApiError {
   const firstFieldError = Object.values(err.errors ?? {}).flat()[0];
   let message = firstFieldError ?? err.message;
+  // JJ-Sprint5 15/11/2026: un fallo que no viene de la API (p. ej. un TypeError) no trae status: nunca
+  // mostrar su texto técnico ("e.map is not a function") al encargado
+  if (typeof err.status !== 'number') message = 'No pudimos cargar tu información. Intenta de nuevo.';
   if (err.status === 503) message = IMAGE_SERVICE_UNAVAILABLE;
   if (err.status === 504)
     message = 'La subida tardó demasiado. Revisa tu conexión e intenta de nuevo.';
