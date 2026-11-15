@@ -87,6 +87,13 @@ describe('MenuNegocioFacade', () => {
     expect(facade.error()).toBe('Sin permiso para listar productos');
   });
 
+  // JJ-Sprint5 15/11/2026: un error de JavaScript (sin status) no muestra su texto técnico
+  it('un fallo que no es de la API muestra un mensaje amigable', () => {
+    repo.products = throwError(() => new TypeError('e.map is not a function'));
+    facade.load('c-1').subscribe({ error: () => undefined });
+    expect(facade.error()).toBe('No pudimos cargar tu información. Intenta de nuevo.');
+  });
+
   it('agrega el producto creado en el orden del backend (categoría y nombre)', () => {
     facade.create(DATA, null).subscribe();
     expect(repo.createProduct).toHaveBeenCalledWith('c-1', DATA, null);

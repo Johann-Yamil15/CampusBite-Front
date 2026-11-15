@@ -46,13 +46,33 @@ describe('MenuHttpRepository', () => {
 
   afterEach(() => http.verify());
 
-  it('lista los productos de la cafetería', () => {
+  // JJ-Sprint5 15/11/2026: el back responde paginado ({ items, total, ... }), no un arreglo
+  const pagina = (n: number) => `${BASE}/productos?pagina=${n}&tamanoPagina=100`;
+  const productos = (desde: number, cuantos: number): ProductoDto[] =>
+    Array.from({ length: cuantos }, (_, i) => ({ ...DTO, idProducto: `p${desde + i}`, nombre: `Platillo ${desde + i}` }));
+
+  it('lista los productos de la cafetería (una página)', () => {
     let names: string[] = [];
     repo.listProducts(CAF).subscribe((list) => (names = list.map((p) => p.name)));
-    const req = http.expectOne(`${BASE}/productos`);
+    const req = http.expectOne(pagina(1));
     expect(req.request.method).toBe('GET');
-    req.flush([DTO]);
+    req.flush({ items: [DTO], total: 1, pagina: 1, tamanoPagina: 100 });
     expect(names).toEqual(['Chilaquiles verdes']);
+  });
+
+  it('un negocio nuevo sin platillos da una lista vacía, no un error', () => {
+    let lista: unknown[] | null = null;
+    repo.listProducts(CAF).subscribe((l) => (lista = l));
+    http.expectOne(pagina(1)).flush({ items: [], total: 0, pagina: 1, tamanoPagina: 100 });
+    expect(lista).toEqual([]);
+  });
+
+  it('junta todas las páginas cuando hay más de 100 productos', () => {
+    let total = 0;
+    repo.listProducts(CAF).subscribe((l) => (total = l.length));
+    http.expectOne(pagina(1)).flush({ items: productos(1, 100), total: 150, pagina: 1, tamanoPagina: 100 });
+    http.expectOne(pagina(2)).flush({ items: productos(101, 50), total: 150, pagina: 2, tamanoPagina: 100 });
+    expect(total).toBe(150);
   });
 
   it('lista las categorías', () => {
