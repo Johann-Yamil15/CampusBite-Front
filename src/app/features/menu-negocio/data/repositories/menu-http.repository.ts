@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { EMPTY, Observable, expand, map, reduce } from 'rxjs';
 import { ApiClient } from '@core/http/api-client.service';
 import { MenuRepository } from '@features/menu-negocio/domain/repositories/menu.repository';
 import {
@@ -10,19 +10,38 @@ import {
 import {
   CategoriaDto,
   ImagenProductoDto,
+  PaginaProductosDto,
   ProductoDto,
 } from '@features/menu-negocio/data/dtos/menu.dto';
 import { MenuMapper } from '@features/menu-negocio/data/mappers/menu.mapper';
+
+/** Máximo que acepta `tamanoPagina` en el back. */
+const POR_PAGINA = 100;
+/** Tope de seguridad: 5,000 productos. */
+const MAX_PAGINAS = 50;
 
 /** CL-Sprint4 28/10/2026: HU-07B. `api/cafeterias/{idCafeteria}/productos` y `.../categorias` (TEC-09/TEC-10). */
 @Injectable()
 export class MenuHttpRepository extends MenuRepository {
   private readonly api = inject(ApiClient);
 
+  /**
+   * JJ-Sprint5 15/11/2026: el back pagina los productos (`{ items, total, pagina, tamanoPagina }`); el panel del
+   * encargado necesita todos, así que se piden de 100 en 100 (el máximo del back) hasta completar `total`.
+   */
   listProducts(cafeteriaId: string): Observable<MenuProduct[]> {
-    return this.api
-      .get<ProductoDto[]>(this.products(cafeteriaId))
-      .pipe(map((dtos) => dtos.map(MenuMapper.toDomain)));
+    const pagina = (n: number) =>
+      this.api
+        .get<PaginaProductosDto>(this.products(cafeteriaId), { pagina: n, tamanoPagina: POR_PAGINA })
+        .pipe(map((p) => ({ n, p })));
+    return pagina(1).pipe(
+      // Una página vacía o el tope cortan: evita pedir sin fin si `total` no cuadra
+      expand(({ n, p }) =>
+        n * POR_PAGINA < p.total && p.items.length > 0 && n < MAX_PAGINAS ? pagina(n + 1) : EMPTY,
+      ),
+      reduce((todos, { p }) => todos.concat(p.items), [] as ProductoDto[]),
+      map((dtos) => dtos.map(MenuMapper.toDomain)),
+    );
   }
 
   listCategories(cafeteriaId: string): Observable<Category[]> {
