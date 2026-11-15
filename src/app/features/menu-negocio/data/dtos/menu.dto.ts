@@ -4,7 +4,15 @@
  * src/CampusBite.Application/Productos/Dtos (TEC-09 y TEC-10). Ajustar si cambia el API.
  */
 
-/** Respuesta de `GET .../productos` (arreglo) y de `POST .../productos` (201). */
+/** JJ-Sprint5 15/11/2026: respuesta de `GET .../productos?pagina&tamanoPagina` (paginada, máximo 100). */
+export interface PaginaProductosDto {
+  items: ProductoDto[];
+  total: number;
+  pagina: number;
+  tamanoPagina: number;
+}
+
+/** Un producto de `GET .../productos` (dentro de `items`) y la respuesta de `POST .../productos` (201). */
 export interface ProductoDto {
   /** GUID. */
   idProducto: string;
