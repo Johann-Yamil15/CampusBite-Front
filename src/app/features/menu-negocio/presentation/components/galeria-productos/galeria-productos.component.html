@@ -2,10 +2,11 @@
 @if (menuEmpty()) {
   <div class="empty">
     <img src="assets/images/producto-sin-imagen.svg" alt="" width="160" height="120" />
-    <p><strong>Aún no tienes platillos en tu menú.</strong></p>
-    <p class="muted">Agrega el primero para que los alumnos puedan pedirlo.</p>
+    <!-- JJ-Sprint5 15/11/2026: bienvenida para un negocio nuevo (no debe parecer un error) -->
+    <p><strong>¡Comienza a armar tu menú!</strong></p>
+    <p class="muted">Tu negocio aún no tiene platillos. Agrega el primero y los alumnos podrán pedirlo.</p>
     <button type="button" class="cb-btn cb-btn--primary" (click)="create.emit()">
-      Agregar platillo
+      Agregar mi primer platillo
     </button>
   </div>
 } @else if (!products().length) {
