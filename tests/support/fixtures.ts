@@ -119,12 +119,28 @@ export class ApiSimulada {
 }
 
 interface Fixtures {
+  /** (automática) Corta lo que no sea local: las pruebas no deben depender de internet. */
+  sinRedExterna: void;
   api: ApiSimulada;
   /** Siembra el token de la sesión (y la respuesta de /auth/me) ANTES de que cargue la app. */
   iniciarSesionComo: (sesion: DatosSesion, opciones?: { segundosDeVida?: number }) => Promise<string>;
 }
 
 export const test = base.extend<Fixtures>({
+  // index.html pide las fuentes a fonts.googleapis.com: el evento "load" de page.goto esperaba a esa red externa y, si
+  // iba lenta, la prueba se pasaba de tiempo (falla intermitente en page.goto). Las pruebas son herméticas: solo
+  // llegan al front local; las fuentes caen a las de respaldo del sistema.
+  sinRedExterna: [
+    async ({ page }, use) => {
+      await page.route(
+        (url) => !['localhost', '127.0.0.1'].includes(url.hostname),
+        (route) => route.abort(),
+      );
+      await use();
+    },
+    { auto: true },
+  ],
+
   api: async ({ page }, use) => {
     const api = new ApiSimulada(page);
     await api.instalar();
