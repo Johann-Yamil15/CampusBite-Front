@@ -118,7 +118,7 @@
   @media (min-width: $cb-bp-desktop) {
     display: block;
     position: sticky;
-    top: calc(64px + var(--cb-space-md));
+    top: calc(64px + var(--cb-space-md) + var(--cb-aviso-conexion-alto, 0px));
   }
 }
 

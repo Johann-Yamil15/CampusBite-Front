@@ -23,6 +23,12 @@
     </header>
 
     <div class="dialog-body">
+      @if (recuperado()) {
+        <p class="cb-borrador" role="status">
+          Recuperamos cambios sin guardar.{{ isEdit() ? '' : ' Si tenía imagen, vuelve a elegirla.' }}
+          <button type="button" class="cb-link" (click)="descartar()">Descartar</button>
+        </p>
+      }
       @if (serverError(); as message) {
         <div class="cb-alert-error" role="alert">
           <span>{{ message }}</span>
@@ -158,8 +164,8 @@
 
     <footer class="dialog-actions">
       <button type="button" class="cb-btn cb-btn--secondary" (click)="cancel()">Cancelar</button>
-      <button type="submit" class="cb-btn cb-btn--primary" [disabled]="saving()">
-        {{ saving() ? 'Guardando…' : isEdit() ? 'Guardar cambios' : 'Crear producto' }}
+      <button type="submit" class="cb-btn cb-btn--primary" [disabled]="saving() || envio.bloqueado()">
+        {{ saving() ? 'Guardando…' : envio.pendiente() ? 'Reintentar' : isEdit() ? 'Guardar cambios' : 'Crear producto' }}
       </button>
     </footer>
   </form>

@@ -102,6 +102,12 @@
 @if (editando(); as p) {
   <app-modal [title]="p.id ? 'Editar promoción' : 'Nueva promoción'" subtitle="Así la verán los alumnos" (closed)="cerrar()">
     <form id="form-promo" class="cb-form" novalidate (submit)="guardar($event)">
+      @if (recuperado()) {
+        <p class="cb-borrador" role="status">
+          Recuperamos cambios sin guardar.
+          <button type="button" class="cb-link" (click)="cerrar()">Descartar</button>
+        </p>
+      }
       <label class="cb-field">
         <span>Nombre</span>
         <input type="text" name="nombre" [attr.maxlength]="limites.nombreMax" placeholder="Combo Estudiantil" data-modal-focus
@@ -168,8 +174,8 @@
 
     <div modalActions>
       <button type="button" class="cb-btn cb-btn--secondary" (click)="cerrar()">Cancelar</button>
-      <button type="submit" form="form-promo" class="cb-btn cb-btn--primary" [disabled]="guardando()" [attr.aria-busy]="guardando()">
-        {{ guardando() ? 'Guardando…' : p.id ? 'Guardar cambios' : 'Crear promoción' }}
+      <button type="submit" form="form-promo" class="cb-btn cb-btn--primary" [disabled]="guardando() || envio.bloqueado()" [attr.aria-busy]="guardando()">
+        {{ guardando() ? 'Guardando…' : envio.pendiente() ? 'Reintentar' : p.id ? 'Guardar cambios' : 'Crear promoción' }}
       </button>
     </div>
   </app-modal>

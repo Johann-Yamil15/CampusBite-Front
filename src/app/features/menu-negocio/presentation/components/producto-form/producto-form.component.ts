@@ -2,6 +2,8 @@
 // Reglas iguales a las del backend (GuardarProductoDto): nombre 2–100, descripción máx. 500, precio > 0 y < 1,000,000
 // con máx. 2 decimales. En el alta acepta una imagen opcional (JPEG/PNG/WebP, 5 MB); al editar la imagen se cambia
 // con "Cambiar imagen" del menú de la tarjeta (el PUT del backend no la recibe).
+// CL-Sprint5 26/11/2026: borrador por usuario y producto (sobrevive a recargar sin internet; la imagen no, un
+// archivo no cabe en localStorage). Se borra al guardar o al cancelar. Sin internet no se envía.
 import {
   ChangeDetectionStrategy,
   Component,
@@ -23,7 +25,10 @@ import {
   Validators,
 } from '@angular/forms';
 import { Observable } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiError } from '@core/http/api-error';
+import { BorradoresService, esObjeto } from '@core/services/borradores.service';
+import { MENSAJE_NO_ENVIADO, envioSinRed } from '@core/utils/envio-sin-red';
 import { MenuNegocioFacade } from '@features/menu-negocio/application/menu-negocio.facade';
 import {
   Category,
@@ -64,6 +69,10 @@ const twoDecimals = (control: AbstractControl<number | null>): ValidationErrors 
 export class ProductoFormComponent {
   private readonly fb = inject(FormBuilder);
   private readonly menu = inject(MenuNegocioFacade);
+  private readonly borradores = inject(BorradoresService);
+  protected readonly envio = envioSinRed();
+  /** CL-Sprint5 26/11/2026: se recuperó un borrador al abrir. */
+  protected readonly recuperado = signal(false);
 
   /** Producto a editar; `null` = alta. El formulario se llena con sus datos actuales. */
   readonly product = input<MenuProduct | null>(null);
@@ -111,21 +120,48 @@ export class ProductoFormComponent {
   });
 
   constructor() {
+    const destroyRef = inject(DestroyRef);
     afterNextRender(() => {
-      const product = this.product();
-      if (product) {
-        // Editar: rellena con los datos actuales del producto
-        this.form.reset({
+      this.form.reset(this.valoresIniciales());
+      // CL-Sprint5 26/11/2026: si hay borrador de este producto (o del alta), se recupera
+      const borrador = this.borradores.leer(this.nombreBorrador(), esBorradorProducto);
+      if (borrador) {
+        this.form.reset(borrador);
+        this.recuperado.set(true);
+      }
+      this.form.valueChanges
+        .pipe(takeUntilDestroyed(destroyRef))
+        .subscribe(() => this.borradores.guardar(this.nombreBorrador(), this.form.getRawValue()));
+      this.dialog().nativeElement.showModal();
+    });
+    destroyRef.onDestroy(() => this.revokePreview());
+  }
+
+  /** Vuelve a los datos del producto (o al formulario vacío) y olvida el borrador. */
+  protected descartar(): void {
+    // Sin emitir valueChanges: si no, el reinicio se volvería a guardar como borrador
+    this.form.reset(this.valoresIniciales(), { emitEvent: false });
+    this.borradores.borrar(this.nombreBorrador());
+    this.recuperado.set(false);
+    this.serverError.set(null);
+  }
+
+  private valoresIniciales(): FormValue {
+    const product = this.product();
+    // Editar: los datos actuales del producto; alta: vacío
+    return product
+      ? {
           name: product.name,
           description: product.description ?? '',
           price: product.price,
           categoryId: product.categoryId ?? '',
           available: product.available,
-        });
-      }
-      this.dialog().nativeElement.showModal();
-    });
-    inject(DestroyRef).onDestroy(() => this.revokePreview());
+        }
+      : { name: '', description: '', price: null, categoryId: '', available: true };
+  }
+
+  private nombreBorrador(): string {
+    return `${BORRADOR_PRODUCTO}.${this.product()?.id ?? 'nuevo'}`;
   }
 
   /** Mensaje de error del campo, solo después de tocarlo o de intentar enviar. */
@@ -152,6 +188,10 @@ export class ProductoFormComponent {
       this.form.markAllAsTouched();
       return;
     }
+    if (!this.envio.puedeEnviar()) {
+      this.serverError.set(MENSAJE_NO_ENVIADO);
+      return;
+    }
 
     const data = toProductData(this.form.getRawValue());
     const current = this.product();
@@ -165,12 +205,15 @@ export class ProductoFormComponent {
     request$.subscribe({
       next: () => {
         this.saving.set(false);
+        this.envio.listo();
+        this.borradores.borrar(this.nombreBorrador());
         this.wasSaved = true;
         this.saved.emit(data.name);
         this.dialog().nativeElement.close();
       },
       error: (err: ApiError) => {
         this.saving.set(false);
+        this.envio.falloDeRed(err);
         this.serverError.set(err.message);
         this.imageServiceDown.set(err.status === 503 && this.image() !== null);
       },
@@ -189,7 +232,10 @@ export class ProductoFormComponent {
 
   /** Evento `close` del <dialog> (también con Esc). */
   protected onDialogClose(): void {
-    if (!this.wasSaved) this.closed.emit();
+    if (this.wasSaved) return;
+    // Cerrar a propósito descarta el borrador (recargar la página no pasa por aquí y lo conserva)
+    this.borradores.borrar(this.nombreBorrador());
+    this.closed.emit();
   }
 
   private setImage(file: File | null): void {
@@ -229,6 +275,22 @@ interface FormValue {
   price: number | null;
   categoryId: string;
   available: boolean;
+}
+
+/** CL-Sprint5 26/11/2026: borrador del formulario (cb.borrador.<sub>.producto.<id|nuevo>). Sin la imagen. */
+export const BORRADOR_PRODUCTO = 'producto';
+
+export function esBorradorProducto(d: unknown): d is FormValue {
+  return (
+    esObjeto(d) &&
+    typeof d['name'] === 'string' &&
+    d['name'].length <= PRODUCT_LIMITS.nameMax &&
+    typeof d['description'] === 'string' &&
+    d['description'].length <= PRODUCT_LIMITS.descriptionMax &&
+    (d['price'] === null || (typeof d['price'] === 'number' && Number.isFinite(d['price']))) &&
+    typeof d['categoryId'] === 'string' &&
+    typeof d['available'] === 'boolean'
+  );
 }
 
 function toProductData(value: FormValue): ProductData {

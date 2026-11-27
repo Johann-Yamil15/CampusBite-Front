@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, RedirectCommand, ResolveFn, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
+import { esErrorDeRed } from '@core/http/api-error';
 import { AuthFacade } from '@features/auth/application/auth.facade';
 import { UserRole } from '@features/auth/domain/models/user.model';
 
@@ -56,9 +57,11 @@ export const cafeteriaDelEncargadoResolver: ResolveFn<string> = () => {
   if (user) return user.cafeteriaId ?? fallback;
 
   // Tras recargar la página `user` es null hasta consultar /me
+  // CL-Sprint5 26/11/2026: si /me no responde por falta de red, se usa la última cafetería conocida de este
+  // usuario (así el encargado recupera sus borradores sin internet). Cualquier otro error sigue a /negocio.
   return auth.loadCurrentUser().pipe(
     map((u) => u.cafeteriaId ?? fallback),
-    catchError(() => of(fallback)),
+    catchError((e: unknown) => of((esErrorDeRed(e) ? auth.cafeteriaSinConexion() : null) ?? fallback)),
   );
 };
 

@@ -7,6 +7,12 @@
 
   @if (form(); as f) {
     <form class="cf-form" novalidate (submit)="guardar($event)">
+      @if (recuperado()) {
+        <p class="cb-borrador" role="status">
+          Recuperamos cambios sin guardar.
+          <button type="button" class="cb-link" [disabled]="guardando()" (click)="descartar()">Descartar</button>
+        </p>
+      }
       <section class="cb-card cf-card" aria-labelledby="cf-datos">
         <h2 id="cf-datos">Datos del negocio</h2>
         <label class="cb-field">
@@ -64,8 +70,8 @@
 
       <div class="cf-acciones">
         <button type="button" class="cb-btn cb-btn--secondary" [disabled]="!cambio() || guardando()" (click)="descartar()">Descartar cambios</button>
-        <button type="submit" class="cb-btn cb-btn--primary" [disabled]="!cambio() || guardando()" [attr.aria-busy]="guardando()">
-          {{ guardando() ? 'Guardando…' : 'Guardar cambios' }}
+        <button type="submit" class="cb-btn cb-btn--primary" [disabled]="!cambio() || guardando() || envio.bloqueado()" [attr.aria-busy]="guardando()">
+          {{ guardando() ? 'Guardando…' : envio.pendiente() ? 'Reintentar' : 'Guardar cambios' }}
         </button>
       </div>
     </form>

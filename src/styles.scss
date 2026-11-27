@@ -56,6 +56,12 @@ body {
   line-height: 1.5;
 }
 
+// CL-Sprint5 26/11/2026: con la franja "Sin conexión" visible la página baja lo que mida (app-aviso-conexion
+// publica --cb-aviso-conexion-alto). Con conexión la variable no existe y el relleno es 0.
+body {
+  padding-top: var(--cb-aviso-conexion-alto, 0px);
+}
+
 .muted {
   color: var(--cb-text-muted);
 }

@@ -3,6 +3,8 @@ import { Observable, defer, finalize, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { ApiError } from '@core/http/api-error';
 import { TokenStorageService } from '@core/services/token-storage.service';
+import { BorradoresService } from '@core/services/borradores.service';
+import { borrarCacheApi } from '@core/services/cache-api';
 import { isJwtActive, readJwtClaim } from '@core/utils/jwt.util';
 import { AuthRepository } from '@features/auth/domain/repositories/auth.repository';
 import {
@@ -34,6 +36,7 @@ import {
 export class AuthFacade {
   private readonly repo = inject(AuthRepository);
   private readonly tokens = inject(TokenStorageService);
+  private readonly borradores = inject(BorradoresService);
   private readonly router = inject(Router);
 
   private readonly _user = signal<User | null>(null);
@@ -133,7 +136,24 @@ export class AuthFacade {
    * @returns El usuario. Con 401 el `errorInterceptor` cierra la sesión y manda al login.
    */
   loadCurrentUser(): Observable<User> {
-    return this.repo.me().pipe(tap((user) => this._user.set(user)));
+    return this.repo.me().pipe(
+      tap((user) => {
+        this._user.set(user);
+        this.recordarCafeteria(user);
+      }),
+    );
+  }
+
+  /**
+   * CL-Sprint5 26/11/2026: id de la cafetería del encargado según el último /me o login, para entrar a
+   * /mi-negocio al recargar sin internet (ahí /me no responde). Es por usuario y se borra con "Cerrar sesión".
+   */
+  cafeteriaSinConexion(): string | null {
+    return this.borradores.leer(BORRADOR_CAFETERIA, esTexto);
+  }
+
+  private recordarCafeteria(user: User): void {
+    if (user.cafeteriaId) this.borradores.guardar(BORRADOR_CAFETERIA, user.cafeteriaId);
   }
 
   /**
@@ -145,6 +165,18 @@ export class AuthFacade {
     this._user.set(null);
     // JJ-Sprint5 13/11/2026: la navegación no se espera a propósito (Sonar S9383)
     void this.router.navigate(['/login']);
+  }
+
+  /**
+   * CL-Sprint5 26/11/2026: "Cerrar sesión" pulsado por el usuario. Además de `logout()`, borra sus borradores
+   * (carrito, checkout y formularios). Si la sesión solo vence o llega un 401 se usa `logout()` y los
+   * borradores se conservan para cuando ese usuario vuelva a entrar.
+   */
+  cerrarSesion(): void {
+    this.borradores.borrarTodos();
+    // JJ-Sprint5 27/11/2026: y lo que el service worker guardó de la API (pedidos, perfil…), mismo criterio
+    void borrarCacheApi();
+    this.logout();
   }
 
   /**
@@ -184,8 +216,13 @@ export class AuthFacade {
   private startSession(session: Session): void {
     this.tokens.set(session.accessToken);
     this._user.set(session.user);
+    this.recordarCafeteria(session.user);
   }
 }
+
+/** CL-Sprint5 26/11/2026: nombre del dato "cafetería del encargado" en los borradores del usuario. */
+const BORRADOR_CAFETERIA = 'cafeteria-encargado';
+const esTexto = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v.length <= 100;
 
 // JJ-Sprint2 11/10/2026: en un 400 muestra el primer mensaje de validación del backend (en español)
 function firstErrorMessage(err: ApiError): string {

@@ -3,7 +3,8 @@
 
 .cd-fondo {
   position: fixed;
-  inset: 0;
+  // CL-Sprint5 26/11/2026: baja lo que mida la franja "Sin conexión" (con conexión la variable no existe: 0)
+  inset: var(--cb-aviso-conexion-alto, 0px) 0 0;
   z-index: var(--cb-z-drawer);
   background: var(--cb-scrim);
   animation: cd-aparece var(--cb-dur-state) ease-out;
@@ -39,7 +40,7 @@
   }
 
   @media (min-width: $cb-bp-tablet) {
-    inset: 0 0 0 auto;
+    inset: var(--cb-aviso-conexion-alto, 0px) 0 0 auto;
     width: min(26rem, 100vw);
     max-height: none;
     border-radius: var(--cb-radius-xl) 0 0 var(--cb-radius-xl);

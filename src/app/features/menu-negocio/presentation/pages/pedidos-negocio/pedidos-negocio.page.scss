@@ -106,6 +106,8 @@
 // ---------- Columnas ----------
 .tb-columnas {
   display: grid;
+  // CL-Sprint5 26/11/2026: columna explícita en móvil para que un texto sin salto no la estire.
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--cb-space-md);
   align-items: start;
 
