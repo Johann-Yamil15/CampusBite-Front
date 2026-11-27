@@ -19,6 +19,31 @@ export interface ItemCarrito {
   cafeteria: string;
 }
 
+/**
+ * CL-Sprint5 26/11/2026: valida un carrito leído del borrador (localStorage no es de fiar): productos bien
+ * formados, cantidades de 1 a MAX_CANTIDAD_PRODUCTO y todos de la misma cafetería.
+ */
+export function esCarritoValido(datos: unknown): datos is ItemCarrito[] {
+  if (!Array.isArray(datos)) return false;
+  const texto = (v: unknown) => typeof v === 'string' && v.length > 0;
+  return datos.every(
+    (i: Partial<ItemCarrito> | null) =>
+      !!i &&
+      texto(i.idProducto) &&
+      texto(i.producto) &&
+      texto(i.idCafeteria) &&
+      texto(i.cafeteria) &&
+      i.idCafeteria === (datos[0] as ItemCarrito).idCafeteria &&
+      typeof i.precio === 'number' &&
+      Number.isFinite(i.precio) &&
+      i.precio >= 0 &&
+      Number.isInteger(i.cantidad) &&
+      (i.cantidad as number) >= 1 &&
+      (i.cantidad as number) <= MAX_CANTIDAD_PRODUCTO &&
+      (i.imagenUrl === null || typeof i.imagenUrl === 'string'),
+  );
+}
+
 /** El carrito ya tiene productos de otra cafetería: hay que vaciarlo antes. */
 export class CarritoDeOtraCafeteriaError extends Error {
   constructor(readonly cafeteriaActual: string) {

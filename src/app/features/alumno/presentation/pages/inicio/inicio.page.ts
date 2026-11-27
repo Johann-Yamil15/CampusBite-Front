@@ -14,6 +14,7 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { alReconectar } from '@core/utils/al-reconectar';
 import { CatalogoFacade, Promocion } from '@features/catalogo';
 import { ETIQUETA_ETAPA, MisPedidosFacade, etapa } from '@features/ordenes';
 import { IconComponent } from '@shared/ui/icon/icon.component';
@@ -71,6 +72,14 @@ export class InicioPage implements OnInit {
   });
 
   protected readonly esqueletos = [1, 2, 3, 4];
+
+  constructor() {
+    // CL-Sprint5 26/11/2026: al volver el internet se refresca lo que se ve
+    alReconectar(() => {
+      this.cargar(true);
+      this.catalogo.cargarPromociones().subscribe({ error: () => undefined });
+    });
+  }
 
   ngOnInit(): void {
     this.cargar();

@@ -18,7 +18,8 @@
 // --- Topbar -----------------------------------------------------------------
 .topbar {
   position: sticky;
-  top: 0;
+  // CL-Sprint5 26/11/2026: baja lo que mida la franja "Sin conexión" (con conexión: 0)
+  top: var(--cb-aviso-conexion-alto, 0px);
   z-index: 20;
   display: flex;
   align-items: center;
@@ -216,7 +217,7 @@
 // --- Columna derecha -------------------------------------------------------
 .rail {
   position: sticky;
-  top: calc(77px + 1.5rem);
+  top: calc(77px + 1.5rem + var(--cb-aviso-conexion-alto, 0px));
   display: grid;
   align-content: start;
   gap: 1rem;

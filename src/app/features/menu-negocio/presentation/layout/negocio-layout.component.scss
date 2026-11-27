@@ -20,7 +20,8 @@
 
 .ng-topbar {
   position: sticky;
-  top: 0;
+  // CL-Sprint5 26/11/2026: baja lo que mida la franja "Sin conexión" (con conexión la variable no existe: 0)
+  top: var(--cb-aviso-conexion-alto, 0px);
   z-index: 20;
   display: flex;
   align-items: center;

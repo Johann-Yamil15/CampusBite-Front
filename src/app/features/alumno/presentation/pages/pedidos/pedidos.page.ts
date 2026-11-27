@@ -17,6 +17,7 @@ import {
   untracked,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { alReconectar } from '@core/utils/al-reconectar';
 import { PaginadorComponent, pagina } from '@shared/ui/paginador/paginador.component';
 import { IconComponent } from '@shared/ui/icon/icon.component';
 import { MisPedidosFacade, Orden } from '@features/ordenes';
@@ -81,6 +82,12 @@ export class PedidosPage {
       }
     }, REFRESCO_LISTA_MS);
     inject(DestroyRef).onDestroy(() => clearInterval(reloj));
+
+    // CL-Sprint5 26/11/2026: al volver el internet se refresca lo que se ve (sin parpadeo; si no habían cargado, carga normal)
+    alReconectar(() => {
+      if (!this.cargado()) this.cargar();
+      else this.pedidos.refrescar().subscribe({ error: () => undefined });
+    });
   }
 
   protected cargar(): void {

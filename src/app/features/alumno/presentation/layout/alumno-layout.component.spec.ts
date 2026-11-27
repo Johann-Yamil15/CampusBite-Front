@@ -16,7 +16,7 @@ describe('AlumnoLayoutComponent', () => {
   let el: HTMLElement;
   const auth = {
     user: signal({ id: 'u1', email: 'juan.perez@uttt.edu.mx', role: 'Alumno', name: 'Juan Pérez' }),
-    logout: vi.fn(),
+    cerrarSesion: vi.fn(),
     loadCurrentUser: vi.fn(() => of(null)),
   };
 
@@ -63,11 +63,11 @@ describe('AlumnoLayoutComponent', () => {
     el.querySelector<HTMLButtonElement>('.al-menu-salir')!.click();
     await fixture.whenStable();
 
-    expect(auth.logout).not.toHaveBeenCalled();
+    expect(auth.cerrarSesion).not.toHaveBeenCalled();
     expect(el.querySelector('app-modal')).not.toBeNull();
 
     el.querySelector<HTMLButtonElement>('app-modal .cb-btn--primary')!.click();
-    expect(auth.logout).toHaveBeenCalledTimes(1);
+    expect(auth.cerrarSesion).toHaveBeenCalledTimes(1);
   });
 
   it('el botón de la barra abre el carrito', async () => {

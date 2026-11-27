@@ -84,6 +84,6 @@ export class SinNegocioPage {
   }
 
   protected salir(): void {
-    this.auth.logout();
+    this.auth.cerrarSesion();
   }
 }

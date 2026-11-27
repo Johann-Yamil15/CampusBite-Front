@@ -165,7 +165,7 @@
 // Los filtros se quedan pegados bajo la barra superior al desplazarse
 .ti-filtros {
   position: sticky;
-  top: 64px;
+  top: calc(64px + var(--cb-aviso-conexion-alto, 0px));
   z-index: 5;
   margin-block: calc(-1 * var(--cb-space-sm));
   padding-block: var(--cb-space-sm);

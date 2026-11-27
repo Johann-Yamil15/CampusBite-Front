@@ -14,7 +14,7 @@ export class MainLayoutComponent {
   private readonly router = inject(Router);
 
   protected logout(): void {
-    this.auth.logout();
+    this.auth.cerrarSesion();
     void this.router.navigate(['/auth/login']);
   }
 }
