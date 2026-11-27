@@ -75,10 +75,10 @@ describe('PanelNegocioPage', () => {
     };
   });
 
-  let auth: { logout: ReturnType<typeof vi.fn> };
+  let auth: { cerrarSesion: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
-    auth = { logout: vi.fn() };
+    auth = { cerrarSesion: vi.fn() };
     repo = {
       listProducts: vi.fn(() =>
         of([
@@ -270,6 +270,6 @@ describe('PanelNegocioPage', () => {
 
   it('Cerrar sesión desde la navegación', () => {
     el.querySelector<HTMLButtonElement>('app-negocio-nav .logout')!.click();
-    expect(auth.logout).toHaveBeenCalled();
+    expect(auth.cerrarSesion).toHaveBeenCalled();
   });
 });

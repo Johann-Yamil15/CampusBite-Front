@@ -2,6 +2,7 @@
 // estirado (::after); las acciones quedan por encima.
 :host {
   display: block;
+  min-width: 0;
 }
 
 .pc {
@@ -180,6 +181,7 @@
 .pc-acciones {
   position: relative;
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 
   .cb-btn {

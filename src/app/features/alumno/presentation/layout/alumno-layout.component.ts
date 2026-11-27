@@ -157,9 +157,9 @@ export class AlumnoLayoutComponent {
     this.confirmandoSalida.set(true);
   }
 
-  /** Cierra la sesión. El carrito lo vacía app.ts al ver que ya no hay sesión. */
+  /** Cierra la sesión (cerrarSesion también borra los borradores). El carrito lo vacía app.ts al ver que ya no hay sesión. */
   protected salir(): void {
     this.confirmandoSalida.set(false);
-    this.auth.logout();
+    this.auth.cerrarSesion();
   }
 }

@@ -24,6 +24,7 @@ import {
 } from '@angular/core';
 import { CurrencyPipe, DatePipe, NgTemplateOutlet } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { alReconectar } from '@core/utils/al-reconectar';
 import { Observable } from 'rxjs';
 import { ApiError } from '@core/http/api-error';
 import { IconComponent } from '@shared/ui/icon/icon.component';
@@ -177,6 +178,12 @@ export class PedidosNegocioPage {
     this.cargar();
     const reloj = setInterval(() => this.ahora.set(Date.now()), RELOJ_MS);
     inject(DestroyRef).onDestroy(() => clearInterval(reloj));
+
+    // CL-Sprint5 26/11/2026: al volver el internet se refresca lo que se ve (el tablero)
+    alReconectar(() => {
+      if (!this.cargado()) this.cargar();
+      else this.pedidos.refrescar(this.idCafeteria).subscribe({ error: () => undefined });
+    });
 
     effect(() => {
       const paginas = Math.max(Math.ceil(this.cerrados().length / POR_PAGINA), 1);

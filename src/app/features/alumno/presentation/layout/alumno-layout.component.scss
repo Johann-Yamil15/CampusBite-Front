@@ -29,7 +29,8 @@ $ancho-side: 248px;
   transform: translateY(-200%);
 
   &:focus {
-    transform: none;
+    // CL-Sprint5 26/11/2026: debajo de la franja "Sin conexión" si está visible (con conexión: 0)
+    transform: translateY(var(--cb-aviso-conexion-alto, 0px));
   }
 }
 
@@ -65,7 +66,8 @@ $ancho-side: 248px;
   box-shadow: 0 -6px 20px -12px rgba(0, 0, 0, 0.25);
 
   @media (min-width: $cb-bp-tablet) {
-    inset: 0 auto 0 0;
+    // CL-Sprint5 26/11/2026: baja lo que mida la franja "Sin conexión" (con conexión la variable no existe: 0)
+    inset: var(--cb-aviso-conexion-alto, 0px) auto 0 0;
     width: $ancho-riel;
     display: flex;
     flex-direction: column;
@@ -317,7 +319,8 @@ $ancho-side: 248px;
 
 .al-top {
   position: sticky;
-  top: 0;
+  // CL-Sprint5 26/11/2026: baja lo que mida la franja "Sin conexión" (con conexión la variable no existe: 0)
+  top: var(--cb-aviso-conexion-alto, 0px);
   z-index: var(--cb-z-sticky);
   display: flex;
   align-items: center;
