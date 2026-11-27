@@ -5,6 +5,12 @@ import { catchError, throwError } from 'rxjs';
 import { ApiError } from '@core/http/api-error';
 import { LoggerService } from '@core/services/logger.service';
 import { TokenStorageService } from '@core/services/token-storage.service';
+import { ConexionService } from '@core/services/conexion.service';
+import { NO_ENVIADO } from '@core/interceptors/sin-conexion.interceptor';
+
+/** CL-Sprint5 26/11/2026: mensajes de status 0 (sin respuesta). */
+export const MENSAJE_SIN_INTERNET = 'Sin conexión a internet. Revisa tu red e inténtalo de nuevo.';
+export const MENSAJE_SIN_SERVIDOR = 'No pudimos conectar con CampusBite. Inténtalo en unos momentos.';
 
 interface ProblemDetails {
   title?: string;
@@ -18,6 +24,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const tokens = inject(TokenStorageService);
   const logger = inject(LoggerService);
+  const conexion = inject(ConexionService);
 
   return next(req).pipe(
     catchError((err: unknown) => {
@@ -28,6 +35,19 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       if (err.status === 401 && req.headers.has('Authorization')) {
         tokens.clear();
         void router.navigate(['/auth/login'], { queryParams: { returnUrl: router.url } });
+      }
+
+      // CL-Sprint5 26/11/2026: con status 0 no hay respuesta del servidor; el cuerpo es el error del
+      // navegador ("Failed to fetch", en inglés), así que siempre se usa el mensaje propio.
+      if (err.status === 0) {
+        const noEnviado = err.statusText === NO_ENVIADO;
+        const apiError: ApiError = {
+          status: 0,
+          message: conexion.enLinea() ? MENSAJE_SIN_SERVIDOR : MENSAJE_SIN_INTERNET,
+          ...(noEnviado ? { noEnviado } : {}),
+        };
+        logger.error(`[HTTP 0] ${req.method} ${req.url}`, apiError);
+        return throwError(() => apiError);
       }
 
       const body = (typeof err.error === 'object' ? err.error : null) as ProblemDetails | null;
@@ -45,8 +65,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
 function defaultMessage(status: number): string {
   switch (status) {
-    case 0:
-      return 'No se pudo conectar con el servidor.';
     case 403:
       return 'No tienes permisos para realizar esta acción.';
     case 404:

@@ -4,15 +4,17 @@ import { LoaderComponent } from '@shared/ui/loader/loader.component';
 import { AuthFacade } from '@features/auth';
 import { CarritoStore } from '@features/alumno';
 import { ToastHostComponent } from '@shared/ui/toast/toast.component';
+import { AvisoConexionComponent } from '@shared/ui/aviso-conexion/aviso-conexion.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, LoaderComponent, ToastHostComponent],
+  imports: [RouterOutlet, LoaderComponent, ToastHostComponent, AvisoConexionComponent],
   // JY-Sprint4 05/11/2026: los avisos flotantes van fuera del outlet, para que sobrevivan al cambio de
   // pantalla (p. ej. "pedido cancelado" al volver de /pedidos/:id a /pedidos)
   // CL-Sprint5 11/11/2026: el carrito ya no se monta aquí (lo veían todos los roles, también el
   // encargado): vive en el layout del alumno, que además se carga en diferido.
-  template: `<app-loader /><router-outlet /><app-toast-host />`,
+  // CL-Sprint5 26/11/2026: la franja de conexión también vive aquí (la ven alumno, encargado y login)
+  template: `<app-aviso-conexion /><app-loader /><router-outlet /><app-toast-host />`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
