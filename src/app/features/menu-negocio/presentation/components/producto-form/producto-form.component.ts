@@ -139,8 +139,9 @@ export class ProductoFormComponent {
 
   /** Vuelve a los datos del producto (o al formulario vacío) y olvida el borrador. */
   protected descartar(): void {
+    // Sin emitir valueChanges: si no, el reinicio se volvería a guardar como borrador
+    this.form.reset(this.valoresIniciales(), { emitEvent: false });
     this.borradores.borrar(this.nombreBorrador());
-    this.form.reset(this.valoresIniciales());
     this.recuperado.set(false);
     this.serverError.set(null);
   }
