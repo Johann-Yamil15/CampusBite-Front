@@ -19,6 +19,7 @@ import { AppConfigService } from '@core/config/app-config.service';
 import { authInterceptor } from '@core/interceptors/auth.interceptor';
 import { errorInterceptor } from '@core/interceptors/error.interceptor';
 import { loadingInterceptor } from '@core/interceptors/loading.interceptor';
+import { sinConexionInterceptor } from '@core/interceptors/sin-conexion.interceptor';
 import { provideAuth } from '@features/auth';
 import { provideCafeterias } from '@features/cafeterias';
 import { provideCatalogo } from '@features/catalogo';
@@ -36,7 +37,8 @@ export const appConfig: ApplicationConfig = {
     ),
     provideHttpClient(
       withFetch(),
-      withInterceptors([loadingInterceptor, authInterceptor, errorInterceptor]),
+      // JJ-Sprint5 27/11/2026: sinConexion primero, para no encender el loader en una acción que se rechaza
+      withInterceptors([sinConexionInterceptor, loadingInterceptor, authInterceptor, errorInterceptor]),
     ),
     // Solo features transversales (auth la usan guards y layout). El resto registra sus providers en su <feature>.routes.ts
     provideAuth(),

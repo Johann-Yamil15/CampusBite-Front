@@ -1,7 +1,7 @@
 // FB-Sprint4 01/11/2026 (CL-Sprint5 11/11/2026: movido a alumno/application): Pruebas del signal store del carrito (totales, tope de 20 y cafetería única).
 import { TestBed } from '@angular/core/testing';
 
-import { CarritoStore } from './carrito.store';
+import { CLAVE_CARRITO, CarritoStore } from './carrito.store';
 import { ItemCarrito } from '@features/alumno/domain/models/carrito.model';
 
 describe('CarritoStore', () => {
@@ -15,8 +15,39 @@ describe('CarritoStore', () => {
   const deOtraCafeteria: ItemCarrito = { ...latte, idProducto: 'x1', idCafeteria: 'c2', cafeteria: 'Snack Bar' };
 
   beforeEach(() => {
+    localStorage.removeItem(CLAVE_CARRITO); // JJ-Sprint5 27/11/2026: el carrito ahora persiste entre pruebas
     TestBed.configureTestingModule({});
     carrito = TestBed.inject(CarritoStore);
+  });
+
+  // JJ-Sprint5 27/11/2026: carrito guardado en el dispositivo (PWA sin conexión)
+  describe('guardado en el dispositivo', () => {
+    const nuevoStore = () => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({});
+      return TestBed.inject(CarritoStore);
+    };
+
+    it('recupera lo guardado al volver a abrir la app', () => {
+      carrito.agregar(latte);
+      TestBed.tick();
+      expect(nuevoStore().items()).toEqual([latte]);
+    });
+
+    it('vaciar (p. ej. al cerrar sesión) borra lo guardado', () => {
+      carrito.agregar(latte);
+      TestBed.tick();
+      carrito.vaciar();
+      TestBed.tick();
+      expect(localStorage.getItem(CLAVE_CARRITO)).toBeNull();
+    });
+
+    it('ignora datos dañados o con otra forma', () => {
+      localStorage.setItem(CLAVE_CARRITO, '{no es json');
+      expect(nuevoStore().isEmpty()).toBe(true);
+      localStorage.setItem(CLAVE_CARRITO, JSON.stringify([latte, { idProducto: 'x' }, null]));
+      expect(nuevoStore().items()).toEqual([latte]);
+    });
   });
 
   it('inicia vacío', () => {

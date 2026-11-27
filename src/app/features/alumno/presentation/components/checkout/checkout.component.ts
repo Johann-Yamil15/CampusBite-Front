@@ -24,6 +24,7 @@ import { IconComponent } from '@shared/ui/icon/icon.component';
 import { NombreIcono } from '@shared/ui/icon/icons';
 import { ModalComponent } from '@shared/ui/modal/modal.component';
 import { CarritoStore } from '@features/alumno/application/carrito.store';
+import { ConexionService } from '@core/services/conexion.service';
 import {
   MINUTOS_MINIMOS_RECOGIDA,
   OpcionRecogida,
@@ -111,8 +112,11 @@ export class CheckoutComponent {
   protected readonly enviando = signal(false);
   protected readonly error = signal<string | null>(null);
 
+  // JJ-Sprint5 27/11/2026: sin conexión no se puede pedir (el pedido lo confirma el servidor)
+  protected readonly enLinea = inject(ConexionService).enLinea;
+
   protected readonly listo = computed(
-    () => !!this.opciones()[this.recogida()] && !!this.metodo() && !this.carrito.isEmpty(),
+    () => !!this.opciones()[this.recogida()] && !!this.metodo() && !this.carrito.isEmpty() && this.enLinea(),
   );
 
   constructor() {

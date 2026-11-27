@@ -92,6 +92,12 @@
     @if (error(); as e) {
       <p class="cb-alert-error" role="alert">{{ e }}</p>
     }
+    <!-- JJ-Sprint5 27/11/2026: por qué no se puede pedir sin internet (el carrito se queda guardado) -->
+    @if (!enLinea()) {
+      <p class="cb-alert-error" role="status">
+        Estás sin conexión. Tu carrito se queda guardado; podrás pedir en cuanto vuelvas a conectarte.
+      </p>
+    }
   </div>
 
   <div modalActions class="co-acciones">
