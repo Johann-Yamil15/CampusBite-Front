@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ApiError } from '@core/http/api-error';
 import { TokenStorageService } from '@core/services/token-storage.service';
 import { BorradoresService } from '@core/services/borradores.service';
+import { borrarCacheApi } from '@core/services/cache-api';
 import { isJwtActive, readJwtClaim } from '@core/utils/jwt.util';
 import { AuthRepository } from '@features/auth/domain/repositories/auth.repository';
 import {
@@ -173,6 +174,8 @@ export class AuthFacade {
    */
   cerrarSesion(): void {
     this.borradores.borrarTodos();
+    // JJ-Sprint5 27/11/2026: y lo que el service worker guardó de la API (pedidos, perfil…), mismo criterio
+    void borrarCacheApi();
     this.logout();
   }
 
