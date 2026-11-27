@@ -3,7 +3,7 @@ import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ApiError } from '@core/http/api-error';
+import { ApiError, esErrorDeRed } from '@core/http/api-error';
 import {
   MENSAJE_SIN_INTERNET,
   MENSAJE_SIN_SERVIDOR,
@@ -55,6 +55,14 @@ describe('errorInterceptor + sinConexionInterceptor', () => {
     backend.expectOne('/api/menu').flush({ message: 'Failed to fetch' }, { status: 0, statusText: 'Unknown Error' });
     expect(r.error?.message).toBe(MENSAJE_SIN_SERVIDOR);
     expect(r.error?.noEnviado).toBeUndefined();
+  });
+
+  it('el 504 del service worker sin red da el mismo mensaje y cuenta como error de red', () => {
+    evento('offline');
+    const r = capturar(http.get('/api/auth/me'));
+    backend.expectOne('/api/auth/me').flush(null, { status: 504, statusText: 'Gateway Timeout' });
+    expect(r.error).toEqual({ status: 504, message: MENSAJE_SIN_INTERNET });
+    expect(esErrorDeRed(r.error)).toBe(true);
   });
 
   it('sin internet no sale ningún POST: error 0 marcado como no enviado', () => {

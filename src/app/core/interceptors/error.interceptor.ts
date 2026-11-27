@@ -39,14 +39,17 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
       // CL-Sprint5 26/11/2026: con status 0 no hay respuesta del servidor; el cuerpo es el error del
       // navegador ("Failed to fetch", en inglés), así que siempre se usa el mensaje propio.
-      if (err.status === 0) {
+      // Un 504 también es "sin respuesta": es lo que devuelve el service worker de Angular cuando la red
+      // falla (y lo que da una pasarela cuando el back no contesta). Mismo mensaje; se conserva el 504 para
+      // quien tenga un texto propio (p. ej. la subida de imágenes del panel).
+      if (err.status === 0 || err.status === 504) {
         const noEnviado = err.statusText === NO_ENVIADO;
         const apiError: ApiError = {
-          status: 0,
+          status: err.status,
           message: conexion.enLinea() ? MENSAJE_SIN_SERVIDOR : MENSAJE_SIN_INTERNET,
           ...(noEnviado ? { noEnviado } : {}),
         };
-        logger.error(`[HTTP 0] ${req.method} ${req.url}`, apiError);
+        logger.error(`[HTTP ${err.status}] ${req.method} ${req.url}`, apiError);
         return throwError(() => apiError);
       }
 

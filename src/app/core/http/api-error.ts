@@ -11,7 +11,11 @@ export interface ApiError {
   noEnviado?: boolean;
 }
 
-/** CL-Sprint5 26/11/2026: `true` si el error es por falta de red o de respuesta del servidor (status 0). */
+/**
+ * CL-Sprint5 26/11/2026: `true` si el error es por falta de red o de respuesta del servidor: status 0, o 504
+ * (lo que devuelve el service worker de Angular cuando la red falla).
+ */
 export function esErrorDeRed(e: unknown): e is ApiError {
-  return typeof e === 'object' && e !== null && (e as ApiError).status === 0;
+  const status = typeof e === 'object' && e !== null ? (e as ApiError).status : undefined;
+  return status === 0 || status === 504;
 }
