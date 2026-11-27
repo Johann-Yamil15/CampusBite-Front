@@ -17,6 +17,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { ApiError } from '@core/http/api-error';
+import { alReconectar } from '@core/utils/al-reconectar';
 import { AuthFacade } from '@features/auth';
 import { CafeteriaFacade } from '@features/cafeterias';
 import { MenuNegocioFacade } from '@features/menu-negocio/application/menu-negocio.facade';
@@ -128,6 +129,8 @@ export class PanelNegocioPage implements OnInit {
 
   constructor() {
     this.destroyRef.onDestroy(() => clearTimeout(this.noticeTimer));
+    // CL-Sprint5 26/11/2026: al volver el internet se refrescan los datos del negocio y el menú
+    alReconectar(() => this.reload());
   }
 
   ngOnInit(): void {

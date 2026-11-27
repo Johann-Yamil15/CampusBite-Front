@@ -18,6 +18,7 @@ import {
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Router } from '@angular/router';
+import { alReconectar } from '@core/utils/al-reconectar';
 import {
   CRITERIOS_VACIOS,
   CatalogoFacade,
@@ -146,6 +147,8 @@ export class BuscarPage implements OnInit {
   private temporizador: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
+    // CL-Sprint5 26/11/2026: al volver el internet se refresca lo que se ve (el menú; filtros y búsqueda se quedan)
+    alReconectar(() => this.cargarCatalogo(true));
     inject(DestroyRef).onDestroy(() => this.temporizador && clearTimeout(this.temporizador));
 
     // El buscador de la barra superior puede cambiar ?q= estando ya en esta pantalla

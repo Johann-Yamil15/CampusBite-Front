@@ -12,6 +12,7 @@ import {
   untracked,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { alReconectar } from '@core/utils/al-reconectar';
 import { ApiError } from '@core/http/api-error';
 import { CatalogoFacade, MetodoPago, PlatilloCatalogo } from '@features/catalogo';
 import { CalificacionComponent } from '@shared/ui/calificacion/calificacion.component';
@@ -106,6 +107,15 @@ export class TiendaPage {
       const id = this.id();
       if (!id) return;
       untracked(() => this.cargar(id));
+    });
+
+    // CL-Sprint5 26/11/2026: al volver el internet se refresca lo que se ve: si había fallado se carga de nuevo; si no, se
+    // actualiza el menú sin tocar el filtro elegido
+    alReconectar(() => {
+      const id = untracked(this.id);
+      if (!id) return;
+      if (this.errorCarga()) this.cargar(id);
+      else this.catalogo.cargarCafeteria(id).subscribe({ error: () => undefined });
     });
   }
 

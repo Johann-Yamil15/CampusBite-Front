@@ -11,6 +11,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ApiError } from '@core/http/api-error';
 import { BorradoresService, esObjeto } from '@core/services/borradores.service';
 import { MENSAJE_NO_ENVIADO, envioSinRed } from '@core/utils/envio-sin-red';
+import { alReconectar } from '@core/utils/al-reconectar';
 import { IconComponent } from '@shared/ui/icon/icon.component';
 import { ModalComponent } from '@shared/ui/modal/modal.component';
 import { PaginadorComponent, pagina } from '@shared/ui/paginador/paginador.component';
@@ -110,6 +111,8 @@ export class PromocionesPage {
     });
 
     this.cargar();
+    // CL-Sprint5 26/11/2026: al volver el internet se refresca la lista
+    alReconectar(() => this.cargar());
     effect(() => {
       const paginas = Math.max(Math.ceil(this.promos().length / POR_PAGINA), 1);
       if (untracked(this.paginaActual) > paginas) this.paginaActual.set(paginas);
