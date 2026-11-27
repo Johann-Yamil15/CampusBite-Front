@@ -243,7 +243,7 @@ export class PanelNegocioPage implements OnInit {
   }
 
   protected logout(): void {
-    this.auth.logout();
+    this.auth.cerrarSesion();
   }
 
   protected showNotice(kind: Notice['kind'], text: string): void {

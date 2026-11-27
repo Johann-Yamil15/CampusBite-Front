@@ -24,6 +24,8 @@ export class App {
   constructor() {
     // FB-Sprint4 01/11/2026: al cerrar sesión se vacía el carrito para que no pase al siguiente usuario.
     // Aquí y no en el layout: también cubre la sesión que vence (el interceptor la cierra en cualquier pantalla).
+    // CL-Sprint5 26/11/2026: solo vacía la memoria. El borrador guardado no se toca (sin sesión no se escribe);
+    // únicamente "Cerrar sesión" lo borra (AuthFacade.cerrarSesion).
     effect(() => {
       if (!this.auth.isAuthenticated()) this.carrito.vaciar();
     });
