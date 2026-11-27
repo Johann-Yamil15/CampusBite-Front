@@ -23,6 +23,7 @@ import {
 } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { alReconectar } from '@core/utils/al-reconectar';
 import { ApiError } from '@core/http/api-error';
 import { IconComponent } from '@shared/ui/icon/icon.component';
 import { ModalComponent } from '@shared/ui/modal/modal.component';
@@ -121,6 +122,13 @@ export class PedidoDetallePage {
       }
     }, REFRESCO_DETALLE_MS);
     inject(DestroyRef).onDestroy(() => clearInterval(reloj));
+
+    // CL-Sprint5 26/11/2026: al volver el internet se refresca lo que se ve
+    alReconectar(() => {
+      const p = untracked(this.pedido);
+      if (p) this.pedidos.refrescarPedido(p.idOrden).subscribe({ error: () => undefined });
+      else this.traer(untracked(this.id));
+    });
 
     // Aviso cuando la cafetería lo deja listo (solo si cambió mientras el alumno miraba)
     let anterior: { id: string; estado: EstadoOrden } | null = null;

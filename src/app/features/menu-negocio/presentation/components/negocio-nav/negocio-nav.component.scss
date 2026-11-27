@@ -5,10 +5,11 @@
 
 .nav-sidebar {
   position: sticky;
-  top: 0;
+  // CL-Sprint5 26/11/2026: baja lo que mida la franja "Sin conexión" (con conexión la variable no existe: 0)
+  top: var(--cb-aviso-conexion-alto, 0px);
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: calc(100dvh - var(--cb-aviso-conexion-alto, 0px));
   padding: 1.25rem 0.9rem;
   background:
     radial-gradient(120% 70% at 10% -10%, var(--cb-primary-container-light) 0%, transparent 55%),

@@ -224,6 +224,21 @@
   }
 }
 
+// CL-Sprint5 26/11/2026: nota "Recuperamos cambios sin guardar · Descartar" de los formularios con borrador
+.cb-borrador {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px dashed var(--cb-line);
+  border-radius: var(--cb-radius);
+  background: var(--cb-surface-low);
+  color: var(--cb-ink-soft);
+  font-size: var(--cb-text-sm);
+}
+
 .cb-link {
   display: inline-flex;
   align-items: center;

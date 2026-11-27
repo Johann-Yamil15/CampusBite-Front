@@ -18,6 +18,7 @@ import { routes } from './app.routes';
 import { AppConfigService } from '@core/config/app-config.service';
 import { authInterceptor } from '@core/interceptors/auth.interceptor';
 import { errorInterceptor } from '@core/interceptors/error.interceptor';
+import { sinConexionInterceptor } from '@core/interceptors/sin-conexion.interceptor';
 import { loadingInterceptor } from '@core/interceptors/loading.interceptor';
 import { provideAuth } from '@features/auth';
 import { provideCafeterias } from '@features/cafeterias';
@@ -36,7 +37,8 @@ export const appConfig: ApplicationConfig = {
     ),
     provideHttpClient(
       withFetch(),
-      withInterceptors([loadingInterceptor, authInterceptor, errorInterceptor]),
+      // CL-Sprint5 26/11/2026: sinConexionInterceptor al final (corta los envíos sin internet; el error lo normaliza errorInterceptor)
+      withInterceptors([loadingInterceptor, authInterceptor, errorInterceptor, sinConexionInterceptor]),
     ),
     // Solo features transversales (auth la usan guards y layout). El resto registra sus providers en su <feature>.routes.ts
     provideAuth(),

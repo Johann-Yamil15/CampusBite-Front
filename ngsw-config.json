@@ -21,13 +21,28 @@
   ],
   "dataGroups": [
     {
-      "name": "api-catalogo",
-      "urls": ["/api/productos", "/api/productos/**"],
+      "name": "api-menu",
+      "urls": [
+        "/api/menu",
+        "/api/menu/**",
+        "https://campusbite-back-dkeje8c0euefefat.centralus-01.azurewebsites.net/api/menu",
+        "https://campusbite-back-dkeje8c0euefefat.centralus-01.azurewebsites.net/api/menu/**"
+      ],
       "cacheConfig": {
         "strategy": "freshness",
-        "maxSize": 50,
-        "maxAge": "1h",
-        "timeout": "5s"
+        "maxSize": 30,
+        "maxAge": "1d",
+        "timeout": "4s"
+      }
+    },
+    {
+      "name": "runtime-config",
+      "urls": ["/config/runtime-config.json"],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 1,
+        "maxAge": "7d",
+        "timeout": "3s"
       }
     }
   ]
