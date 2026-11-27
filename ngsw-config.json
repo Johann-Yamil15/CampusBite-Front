@@ -12,7 +12,7 @@
     },
     {
       "name": "assets",
-      "installMode": "lazy",
+      "installMode": "prefetch",
       "updateMode": "prefetch",
       "resources": {
         "files": ["/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"]
@@ -33,6 +33,28 @@
         "maxSize": 30,
         "maxAge": "1d",
         "timeout": "4s"
+      }
+    },
+    {
+      "name": "api-campusbite",
+      "urls": [
+        "/api/**",
+        "https://campusbite-back-dkeje8c0euefefat.centralus-01.azurewebsites.net/api/**"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 300,
+        "maxAge": "7d",
+        "timeout": "5s"
+      }
+    },
+    {
+      "name": "imagenes-productos",
+      "urls": ["https://campusbiteimagenes.blob.core.windows.net/**"],
+      "cacheConfig": {
+        "strategy": "performance",
+        "maxSize": 500,
+        "maxAge": "30d"
       }
     },
     {
