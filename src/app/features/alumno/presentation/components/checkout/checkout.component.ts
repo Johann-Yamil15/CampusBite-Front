@@ -129,6 +129,8 @@ export class CheckoutComponent {
   private readonly borrador = this.borradores.leer(BORRADOR_CHECKOUT, esBorradorCheckout);
   /** Hora del borrador por aplicar cuando lleguen los horarios (la cafetería puede tardar en cargar). */
   private recogidaPorRestaurar = this.borrador?.recogidaEn ?? null;
+  /** Pedido hecho (o encontrado): ya no se guarda borrador aunque el componente siga vivo un instante. */
+  private terminado = false;
 
   protected readonly infoMetodo = INFO_METODO;
   protected readonly maxNotas = MAX_NOTAS_ORDEN;
@@ -229,6 +231,7 @@ export class CheckoutComponent {
         intentoIncierto: this.intentoIncierto(),
       };
       untracked(() => {
+        if (this.terminado) return;
         // Mientras llegan los horarios se conserva la hora del borrador
         if (this.recogidaPorRestaurar !== null) datos.recogidaEn = this.recogidaPorRestaurar;
         this.borradores.guardar(BORRADOR_CHECKOUT, datos);
@@ -328,6 +331,7 @@ export class CheckoutComponent {
 
   /** Pedido hecho: se vacía el carrito y se borra el borrador del checkout. */
   private terminar(): void {
+    this.terminado = true;
     this.carrito.vaciar();
     this.borradores.borrar(BORRADOR_CHECKOUT);
     this.ui.cerrarCheckout();
