@@ -1,29 +1,39 @@
-// JJ-Sprint5 27/11/2026: estado de la conexión a internet (PWA sin conexión). `enLinea()` cambia con los eventos
-// online/offline del navegador; sin conexión, las lecturas salen del caché del service worker (ngsw-config.json).
 import { DestroyRef, Injectable, inject, signal } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
 
+/**
+ * CL-Sprint5 26/11/2026: estado de la conexión a internet con los eventos `online`/`offline` del navegador.
+ * `enLinea` es lo que dice el navegador: si es `false` seguro no hay red; si es `true` puede haber red sin que
+ * el servidor responda (eso lo resuelve el errorInterceptor con status 0).
+ */
 @Injectable({ providedIn: 'root' })
 export class ConexionService {
-  private readonly _enLinea = signal(navigator.onLine);
+  private readonly _enLinea = signal(leerEstado());
+  private readonly _reconectado = new Subject<void>();
+
   readonly enLinea = this._enLinea.asReadonly();
+  /** Emite cada vez que se pasa de sin conexión a con conexión. */
+  readonly reconectado$: Observable<void> = this._reconectado.asObservable();
 
   constructor() {
-    const actualizar = () => this._enLinea.set(navigator.onLine);
-    window.addEventListener('online', actualizar);
-    window.addEventListener('offline', actualizar);
+    if (typeof window === 'undefined') return;
+    const alVolver = () => this.cambiar(true);
+    const alPerder = () => this.cambiar(false);
+    window.addEventListener('online', alVolver);
+    window.addEventListener('offline', alPerder);
     inject(DestroyRef).onDestroy(() => {
-      window.removeEventListener('online', actualizar);
-      window.removeEventListener('offline', actualizar);
+      window.removeEventListener('online', alVolver);
+      window.removeEventListener('offline', alPerder);
     });
+  }
+
+  private cambiar(enLinea: boolean): void {
+    const antes = this._enLinea();
+    this._enLinea.set(enLinea);
+    if (enLinea && !antes) this._reconectado.next();
   }
 }
 
-/** Nombre del grupo de datos de la API en ngsw-config.json: sus cachés se borran al cerrar sesión. */
-export const CACHE_API = 'api-campusbite';
-
-/** Borra lo que el service worker guardó de la API (pedidos, perfil…) para que no lo vea el siguiente usuario. */
-export async function borrarCacheApi(): Promise<void> {
-  if (typeof caches === 'undefined') return;
-  const nombres = await caches.keys();
-  await Promise.all(nombres.filter((n) => n.includes(CACHE_API)).map((n) => caches.delete(n)));
+function leerEstado(): boolean {
+  return typeof navigator === 'undefined' || navigator.onLine !== false;
 }

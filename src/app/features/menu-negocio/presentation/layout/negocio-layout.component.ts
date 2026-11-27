@@ -89,7 +89,7 @@ export class NegocioLayoutComponent implements OnInit {
   }
 
   protected logout(): void {
-    this.auth.logout();
+    this.auth.cerrarSesion();
   }
 
   /** "Menú" del sidebar: la galería de platillos vive en el panel de Inicio. */

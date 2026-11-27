@@ -1,20 +1,30 @@
 // FB-Sprint4 29/10/2026: Signal store global para manejar el estado del carrito (límite 20 y validar cafetería única).
 // CL-Sprint5 11/11/2026: se mueve de shared/carrito (CarritoService) a la capa application del alumno; las
 // reglas viven ahora en domain/models/carrito.model.ts. La API pública es la misma.
-// JJ-Sprint5 27/11/2026: el carrito se guarda en el dispositivo (localStorage): si se va la señal o se cierra la
-// app, el alumno no pierde lo que eligió. Se borra al cerrar sesión (App llama a vaciar()).
-import { Injectable, computed, effect, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, linkedSignal, untracked } from '@angular/core';
+import { BorradoresService } from '@core/services/borradores.service';
 import {
   ItemCarrito,
   agregarItem,
   cambiarCantidadItem,
+  esCarritoValido,
 } from '@features/alumno/domain/models/carrito.model';
 
-export const CLAVE_CARRITO = 'cb.carrito';
+/** CL-Sprint5 26/11/2026: nombre del borrador del carrito (cb.borrador.<sub>.carrito). */
+export const BORRADOR_CARRITO = 'carrito';
 
 @Injectable({ providedIn: 'root' })
 export class CarritoStore {
-  private readonly _items = signal<ItemCarrito[]>(leerGuardado());
+  private readonly borradores = inject(BorradoresService);
+
+  /**
+   * CL-Sprint5 26/11/2026: el carrito es del usuario con sesión y sobrevive a recargar (también sin internet).
+   * Cuando cambia el usuario (inicia o termina sesión) se vuelve a leer su borrador; sin sesión queda vacío.
+   */
+  private readonly _items = linkedSignal<string | null, ItemCarrito[]>({
+    source: this.borradores.usuario,
+    computation: (usuario) => this.borradores.leer(BORRADOR_CARRITO, esCarritoValido, usuario) ?? [],
+  });
 
   readonly items = this._items.asReadonly();
   readonly totalItems = computed(() => this._items().reduce((s, i) => s + i.cantidad, 0));
@@ -24,7 +34,16 @@ export class CarritoStore {
   readonly isEmpty = computed(() => this._items().length === 0);
 
   constructor() {
-    effect(() => guardar(this._items()));
+    // Cada cambio se guarda en el borrador del usuario; vacío (p. ej. tras pedir con éxito) se borra.
+    // Sin sesión no se guarda nada: así cerrar sesión o que venza no toca el borrador.
+    effect(() => {
+      const usuario = this.borradores.usuario();
+      const items = this._items();
+      untracked(() => {
+        if (items.length) this.borradores.guardar(BORRADOR_CARRITO, items, usuario);
+        else this.borradores.borrar(BORRADOR_CARRITO, usuario);
+      });
+    });
   }
 
   /** @throws CarritoDeOtraCafeteriaError si ya hay productos de otra cafetería (el carrito no cambia). */
@@ -48,38 +67,4 @@ export class CarritoStore {
   vaciar(): void {
     this._items.set([]);
   }
-}
-
-// localStorage puede no existir o fallar (modo privado, almacenamiento lleno): entonces el carrito solo vive en memoria
-function leerGuardado(): ItemCarrito[] {
-  try {
-    const datos: unknown = JSON.parse(localStorage.getItem(CLAVE_CARRITO) ?? '[]');
-    return Array.isArray(datos) ? datos.filter(esItem) : [];
-  } catch {
-    return [];
-  }
-}
-
-function guardar(items: ItemCarrito[]): void {
-  try {
-    if (items.length) localStorage.setItem(CLAVE_CARRITO, JSON.stringify(items));
-    else localStorage.removeItem(CLAVE_CARRITO);
-  } catch {
-    // Sin almacenamiento disponible: se sigue en memoria
-  }
-}
-
-// Lo guardado puede venir dañado o de otra versión: solo se aceptan productos con la forma esperada
-function esItem(x: unknown): x is ItemCarrito {
-  const i = x as Partial<ItemCarrito> | null;
-  return (
-    !!i &&
-    typeof i.idProducto === 'string' &&
-    typeof i.producto === 'string' &&
-    typeof i.idCafeteria === 'string' &&
-    typeof i.cafeteria === 'string' &&
-    typeof i.precio === 'number' &&
-    Number.isInteger(i.cantidad) &&
-    (i.cantidad ?? 0) > 0
-  );
 }

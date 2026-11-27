@@ -3,10 +3,15 @@
 // CL-Sprint5 11/11/2026 (etapa 9): se guardan con NegocioFacade (api/cafeterias/{id}/promociones): las activas y
 // vigentes salen en el carrusel del inicio y en la tienda de la cafetería. Validaciones por campo (dominio),
 // estado de vigencia ("Visible para alumnos", "Programada", "Vencida", "En pausa"), carga, error y avisos.
+// CL-Sprint5 26/11/2026: la promoción en edición se guarda como borrador por usuario; al recargar (también sin
+// internet) se vuelve a abrir el formulario con ella. Se borra al guardar o al cancelar. Sin internet no se envía.
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ApiError } from '@core/http/api-error';
+import { BorradoresService, esObjeto } from '@core/services/borradores.service';
+import { MENSAJE_NO_ENVIADO, envioSinRed } from '@core/utils/envio-sin-red';
+import { alReconectar } from '@core/utils/al-reconectar';
 import { IconComponent } from '@shared/ui/icon/icon.component';
 import { ModalComponent } from '@shared/ui/modal/modal.component';
 import { PaginadorComponent, pagina } from '@shared/ui/paginador/paginador.component';
@@ -84,13 +89,30 @@ export class PromocionesPage {
   protected readonly guardando = signal(false);
   private readonly intento = signal(false);
   protected readonly errorGuardar = signal<string | null>(null);
+  private readonly borradores = inject(BorradoresService);
+  protected readonly envio = envioSinRed();
+  /** CL-Sprint5 26/11/2026: el formulario abierto viene de un borrador. */
+  protected readonly recuperado = signal(false);
   protected readonly errores = computed(() => {
     const p = this.editando();
     return p ? validarPromocion(p) : {};
   });
 
   constructor() {
+    // CL-Sprint5 26/11/2026: si quedó una promoción a medias, se reabre con lo que llevaba
+    const borrador = this.borradores.leer(BORRADOR_PROMOCION, esBorradorPromocion);
+    if (borrador) {
+      this.editando.set(borrador);
+      this.recuperado.set(true);
+    }
+    effect(() => {
+      const promo = this.editando();
+      if (promo) untracked(() => this.borradores.guardar(BORRADOR_PROMOCION, promo));
+    });
+
     this.cargar();
+    // CL-Sprint5 26/11/2026: al volver el internet se refresca la lista
+    alReconectar(() => this.cargar());
     effect(() => {
       const paginas = Math.max(Math.ceil(this.promos().length / POR_PAGINA), 1);
       if (untracked(this.paginaActual) > paginas) this.paginaActual.set(paginas);
@@ -117,13 +139,18 @@ export class PromocionesPage {
   }
 
   private abrir(promo: PromocionNegocio): void {
+    this.recuperado.set(false);
     this.intento.set(false);
     this.errorGuardar.set(null);
     this.editando.set(promo);
   }
 
+  /** Cancelar a propósito descarta el borrador (recargar la página no pasa por aquí y lo conserva). */
   protected cerrar(): void {
-    if (!this.guardando()) this.editando.set(null);
+    if (this.guardando()) return;
+    this.borradores.borrar(BORRADOR_PROMOCION);
+    this.recuperado.set(false);
+    this.editando.set(null);
   }
 
   protected campo(clave: 'nombre' | 'descripcion' | 'desde' | 'hasta', event: Event): void {
@@ -146,11 +173,18 @@ export class PromocionesPage {
     this.intento.set(true);
     const promo = this.editando();
     if (!promo || Object.keys(this.errores()).length || this.guardando()) return;
+    if (!this.envio.puedeEnviar()) {
+      this.errorGuardar.set(MENSAJE_NO_ENVIADO);
+      return;
+    }
     this.guardando.set(true);
     this.errorGuardar.set(null);
     this.negocio.guardarPromocion(this.idCafeteria, promo).subscribe({
       next: (p) => {
         this.guardando.set(false);
+        this.envio.listo();
+        this.borradores.borrar(BORRADOR_PROMOCION);
+        this.recuperado.set(false);
         this.editando.set(null);
         const visible = vigencia(p, this.hoy) === 'vigente';
         this.toast.ok(
@@ -159,6 +193,7 @@ export class PromocionesPage {
       },
       error: (e: ApiError) => {
         this.guardando.set(false);
+        this.envio.falloDeRed(e);
         this.errorGuardar.set(e?.message ?? 'No pudimos guardar la promoción.');
       },
     });
@@ -195,4 +230,24 @@ export class PromocionesPage {
       },
     });
   }
+}
+
+/** CL-Sprint5 26/11/2026: borrador de la promoción en edición (cb.borrador.<sub>.promocion). */
+export const BORRADOR_PROMOCION = 'promocion';
+
+export function esBorradorPromocion(d: unknown): d is PromocionNegocio {
+  const texto = (v: unknown, max: number) => typeof v === 'string' && v.length <= max;
+  return (
+    esObjeto(d) &&
+    texto(d['id'], 100) &&
+    texto(d['nombre'], LIMITES_PROMOCION.nombreMax) &&
+    texto(d['descripcion'], LIMITES_PROMOCION.descripcionMax) &&
+    (TIPOS_PROMOCION as readonly unknown[]).includes(d['tipo']) &&
+    typeof d['valor'] === 'number' &&
+    Number.isFinite(d['valor']) &&
+    texto(d['desde'], 10) &&
+    texto(d['hasta'], 10) &&
+    typeof d['activa'] === 'boolean' &&
+    typeof d['usos'] === 'number'
+  );
 }

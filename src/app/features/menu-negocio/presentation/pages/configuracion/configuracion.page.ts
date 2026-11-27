@@ -2,9 +2,15 @@
 // punto de entrega, si es del campus) y métodos de pago aceptados. Guarda con CafeteriaFacade.update, que ya
 // existe en el back (PUT api/cafeterias/{id}, permitido al personal de la cafetería), con las mismas reglas
 // de GuardarCafeteriaDto (CAFETERIA_LIMITS). No toca la lógica del panel de Inicio.
+// CL-Sprint5 26/11/2026: los cambios sin guardar quedan en un borrador por usuario y negocio. Al recargar se
+// recuperan; si los datos no cargan por falta de internet, el formulario se arma con el borrador. Se borra al
+// guardar o con "Descartar cambios". Sin internet no se envía; al volver se recargan los datos.
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ApiError } from '@core/http/api-error';
+import { BorradoresService, esObjeto } from '@core/services/borradores.service';
+import { alReconectar } from '@core/utils/al-reconectar';
+import { MENSAJE_NO_ENVIADO, envioSinRed } from '@core/utils/envio-sin-red';
 import {
   CAFETERIA_LIMITS,
   Cafeteria,
@@ -74,6 +80,12 @@ export class ConfiguracionPage {
   private readonly intento = signal(false);
   protected readonly guardando = signal(false);
   protected readonly errorGuardar = signal<string | null>(null);
+  private readonly borradores = inject(BorradoresService);
+  protected readonly envio = envioSinRed();
+  private readonly nombreBorrador = `${BORRADOR_CONFIGURACION}.${this.idCafeteria}`;
+  /** Borrador leído al entrar; se aplica cuando llegan los datos del negocio (o si no cargan). */
+  private borradorPorAplicar = this.borradores.leer(this.nombreBorrador, esBorradorConfiguracion);
+  protected readonly recuperado = signal(this.borradorPorAplicar !== null);
 
   protected readonly errores = computed(() => {
     const f = this.form();
@@ -82,15 +94,28 @@ export class ConfiguracionPage {
   protected readonly cambio = computed(() => {
     const f = this.form();
     const c = this.cafeteria();
-    return !!f && !!c && JSON.stringify(f) !== JSON.stringify(aDatos(c));
+    // Sin datos del servidor (sin internet) un borrador recuperado cuenta como cambio
+    return !!f && (c ? JSON.stringify(f) !== JSON.stringify(aDatos(c)) : this.recuperado());
   });
 
   constructor() {
     if (!this.cafeteria()) this.cargar();
-    // Cuando llega (o se guarda) la cafetería, el formulario parte de lo guardado
+    // Cuando llega (o se guarda) la cafetería, el formulario parte de lo guardado (o del borrador, una vez)
     effect(() => {
       const c = this.cafeteria();
-      if (c) untracked(() => this.form.set(aDatos(c)));
+      if (!c) return;
+      untracked(() => {
+        if (this.borradorPorAplicar) {
+          if (!this.form()) this.form.set(this.borradorPorAplicar);
+          this.borradorPorAplicar = null;
+          return;
+        }
+        this.form.set(aDatos(c));
+      });
+    });
+    // Al volver el internet, si no cargaron los datos se vuelven a pedir
+    alReconectar(() => {
+      if (!this.cafeteria()) this.cargar();
     });
   }
 
@@ -101,7 +126,14 @@ export class ConfiguracionPage {
     }
     this.falloCarga.set(null);
     this.cafeterias.loadById(this.idCafeteria).subscribe({
-      error: (e: ApiError) => this.falloCarga.set(e?.message ?? 'No pudimos cargar los datos de tu negocio.'),
+      error: (e: ApiError) => {
+        // Sin datos pero con borrador: se puede seguir editando (se envía al volver el internet)
+        if (this.borradorPorAplicar && !this.form()) {
+          this.form.set(this.borradorPorAplicar);
+          return;
+        }
+        if (!this.form()) this.falloCarga.set(e?.message ?? 'No pudimos cargar los datos de tu negocio.');
+      },
     });
   }
 
@@ -112,10 +144,12 @@ export class ConfiguracionPage {
   protected escribir(campo: 'name' | 'location' | 'pickupPoint', event: Event): void {
     const valor = (event.target as HTMLInputElement).value;
     this.form.update((f) => (f ? { ...f, [campo]: valor } : f));
+    this.guardarBorrador();
   }
 
   protected alternarCampus(): void {
     this.form.update((f) => (f ? { ...f, onCampus: !f.onCampus } : f));
+    this.guardarBorrador();
   }
 
   protected alternarMetodo(m: PaymentMethod): void {
@@ -129,9 +163,18 @@ export class ConfiguracionPage {
           }
         : f,
     );
+    this.guardarBorrador();
+  }
+
+  /** Solo lo que escribe el encargado (no lo que llega del servidor) se guarda como borrador. */
+  private guardarBorrador(): void {
+    const f = this.form();
+    if (f) this.borradores.guardar(this.nombreBorrador, f);
   }
 
   protected descartar(): void {
+    this.borradores.borrar(this.nombreBorrador);
+    this.recuperado.set(false);
     const c = this.cafeteria();
     if (c) this.form.set(aDatos(c));
     this.intento.set(false);
@@ -143,6 +186,10 @@ export class ConfiguracionPage {
     this.intento.set(true);
     const f = this.form();
     if (!f || Object.keys(this.errores()).length || this.guardando()) return;
+    if (!this.envio.puedeEnviar()) {
+      this.errorGuardar.set(MENSAJE_NO_ENVIADO);
+      return;
+    }
 
     const datos: CafeteriaData = {
       ...f,
@@ -155,11 +202,15 @@ export class ConfiguracionPage {
     this.cafeterias.update(this.idCafeteria, datos).subscribe({
       next: () => {
         this.guardando.set(false);
+        this.envio.listo();
+        this.borradores.borrar(this.nombreBorrador);
+        this.recuperado.set(false);
         this.intento.set(false);
         this.toast.ok('Guardamos los datos de tu negocio.');
       },
       error: (e: ApiError) => {
         this.guardando.set(false);
+        this.envio.falloDeRed(e);
         this.errorGuardar.set(
           e?.status === 409
             ? 'Ya existe otro negocio con ese nombre. Prueba con uno distinto.'
@@ -178,4 +229,20 @@ function aDatos(c: Cafeteria): CafeteriaData {
     pickupPoint: c.pickupPoint,
     paymentMethods: [...c.paymentMethods],
   };
+}
+
+/** CL-Sprint5 26/11/2026: borrador de Configuración (cb.borrador.<sub>.configuracion.<idCafeteria>). */
+export const BORRADOR_CONFIGURACION = 'configuracion';
+
+export function esBorradorConfiguracion(d: unknown): d is CafeteriaData {
+  const texto = (v: unknown) => typeof v === 'string' && v.length <= 300;
+  return (
+    esObjeto(d) &&
+    texto(d['name']) &&
+    texto(d['location']) &&
+    texto(d['pickupPoint']) &&
+    typeof d['onCampus'] === 'boolean' &&
+    Array.isArray(d['paymentMethods']) &&
+    d['paymentMethods'].every((m) => (PAYMENT_METHODS as readonly unknown[]).includes(m))
+  );
 }

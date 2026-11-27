@@ -89,25 +89,43 @@
       <p class="co-total"><span>Total</span><strong>{{ carrito.totalPrecio() | currency: 'MXN' : 'symbol-narrow' }}</strong></p>
     </section>
 
-    @if (error(); as e) {
-      <p class="cb-alert-error" role="alert">{{ e }}</p>
+    @if (nota(); as n) {
+      <p class="co-nota" role="status"><app-icon nombre="info" />{{ n }}</p>
     }
-    <!-- JJ-Sprint5 27/11/2026: por qué no se puede pedir sin internet (el carrito se queda guardado) -->
-    @if (!enLinea()) {
-      <p class="cb-alert-error" role="status">
-        Estás sin conexión. Tu carrito se queda guardado; podrás pedir en cuanto vuelvas a conectarte.
+    @if (pedidoQueLlego(); as o) {
+      <p class="co-aviso" role="alert">
+        <app-icon nombre="palomita-circulo" />
+        Parece que tu pedido sí llegó ({{ o.folio }}). Revísalo antes de pedir otra vez.
       </p>
+    } @else if (error(); as e) {
+      <p class="cb-alert-error" role="alert">{{ e }}</p>
     }
   </div>
 
   <div modalActions class="co-acciones">
     <button type="button" class="cb-btn cb-btn--secondary" [disabled]="enviando()" (click)="volverAlCarrito()">Volver al carrito</button>
-    <button type="button" class="cb-btn cb-btn--primary cb-btn--elevado" data-modal-focus [disabled]="!listo() || enviando()" (click)="confirmar()">
-      @if (enviando()) {
-        Enviando…
-      } @else {
-        Pedir · {{ carrito.totalPrecio() | currency: 'MXN' : 'symbol-narrow' }}
-      }
-    </button>
+    @if (pedidoQueLlego(); as o) {
+      <button type="button" class="cb-btn cb-btn--primary cb-btn--elevado" data-modal-focus (click)="verPedidoQueLlego(o)">
+        Ver mi pedido <app-icon nombre="flecha-der" />
+      </button>
+    } @else {
+      <button
+        type="button"
+        class="cb-btn cb-btn--primary cb-btn--elevado"
+        data-modal-focus
+        [disabled]="!listo() || enviando() || comprobando() || envio.bloqueado()"
+        (click)="confirmar()"
+      >
+        @if (enviando()) {
+          Enviando…
+        } @else if (comprobando()) {
+          Revisando tus pedidos…
+        } @else if (envio.pendiente()) {
+          <app-icon nombre="recargar" />Reintentar · {{ carrito.totalPrecio() | currency: 'MXN' : 'symbol-narrow' }}
+        } @else {
+          Pedir · {{ carrito.totalPrecio() | currency: 'MXN' : 'symbol-narrow' }}
+        }
+      </button>
+    }
   </div>
 </app-modal>
